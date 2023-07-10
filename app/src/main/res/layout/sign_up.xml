@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/continueWithGoogle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_gravity="center_horizontal"
+        android:text="Continue with Google"
+        android:textColor="#000000"
+        app:backgroundTint="#FFFFFF"
+        app:cornerRadius="30dp"
+        android:adjustViewBounds="true"
+        app:strokeColor="@color/black"
+        app:strokeWidth="1dp"
+        android:drawableLeft="@drawable/google"
+        android:drawablePadding="8dp"
+        android:scaleType="fitCenter"
+
+    />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:background="#000000"
+        />
+
+    <TextView
+        android:id="@+id/Email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        android:textSize="18dp"
+        android:textColor="#4A4B4C"
+        android:gravity="left"
+        android:layout_marginStart="58dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-medium"
+        />
+    <EditText
+        android:id="@+id/userEmail"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Email"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"/>
+
+    <TextView
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textSize="18dp"
+        android:textColor="#4A4B4C"
+        android:gravity="left"
+        android:layout_marginStart="58dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-medium"
+        />
+    <EditText
+        android:id="@+id/enteredPassword"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Password"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"/>
+
+
+    <TextView
+        android:id="@+id/re_enter_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textSize="18dp"
+        android:textColor="#4A4B4C"
+        android:gravity="left"
+        android:layout_marginStart="58dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-medium"
+        />
+    <EditText
+        android:id="@+id/reEnteredPassword"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Password"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+
+
+    <Button
+        android:id="@+id/signUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CREATE ACCOUNT"
+        android:fontFamily="sans-serif-medium"
+        android:layout_gravity="center"
+        android:textSize="16dp"
+        app:cornerRadius="20dp"
+        app:backgroundTint="#FF0066BA"/>
+
+
+
+
+</LinearLayout>
