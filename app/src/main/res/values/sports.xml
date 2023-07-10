@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sports">
+        <item>Choose sport...</item>
+        <item>Tennis</item>
+        <item>Football</item>
+        <item>Volleyball</item>
+        <item>Rugby</item>
+        <item>Basketball</item>
+        <item>Gym</item>
+    </string-array>
+</resources>
