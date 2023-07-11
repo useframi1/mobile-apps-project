@@ -3,6 +3,7 @@ package edu.aucegypt.gymwya;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -25,6 +26,8 @@ import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.Month;
@@ -40,6 +43,20 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_group);
+
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i;
+            if (item.getItemId() == R.id.home) {
+                i = new Intent(this, HomePage.class);
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else {
+                i = new Intent(this, CreateMeeting.class);
+            }
+            startActivity(i);
+            return true;
+        });
 
         btnDatePicker=(Button)findViewById(R.id.date);
         btnTimePickerFrom=(Button)findViewById(R.id.from);
@@ -65,6 +82,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
+
     }
 
     @Override

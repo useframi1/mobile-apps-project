@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,163 +18,127 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 
-public class GroupMatching extends AppCompatActivity{
-    CustomAdapter adapter;
+public class GroupMatching extends AppCompatActivity {
+    CustomAdapterGroups adapter;
     ListView listView;
-    ImageView backArrow, home,chat,profile;
+    ImageView backArrow;
     Button addGroup;
-
     SearchView searchView;
-
     TextView noResults, sportName;
-    ArrayList<Integer> groupIcons = new ArrayList<>();
+    ArrayList<Group> groups = new ArrayList<>();
 
-    ArrayList<String> groupNames = new ArrayList<>();
-    ArrayList<String> groupMembers = new ArrayList<>();
-    ArrayList<Integer> groupNumber = new ArrayList<>();
-    ArrayList<String> groupTime = new ArrayList<>();
-
-@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.group_matching);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.group_matching);
 
-    Bundle bundle = getIntent().getExtras();
-    String sport = bundle.getString("selectedSport");
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i;
+            if (item.getItemId() == R.id.home) {
+                i = new Intent(this, HomePage.class);
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else {
+                i = new Intent(this, CreateMeeting.class);
+            }
+            startActivity(i);
+            return true;
+        });
 
-    listView = findViewById(R.id.groupsList);
-    home = findViewById(R.id.home_icon);
-    chat = findViewById(R.id.messages_icon);
-    profile = findViewById(R.id.profile_icon);
-    addGroup = findViewById(R.id.plus_button);
-    noResults = findViewById(R.id.no_results);
-    searchView = findViewById(R.id.searchView);
-    sportName = findViewById(R.id.sport);
-    sportName.setText("Join a " + sport + " team");
+        Bundle bundle = getIntent().getExtras();
+        String sport = bundle.getString("selectedSport");
 
-    groupIcons.add(R.drawable.group_icon1);
-    groupIcons.add(R.drawable.group_icon2);
-    groupIcons.add(R.drawable.group_icon3);
-    groupIcons.add(R.drawable.group_icon4);
+        sportName = findViewById(R.id.sport);
+        sportName.setText("Join a " + sport + " team");
 
-    groupNames.add("Volley at 5");
-    groupNames.add("Aqkwa Shabaka");
-    groupNames.add("Point 3al Tayer");
-    groupNames.add("Yala Beach Volley");
+        groups.add(new Group("Volley at 5", R.drawable.group_icon1, 3,new ArrayList<>(), "2:30", "4:00"));
+        groups.add(new Group("Aqkwa Shabaka", R.drawable.group_icon2, 2,new ArrayList<>(), "3:00", "5:00"));
+        groups.add(new Group("Point 3al Tayer", R.drawable.group_icon3, 5,new ArrayList<>(), "12:30", "2:00"));
+        groups.add(new Group("Yala Beach Volley", R.drawable.group_icon4, 6,new ArrayList<>(), "5:30", "7:00"));
 
-    groupMembers.add("Nour");
-    groupMembers.add("Youssef");
-    groupMembers.add("Mariam");
-    groupMembers.add("Nadine");
-    groupMembers.add("Dana");
-    groupMembers.add("Omar");
+        groups.get(0).members.add(new User("Nour", R.drawable.nour));
+        groups.get(0).members.add(new User("Youssef", R.drawable.ghaleb));
+        groups.get(0).members.add(new User("Mariam", R.drawable.mariam));
 
-    groupNumber.add(3);
-    groupNumber.add(2);
-    groupNumber.add(5);
-    groupNumber.add(6);
+        groups.get(1).members.add(new User("Nadine", R.drawable.nadine));
+        groups.get(1).members.add(new User("Dana", R.drawable.dana));
 
-    groupTime.add("5:00 PM");
-    groupTime.add("6:30 PM");
-    groupTime.add("9:00 PM");
-    groupTime.add("3:00 PM");
+        groups.get(2).members.add(new User("Nour", R.drawable.nour));
+        groups.get(2).members.add(new User("Youssef", R.drawable.ghaleb));
+        groups.get(2).members.add(new User("Mariam", R.drawable.mariam));
+        groups.get(2).members.add(new User("Nadine", R.drawable.nadine));
+        groups.get(2).members.add(new User("Dana", R.drawable.dana));
 
-    adapter = new CustomAdapter(getApplicationContext(), groupNames, groupIcons, groupMembers, groupNumber, groupTime);
-    listView.setAdapter(adapter);
+        groups.get(3).members.add(new User("Nour", R.drawable.nour));
+        groups.get(3).members.add(new User("Youssef", R.drawable.ghaleb));
+        groups.get(3).members.add(new User("Mariam", R.drawable.mariam));
+        groups.get(3).members.add(new User("Nadine", R.drawable.nadine));
+        groups.get(3).members.add(new User("Dana", R.drawable.dana));
+        groups.get(3).members.add(new User("Barbary", R.drawable.barbary));
 
-    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-            Intent intent = new Intent(GroupMatching.this, IndividualMatching.class);
-           // Intent intent = new Intent(GroupMatching.this, GroupInfo.class);
-            String chosenGroup = groupNames.get(position);
+
+        listView = findViewById(R.id.groupsList);
+        adapter = new CustomAdapterGroups(getApplicationContext(), groups);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener((adapterView, view, position, l) -> {
+            Intent intent = new Intent(GroupMatching.this, edu.aucegypt.gymwya.ViewGroup.class);
+            String chosenGroup = groups.get(position).name;
             intent.putExtra("Team", chosenGroup);
+            Bundle temp = new Bundle();
+            temp.putSerializable("Members", groups.get(position).members);
+            intent.putExtras(temp);
             startActivity(intent);
-        }
-    });
+        });
 
-    backArrow = (ImageView) findViewById(R.id.back_arrow2);
-    backArrow.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            finish();
-        }
-    });
+        backArrow = (ImageView) findViewById(R.id.back_arrow2);
+        backArrow.setOnClickListener(view -> finish());
 
-    addGroup.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
+        addGroup = findViewById(R.id.plus_button);
+        addGroup.setOnClickListener(view -> {
             Intent intent = new Intent(GroupMatching.this, CreateGroup.class);
             startActivity(intent);
-        }
-    });
+        });
 
-//    home.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            Intent intent = new Intent(GroupMatching.this, HomePage.class);
-//            startActivity(intent);
-//        }
-//    });
+        searchView = findViewById(R.id.searchView);
+        noResults = findViewById(R.id.no_results);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
 
-    //    chat.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            Intent intent = new Intent(GroupMatching.this, ChatPage.class);
-//            startActivity(intent);
-//        }
-//    });
+                return false;
+            }
 
-    //    profile.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            Intent intent = new Intent(GroupMatching.this, UserProfile.class);
-//            startActivity(intent);
-//        }
-//    });
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                newText = newText.toLowerCase();
+                ArrayList<Group> groupsFound = new ArrayList<>();
 
-    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-        @Override
-        public boolean onQueryTextSubmit(String query) {
-
-            return false;
-        }
-
-        @Override
-        public boolean onQueryTextChange(String newText) {
-            newText = newText.toLowerCase();
-            ArrayList<String> newGroupNames = new ArrayList<>();
-            ArrayList<Integer> newGroupIcons = new ArrayList<>();
-            ArrayList<String> newGroupMembers = new ArrayList<>();
-            ArrayList<Integer> newGroupNumber = new ArrayList<>();
-            ArrayList<String> newGroupTime = new ArrayList<>();
-
-            for (int i = 0; i < groupNames.size(); i++) {
-                if (groupNames.get(i).toLowerCase().contains(newText)) {
-                    newGroupNames.add(groupNames.get(i));
-                    newGroupIcons.add(groupIcons.get(i));
-                    newGroupMembers.add(groupMembers.get(i));
-                    newGroupNumber.add(groupNumber.get(i));
-                    newGroupTime.add(groupTime.get(i));
+                for (int i = 0; i < groups.size(); i++) {
+                    if (groups.get(i).name.toLowerCase().contains(newText)) {
+                        groupsFound.add(groups.get(i));
+                    }
                 }
-            }
-            if (newGroupNames.size() == 0) {
-                noResults.setVisibility(View.VISIBLE);
-                listView.setVisibility(View.GONE);
-            }
-            else {
-                listView.setVisibility(View.VISIBLE);
-                noResults.setVisibility(View.GONE);
+                if (groupsFound.size() == 0) {
+                    noResults.setVisibility(View.VISIBLE);
+                    listView.setVisibility(View.GONE);
+                }
+                else {
+                    listView.setVisibility(View.VISIBLE);
+                    noResults.setVisibility(View.GONE);
 
-                adapter = new CustomAdapter(getApplicationContext(), newGroupNames, newGroupIcons, groupMembers, newGroupNumber, newGroupTime);
-                listView.setAdapter(adapter);
-                hideKeyboard();
+                    adapter = new CustomAdapterGroups(getApplicationContext(), groupsFound);
+                    listView.setAdapter(adapter);
+                    hideKeyboard();
+                }
+                return false;
             }
-            return false;
-        }
-    });
+        });
 }
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -181,47 +146,16 @@ public class GroupMatching extends AppCompatActivity{
     }
 }
 
-class CustomAdapter extends BaseAdapter {
-    private final Context context;
-    private final ArrayList<String> teamNames;
-    private final ArrayList<Integer> groupPictures;
-    private final ArrayList<String> teamMembers;
-    private final ArrayList<Integer> memberNumber;
-    private final ArrayList<String> teamTime;
-    LayoutInflater inflater;
+class CustomAdapterGroups extends ArrayAdapter<Group> {
 
-    public CustomAdapter(Context contxt, ArrayList<String> Names, ArrayList<Integer> Pictures, ArrayList<String> Members, ArrayList<Integer> Number, ArrayList<String> Time) {
-        this.context = contxt;
-        this.teamNames = Names;
-        this.groupPictures = Pictures;
-        this.teamMembers = Members;
-        this.memberNumber = Number;
-        this.teamTime = Time;
-        inflater = LayoutInflater.from(contxt);
-
+    public CustomAdapterGroups(Context context, ArrayList<Group> groups) {
+        super(context, 0, groups);
     }
-
-
-    @Override
-    public int getCount() {
-        return teamNames.size();
-    }
-
-    @Override
-    public Object getItem(int i) {
-        return null;
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return 0;
-    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         int totalGroupNumber;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.groups_list, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.groups_list, parent, false);
         }
 
         ImageView teamImage = convertView.findViewById(R.id.team_image);
@@ -230,29 +164,30 @@ class CustomAdapter extends BaseAdapter {
         TextView teamNumber = convertView.findViewById(R.id.team_size);
         TextView teamSlot = convertView.findViewById(R.id.playing_time);
 
-        teamImage.setImageResource(groupPictures.get(position));
-        nameOfTeam.setText(teamNames.get(position));
-        // teamMember.setText(teamMembers[position]);
+        Group group = getItem(position);
+
+        teamImage.setImageResource(group.iconId);
+        nameOfTeam.setText(group.name);
 
         StringBuilder membersBuilder = new StringBuilder();
 
-        int membersSize = memberNumber.get(position);
-        for (int i = 0; i < membersSize; i++) {
-            membersBuilder.append(teamMembers.get(i));
-            if (i < membersSize - 1) {
+        for (int i = 0; i < group.numberOfMembers; i++) {
+            membersBuilder.append(group.members.get(i).name);
+            if (i < group.numberOfMembers - 1) {
                 membersBuilder.append(", ");
             }
         }
         teamMember.setText(membersBuilder.toString());
 
-        if (membersSize <6) {
+        if (group.numberOfMembers <6) {
             totalGroupNumber = 6;
         } else {
             totalGroupNumber = 12;
         }
-        String group = String.valueOf(memberNumber.get(position)) + "/" + String.valueOf(totalGroupNumber);
-        teamNumber.setText(String.valueOf(group));
-        teamSlot.setText(teamTime.get(position));
+        String capacity = String.valueOf(group.numberOfMembers) + "/" + String.valueOf(totalGroupNumber);
+        teamNumber.setText(capacity);
+        String time = group.timeFrom + " to " + group.timeTo;
+        teamSlot.setText(time);
 
         return convertView;
     }

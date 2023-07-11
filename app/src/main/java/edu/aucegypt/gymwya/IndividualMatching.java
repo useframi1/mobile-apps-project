@@ -13,20 +13,47 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+
 public class IndividualMatching extends AppCompatActivity {
     int i =0;
 
     TextView name, bio;
     Button check, addMeeting, reject, viewProfile;
-    ImageView backArrow, profilePic,home,chat,profile;;
-    String[] users = {"Jennifer Lopez","Nour", "Youssef", "Mariam", "Nadine", "Dana", "Omar"};
-    int [] profiles = {R.drawable.barbary,R.drawable.nour, R.drawable.ghaleb, R.drawable.mariam, R.drawable.nadine, R.drawable.dana};
+    ImageView backArrow, profilePic;
+
+    ArrayList<User> users = new ArrayList<>();
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.individual_matching);
+
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i;
+            if (item.getItemId() == R.id.home) {
+                i = new Intent(this, HomePage.class);
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else {
+                i = new Intent(this, CreateMeeting.class);
+            }
+            startActivity(i);
+            return true;
+        });
+
+        users.add(new User("Jennifer Lopez", R.drawable.barbary));
+        users.add(new User("Nour", R.drawable.nour));
+        users.add(new User("Youssef", R.drawable.ghaleb));
+        users.add(new User("Mariam", R.drawable.mariam));
+        users.add(new User("Nadine", R.drawable.nadine));
+        users.add(new User("Dana", R.drawable.dana));
+
+
         check = (Button) findViewById(R.id.check_button);
         backArrow = (ImageView) findViewById(R.id.back_arrow);
         profilePic = (ImageView) findViewById(R.id.profile_picture);
@@ -35,19 +62,17 @@ public class IndividualMatching extends AppCompatActivity {
         viewProfile = (Button) findViewById(R.id.view_profile_button);
         name = (TextView) findViewById(R.id.name);
         bio = (TextView) findViewById(R.id.bio);
-        home = (ImageView) findViewById(R.id.home_icon);
-        chat = (ImageView) findViewById(R.id.messages_icon);
-        profile = (ImageView) findViewById(R.id.profile_icon);
+
 
         Bundle bundle = getIntent().getExtras();
         String sport = bundle.getString("selectedSport");
+        bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
 //        String startTime = bundle.getString("start");
 //        String endTime = bundle.getString("end");
 
         //inital profile
-        profilePic.setImageResource(profiles[i]);
-        name.setText(users[i]);
-        bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
+        profilePic.setImageResource(users.get(i).imageId);
+        name.setText(users.get(i).name);
 
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,11 +91,11 @@ public class IndividualMatching extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 i++;
-                if (i == profiles.length)
+                if (i == users.size())
                     i=0;
 
-                profilePic.setImageResource(profiles[i]);
-                name.setText(users[i]);
+                profilePic.setImageResource(users.get(i).imageId);
+                name.setText(users.get(i).name);
                 bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
             }
         });
@@ -91,30 +116,6 @@ public class IndividualMatching extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        home.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(IndividualMatching.this, HomePage.class);
-                startActivity(intent);
-            }
-        });
-
-        //    chat.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            Intent intent = new Intent(GroupMatching.this, ChatPage.class);
-//            startActivity(intent);
-//        }
-//    });
-
-        //    profile.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            Intent intent = new Intent(GroupMatching.this, userProfile.class);
-//            startActivity(intent);
-//        }
-//    });
     }
 
     private void match_dialog() {
@@ -129,7 +130,7 @@ public class IndividualMatching extends AppCompatActivity {
         Button confirmButton = dialogView.findViewById(R.id.dialog_confirm_button);
 
         dialogTitle.setText("Matched!");
-        dialogMessage.setText("You matched with " + users[i] + "!");
+        dialogMessage.setText("You matched with " + users.get(i).name + "!");
         cancelButton.setText("Cancel");
         confirmButton.setText("Confirm");
 
