@@ -16,12 +16,15 @@ public class GridViewAdapter extends BaseAdapter {
     private List<ModelClass> sportList;
     private List<ModelClass> filteredSportList;
     private LayoutInflater inflater;
+    private int convertViewLayoutResource;
+
 
     public GridViewAdapter(Context context, List<ModelClass> sportList) {
         this.context = context;
         this.sportList = sportList;
         this.filteredSportList = new ArrayList<>(sportList);
         inflater = LayoutInflater.from(context);
+        this.convertViewLayoutResource = R.layout.grid_items;
     }
 
     @Override
@@ -39,12 +42,16 @@ public class GridViewAdapter extends BaseAdapter {
         return position;
     }
 
+    public void setConvertViewLayoutResource(int layoutResource) {
+        this.convertViewLayoutResource = layoutResource;
+    }
+
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.grid_items, parent, false);
-            holder = new ViewHolder();
+            convertView = inflater.inflate(convertViewLayoutResource, parent, false);            holder = new ViewHolder();
             holder.image = convertView.findViewById(R.id.sportImage);
             holder.text = convertView.findViewById(R.id.sportText);
             convertView.setTag(holder);

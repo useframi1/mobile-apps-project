@@ -26,6 +26,9 @@ public class CreateUser extends AppCompatActivity {
         GridView gridView = findViewById(R.id.sport_list);
         sportList = createSportList();
         gridAdapter = new GridViewAdapter(this, sportList);
+
+        gridAdapter.setConvertViewLayoutResource(R.layout.sports_list); // Change to the desired layout file
+
         gridView.setAdapter(gridAdapter);
 
 //        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
