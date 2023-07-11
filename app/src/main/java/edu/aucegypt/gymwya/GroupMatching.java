@@ -55,7 +55,7 @@ public class GroupMatching extends AppCompatActivity{
     sportName = findViewById(R.id.sport);
     sportName.setText("Join a " + sport + " team");
 
-    groupIcons.add(R.drawable.volleyball);
+    groupIcons.add(R.drawable.volley1);
     groupIcons.add(R.drawable.volley2);
     groupIcons.add(R.drawable.volley3);
     groupIcons.add(R.drawable.volley4);

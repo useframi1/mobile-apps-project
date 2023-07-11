@@ -105,10 +105,9 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new ModelClass("Football", R.drawable.football, false));
         sportList.add(new ModelClass("PingPong", R.drawable.pingpong, true));
         sportList.add(new ModelClass("BasketBall", R.drawable.basketball, false));
-        sportList.add(new ModelClass("Squash", R.drawable.squasg, true));
-        sportList.add(new ModelClass("VolleyBall", R.drawable.vollyball, false));
-        sportList.add(new ModelClass("Track", R.drawable.track, false));
-        sportList.add(new ModelClass("Billiard", R.drawable.billiard, true));
+        sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball, false));
+        sportList.add(new ModelClass("Tennis", R.drawable.tennis, true));
+        sportList.add(new ModelClass("Sqaush", R.drawable.squash, true));
         return sportList;
     }
 }
