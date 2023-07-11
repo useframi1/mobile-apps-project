@@ -3,36 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:layout_weight="1">
 
 
 
-        <ImageView
-            android:id="@+id/back_arrow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:src="@drawable/back_arrow"
-
-            />
-
-
+    <ImageView
+        android:id="@+id/back_arrow"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:src="@drawable/back_arrow" />
 
     <Button
         android:id="@+id/plus_button"
         android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="60dp"
         android:layout_gravity="right"
-        android:background="@drawable/round_button"
-        android:gravity="center"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
         android:text="+"
         android:textColor="@android:color/white"
-        android:textSize="20dp"
-        app:backgroundTint="#2196F3" />
+        android:textSize="20sp"
+        app:backgroundTint="#FF0066BA"
+        app:cornerRadius="100dp" />
 
 
     <androidx.cardview.widget.CardView
@@ -63,7 +57,7 @@
 
     <TextView
         android:id="@+id/bio"
-        android:layout_width="wrap_content"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:paddingTop="8dp"
@@ -78,8 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-       >
+        android:gravity="center">
 
         <Button
             android:id="@+id/x_button"
@@ -89,20 +82,18 @@
             android:textSize="24sp"
             android:textColor="@android:color/white"
             android:background="@drawable/round_button"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="30dp"
             app:backgroundTint="#FF0000"
             />
 
         <Button
             android:id="@+id/view_profile_button"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="60dp"
-            android:layout_marginEnd="8dp"
             android:text="View Profile"
             android:fontFamily="sans-serif-medium"
             app:cornerRadius="10dp"
-            app:backgroundTint="#2196F3"
-             />
+            app:backgroundTint="@color/blue" />
 
 
         <Button
@@ -113,25 +104,27 @@
             android:text="✓"
             android:textColor="@android:color/white"
             android:textSize="24sp"
-            app:backgroundTint="#00FF00"
-            />
+            app:backgroundTint="#4CAF50"
+            android:layout_marginStart="30dp"/>
 
     </LinearLayout>
-<!--    <Space-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="5dp" />-->
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/blue"
+        android:layout_marginTop="40dp"/>
+
 
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:orientation="horizontal"
-        android:background="@android:color/white">
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/home_icon"
@@ -149,7 +142,7 @@
             android:layout_weight="1"
             android:src="@drawable/messages"
             android:padding="12dp"
-             />
+            />
 
         <ImageView
             android:id="@+id/profile_icon"
@@ -158,7 +151,7 @@
             android:layout_weight="1"
             android:src="@drawable/profile"
             android:padding="12dp"
-             />
+            />
 
     </LinearLayout>
 

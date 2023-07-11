@@ -2,15 +2,14 @@ package edu.aucegypt.gymwya;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class GroupMatching extends AppCompatActivity{
     CustomAdapter adapter;
@@ -55,10 +53,10 @@ public class GroupMatching extends AppCompatActivity{
     sportName = findViewById(R.id.sport);
     sportName.setText("Join a " + sport + " team");
 
-    groupIcons.add(R.drawable.volleyball);
-    groupIcons.add(R.drawable.volley2);
-    groupIcons.add(R.drawable.volley3);
-    groupIcons.add(R.drawable.volley4);
+    groupIcons.add(R.drawable.group_icon1);
+    groupIcons.add(R.drawable.group_icon2);
+    groupIcons.add(R.drawable.group_icon3);
+    groupIcons.add(R.drawable.group_icon4);
 
     groupNames.add("Volley at 5");
     groupNames.add("Aqkwa Shabaka");
@@ -181,4 +179,83 @@ public class GroupMatching extends AppCompatActivity{
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
     }
+}
+
+class CustomAdapter extends BaseAdapter {
+    private final Context context;
+    private final ArrayList<String> teamNames;
+    private final ArrayList<Integer> groupPictures;
+    private final ArrayList<String> teamMembers;
+    private final ArrayList<Integer> memberNumber;
+    private final ArrayList<String> teamTime;
+    LayoutInflater inflater;
+
+    public CustomAdapter(Context contxt, ArrayList<String> Names, ArrayList<Integer> Pictures, ArrayList<String> Members, ArrayList<Integer> Number, ArrayList<String> Time) {
+        this.context = contxt;
+        this.teamNames = Names;
+        this.groupPictures = Pictures;
+        this.teamMembers = Members;
+        this.memberNumber = Number;
+        this.teamTime = Time;
+        inflater = LayoutInflater.from(contxt);
+
+    }
+
+
+    @Override
+    public int getCount() {
+        return teamNames.size();
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        int totalGroupNumber;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.groups_list, parent, false);
+        }
+
+        ImageView teamImage = convertView.findViewById(R.id.team_image);
+        TextView nameOfTeam = convertView.findViewById(R.id.team_name);
+        TextView teamMember = convertView.findViewById(R.id.team_members);
+        TextView teamNumber = convertView.findViewById(R.id.team_size);
+        TextView teamSlot = convertView.findViewById(R.id.playing_time);
+
+        teamImage.setImageResource(groupPictures.get(position));
+        nameOfTeam.setText(teamNames.get(position));
+        // teamMember.setText(teamMembers[position]);
+
+        StringBuilder membersBuilder = new StringBuilder();
+
+        int membersSize = memberNumber.get(position);
+        for (int i = 0; i < membersSize; i++) {
+            membersBuilder.append(teamMembers.get(i));
+            if (i < membersSize - 1) {
+                membersBuilder.append(", ");
+            }
+        }
+        teamMember.setText(membersBuilder.toString());
+
+        if (membersSize <6) {
+            totalGroupNumber = 6;
+        } else {
+            totalGroupNumber = 12;
+        }
+        String group = String.valueOf(memberNumber.get(position)) + "/" + String.valueOf(totalGroupNumber);
+        teamNumber.setText(String.valueOf(group));
+        teamSlot.setText(teamTime.get(position));
+
+        return convertView;
+    }
+
+
 }

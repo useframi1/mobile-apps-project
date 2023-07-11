@@ -2,15 +2,21 @@ package edu.aucegypt.gymwya;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,10 +111,105 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new ModelClass("Football", R.drawable.football, false));
         sportList.add(new ModelClass("PingPong", R.drawable.pingpong, true));
         sportList.add(new ModelClass("BasketBall", R.drawable.basketball, false));
-        sportList.add(new ModelClass("Squash", R.drawable.squasg, true));
-        sportList.add(new ModelClass("VolleyBall", R.drawable.vollyball, false));
-        sportList.add(new ModelClass("Track", R.drawable.track, false));
-        sportList.add(new ModelClass("Billiard", R.drawable.billiard, true));
+        sportList.add(new ModelClass("Squash", R.drawable.squash, true));
+        sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball, false));
+        sportList.add(new ModelClass("Tennis", R.drawable.tennis, false));
         return sportList;
     }
+
+    public static class ModelClass {
+        private String sportName;
+        private int sportImage;
+
+        private boolean isIndividual;
+
+        public ModelClass(String sportName, int sportImage, boolean isIndividual) {
+            this.sportName = sportName;
+            this.sportImage = sportImage;
+            this.isIndividual = isIndividual;
+        }
+
+        public String getSportName() {
+            return sportName;
+        }
+
+        public int getSportImage() {
+            return sportImage;
+        }
+
+        public boolean getIsIndividual() {return isIndividual;}
+    }
 }
+
+class GridViewAdapter extends BaseAdapter {
+    private Context context;
+    private List<HomePage.ModelClass> sportList;
+    private List<HomePage.ModelClass> filteredSportList;
+    private LayoutInflater inflater;
+
+    public GridViewAdapter(Context context, List<HomePage.ModelClass> sportList) {
+        this.context = context;
+        this.sportList = sportList;
+        this.filteredSportList = new ArrayList<>(sportList);
+        inflater = LayoutInflater.from(context);
+    }
+
+    @Override
+    public int getCount() {
+        return filteredSportList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return filteredSportList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.grid_items, parent, false);
+            holder = new ViewHolder();
+            holder.image = convertView.findViewById(R.id.sportImage);
+            holder.text = convertView.findViewById(R.id.sportText);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        HomePage.ModelClass sport = filteredSportList.get(position);
+        holder.image.setImageResource(sport.getSportImage());
+        holder.text.setText(sport.getSportName());
+
+        return convertView;
+    }
+
+    private static class ViewHolder {
+        ImageView image;
+        TextView text;
+    }
+
+    public void filterData(String query) {
+        filteredSportList = new ArrayList<>();
+
+        // Perform filtering based on the search query
+        for (HomePage.ModelClass sport : sportList) {
+            if (sport.getSportName().toLowerCase().contains(query.toLowerCase())) {
+                filteredSportList.add(sport);
+            }
+        }
+
+        // Reset the filtered list when the query is empty
+        if (query.isEmpty()) {
+            filteredSportList = new ArrayList<>(sportList);
+        }
+
+        notifyDataSetChanged();
+    }
+}
+
