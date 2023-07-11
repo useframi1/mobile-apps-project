@@ -59,6 +59,7 @@ public class HomePage extends AppCompatActivity {
         GridView gridView = findViewById(R.id.gridView);
         sportList = createSportList();
         gridAdapter = new GridViewAdapter(this, sportList);
+        gridAdapter.setConvertViewLayoutResource(R.layout.grid_items);
         gridView.setAdapter(gridAdapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

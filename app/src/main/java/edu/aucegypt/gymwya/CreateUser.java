@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +15,14 @@ import java.util.List;
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
     private List<ModelClass> sportList;
+    Button create;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user);
-
+        create = findViewById(R.id.createUserButton);
 
 
         GridView gridView = findViewById(R.id.sport_list);
@@ -31,20 +33,14 @@ public class CreateUser extends AppCompatActivity {
 
         gridView.setAdapter(gridAdapter);
 
-//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//
-//                Intent intent;
-//                if (sportList.get(position).getIsIndividual())
-//                    intent = new Intent(HomePage.this,IndividualMatching.class);
-//                else
-//                    intent = new Intent(HomePage.this,GroupMatching.class);
-//                intent.putExtra("selectedSport", sportList.get(position).getSportName());
-//                startActivity(intent);
-//            }
-//        });
-
+        create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CreateUser.this, HomePage.class);
+                startActivity(intent);
+            }
+        });
+        
     }
     private List<ModelClass> createSportList() {
         List<ModelClass> sportList = new ArrayList<>();
