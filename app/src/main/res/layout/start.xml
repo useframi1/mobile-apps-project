@@ -36,10 +36,10 @@
         />
 
     <Button
-        android:id="@+id/signIn"
+        android:id="@+id/signUp"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="SIGN IN"
+        android:text="SIGN UP"
         android:layout_gravity="center"
         android:textSize="20dp"
         app:cornerRadius="20dp"
@@ -53,23 +53,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="15dp"
-            android:text="New User?"
+            android:textSize="12dp"
+            android:text="Already have an account?"
             android:fontFamily="sans-serif-medium"
             android:layout_gravity="center_vertical"
             android:textColor="@color/black"
-            android:layout_marginStart="140dp"
+            android:layout_marginStart="80dp"
             />
         <Space
             android:layout_width="5dp"
             android:layout_height="0dp"/>
 
         <Button
-            android:id="@+id/signUp"
+            android:id="@+id/signIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="SIGN UP"
+            android:text="SIGN IN"
             android:textSize="10dp"
             app:backgroundTint="#FF0066BA"
             app:cornerRadius="20dp" />

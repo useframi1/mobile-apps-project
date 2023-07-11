@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class SignIn extends AppCompatActivity {
     Button signIn;
     EditText email, password;
-    TextView forgotPassword;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -24,7 +23,6 @@ public class SignIn extends AppCompatActivity {
         signIn = (Button) findViewById(R.id.signInPageButton);
         email = (EditText) findViewById(R.id.userEmail);
         password = (EditText) findViewById(R.id.enteredPassword);
-        forgotPassword = (TextView) findViewById(R.id.forgotPassword);
 
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,13 +32,5 @@ public class SignIn extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-//        forgotPassword.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(SignIn.this, ForgotPassword.class);
-//                startActivity(intent);
-//            }
-//        }
-
     }
 }
