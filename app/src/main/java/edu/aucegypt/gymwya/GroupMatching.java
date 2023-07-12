@@ -53,13 +53,15 @@ public class GroupMatching extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         String sport = bundle.getString("selectedSport");
 
-        sportName = findViewById(R.id.sport);
-        sportName.setText("Join a " + sport + " team");
+        groupIcons.add(R.drawable.volley1);
+        groupIcons.add(R.drawable.volley2);
+        groupIcons.add(R.drawable.volley3);
+        groupIcons.add(R.drawable.volley4);
 
-        groups.add(new Group("Volley at 5", R.drawable.group_icon1, 3,new ArrayList<>(), "2:30", "4:00"));
-        groups.add(new Group("Aqkwa Shabaka", R.drawable.group_icon2, 2,new ArrayList<>(), "3:00", "5:00"));
-        groups.add(new Group("Point 3al Tayer", R.drawable.group_icon3, 5,new ArrayList<>(), "12:30", "2:00"));
-        groups.add(new Group("Yala Beach Volley", R.drawable.group_icon4, 6,new ArrayList<>(), "5:30", "7:00"));
+        groups.add(new Group("Volley at 5", R.drawable.group_icon1, 3, new ArrayList<>(), "2:30", "4:00"));
+        groups.add(new Group("Aqkwa Shabaka", R.drawable.group_icon2, 2, new ArrayList<>(), "3:00", "5:00"));
+        groups.add(new Group("Point 3al Tayer", R.drawable.group_icon3, 5, new ArrayList<>(), "12:30", "2:00"));
+        groups.add(new Group("Yala Beach Volley", R.drawable.group_icon4, 6, new ArrayList<>(), "5:30", "7:00"));
 
         groups.get(0).members.add(new User("Nour", R.drawable.nour));
         groups.get(0).members.add(new User("Youssef", R.drawable.ghaleb));
@@ -80,7 +82,6 @@ public class GroupMatching extends AppCompatActivity {
         groups.get(3).members.add(new User("Nadine", R.drawable.nadine));
         groups.get(3).members.add(new User("Dana", R.drawable.dana));
         groups.get(3).members.add(new User("Barbary", R.drawable.barbary));
-
 
         listView = findViewById(R.id.groupsList);
         adapter = new CustomAdapterGroups(getApplicationContext(), groups);
@@ -127,8 +128,7 @@ public class GroupMatching extends AppCompatActivity {
                 if (groupsFound.size() == 0) {
                     noResults.setVisibility(View.VISIBLE);
                     listView.setVisibility(View.GONE);
-                }
-                else {
+                } else {
                     listView.setVisibility(View.VISIBLE);
                     noResults.setVisibility(View.GONE);
 
@@ -139,7 +139,8 @@ public class GroupMatching extends AppCompatActivity {
                 return false;
             }
         });
-}
+    }
+
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
@@ -151,6 +152,7 @@ class CustomAdapterGroups extends ArrayAdapter<Group> {
     public CustomAdapterGroups(Context context, ArrayList<Group> groups) {
         super(context, 0, groups);
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         int totalGroupNumber;
@@ -171,20 +173,20 @@ class CustomAdapterGroups extends ArrayAdapter<Group> {
 
         StringBuilder membersBuilder = new StringBuilder();
 
-        for (int i = 0; i<group.numberOfMembers; i++) {
+        for (int i = 0; i < group.numberOfMembers; i++) {
             membersBuilder.append(group.members.get(i).name);
             if (i < group.numberOfMembers - 1) {
                 membersBuilder.append(", ");
             }
         }
         System.out.println(membersBuilder);
-        if(membersBuilder.length() > 27) {
+        if (membersBuilder.length() > 27) {
             membersBuilder.delete(27, membersBuilder.length());
             membersBuilder.append("...");
         }
         teamMember.setText(membersBuilder.toString());
 
-        if (group.numberOfMembers <6) {
+        if (group.numberOfMembers < 6) {
             totalGroupNumber = 6;
         } else {
             totalGroupNumber = 12;
@@ -196,6 +198,5 @@ class CustomAdapterGroups extends ArrayAdapter<Group> {
 
         return convertView;
     }
-
 
 }

@@ -25,7 +25,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomePage extends AppCompatActivity{
+public class HomePage extends AppCompatActivity {
 
     private GridViewAdapter gridAdapter;
     private List<ModelClass> sportList;
@@ -42,7 +42,7 @@ public class HomePage extends AppCompatActivity{
                 return false;
             } else if (item.getItemId() == R.id.chats) {
                 i = new Intent(this, CreateGroup.class);
-            } else if (item.getItemId() == R.id.profile){
+            } else if (item.getItemId() == R.id.profile) {
                 i = new Intent(this, CreateMeeting.class);
             }
             startActivity(i);
@@ -59,7 +59,6 @@ public class HomePage extends AppCompatActivity{
         spinnerAdapter.add("Create Individual Meeting");
         create.setAdapter(spinnerAdapter);
 
-
         create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -67,8 +66,7 @@ public class HomePage extends AppCompatActivity{
                 if (position == 1) {
                     i = new Intent(HomePage.this, CreateGroup.class);
                     startActivity(i);
-                }
-                else if(position == 2) {
+                } else if (position == 2) {
                     i = new Intent(HomePage.this, CreateMeeting.class);
                     startActivity(i);
                 }
@@ -84,15 +82,16 @@ public class HomePage extends AppCompatActivity{
         GridView gridView = findViewById(R.id.gridView);
         sportList = createSportList();
         gridAdapter = new GridViewAdapter(this, sportList);
+        gridAdapter.setConvertViewLayoutResource(R.layout.grid_items);
         gridView.setAdapter(gridAdapter);
 
         gridView.setOnItemClickListener((adapterView, view, position, id) -> {
 
             Intent intent;
             if (sportList.get(position).getIsIndividual())
-                intent = new Intent(HomePage.this,IndividualMatching.class);
+                intent = new Intent(HomePage.this, IndividualMatching.class);
             else
-                intent = new Intent(HomePage.this,GroupMatching.class);
+                intent = new Intent(HomePage.this, GroupMatching.class);
             intent.putExtra("selectedSport", sportList.get(position).getSportName());
             startActivity(intent);
         });
@@ -127,9 +126,9 @@ public class HomePage extends AppCompatActivity{
         sportList.add(new ModelClass("Football", R.drawable.football, false));
         sportList.add(new ModelClass("PingPong", R.drawable.pingpong, true));
         sportList.add(new ModelClass("BasketBall", R.drawable.basketball, false));
-        sportList.add(new ModelClass("Squash", R.drawable.squash, true));
         sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball, false));
         sportList.add(new ModelClass("Tennis", R.drawable.tennis, true));
+        sportList.add(new ModelClass("Squash", R.drawable.squash, true));
         return sportList;
     }
 
@@ -153,7 +152,9 @@ public class HomePage extends AppCompatActivity{
             return sportImage;
         }
 
-        public boolean getIsIndividual() {return isIndividual;}
+        public boolean getIsIndividual() {
+            return isIndividual;
+        }
     }
 }
 
@@ -228,4 +229,3 @@ class GridViewAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 }
-

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:cardCornerRadius="50dp"
+        android:layout_marginTop="40dp"
+        app:cardBackgroundColor="@android:color/white"
+        android:layout_gravity="center"
+        >
+
+        <ImageView
+            android:id="@+id/profile_picture"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/profile" />
+    </androidx.cardview.widget.CardView>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp"/>
+
+    <Button
+        android:id="@+id/viewRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/blue"
+        android:text="UPLOAD IMAGE"
+        android:layout_gravity="center"
+        app:cornerRadius="15dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Name"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"/>
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Username"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"/>
+    <EditText
+        android:id="@+id/age"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Age"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"/>
+    <EditText
+        android:id="@+id/bio"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Bio"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:text="Choose preferred sports:"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="16dp"
+        />
+    <LinearLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+        <GridView
+            android:id="@+id/sport_list"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            android:horizontalSpacing="5dp"
+            android:numColumns="3"
+            android:verticalSpacing="20dp"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/createUserButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/blue"
+        android:text="CREATE USER"
+        android:layout_gravity="center"
+        app:cornerRadius="15dp" />
+
+
+</LinearLayout>
