@@ -18,7 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 
 public class IndividualMatching extends AppCompatActivity {
-    int i =0;
+    int i = 0;
 
     TextView name, bio;
     Button check, addMeeting, reject, viewProfile;
@@ -81,12 +81,7 @@ public class IndividualMatching extends AppCompatActivity {
             }
         });
 
-        check.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                match_dialog();
-            }
-        });
+        check.setOnClickListener(view -> match_dialog());
         reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,7 +114,7 @@ public class IndividualMatching extends AppCompatActivity {
     }
 
     private void match_dialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(IndividualMatching.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog, null);
         builder.setView(dialogView);
@@ -129,26 +124,18 @@ public class IndividualMatching extends AppCompatActivity {
         Button cancelButton = dialogView.findViewById(R.id.dialog_cancel_button);
         Button confirmButton = dialogView.findViewById(R.id.dialog_confirm_button);
 
-        dialogTitle.setText("Matched!");
-        dialogMessage.setText("You matched with " + users.get(i).name + "!");
+        dialogTitle.setText("Match with " + users.get(i).name);
+        dialogMessage.setText("Are you sure you want to match with " + users.get(i).name + "?");
         cancelButton.setText("Cancel");
         confirmButton.setText("Confirm");
 
         AlertDialog dialog = builder.create();
 
-      cancelButton.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-              dialog.dismiss();
-          }
-        });
+        cancelButton.setOnClickListener(view -> dialog.dismiss());
 
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(IndividualMatching.this,GroupMatching.class);
-                startActivity(intent);
-            }
+        confirmButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this,HomePage.class);
+            startActivity(intent);
         });
         dialog.setCancelable(false);
         dialog.show();

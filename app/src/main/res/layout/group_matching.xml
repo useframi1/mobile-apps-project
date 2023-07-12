@@ -21,8 +21,8 @@
         android:fontFamily="sans-serif-medium"
         android:text="Join a Sport Group"
         android:textStyle="bold"
-        android:textColor="#090909"
-        android:textSize="24sp" />
+        android:textColor="@color/blue"
+        android:textSize="30sp" />
 
 
     <SearchView
@@ -64,11 +64,12 @@
         android:orientation="vertical">
 
         <ListView
-                android:id="@+id/groupsList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="vertical"
-                android:background="@drawable/border"/>
+            android:id="@+id/groupsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="5.0sp"/>
 
     </LinearLayout>
 

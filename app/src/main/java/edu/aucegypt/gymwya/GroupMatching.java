@@ -171,11 +171,16 @@ class CustomAdapterGroups extends ArrayAdapter<Group> {
 
         StringBuilder membersBuilder = new StringBuilder();
 
-        for (int i = 0; i < group.numberOfMembers; i++) {
+        for (int i = 0; i<group.numberOfMembers; i++) {
             membersBuilder.append(group.members.get(i).name);
             if (i < group.numberOfMembers - 1) {
                 membersBuilder.append(", ");
             }
+        }
+        System.out.println(membersBuilder);
+        if(membersBuilder.length() > 27) {
+            membersBuilder.delete(27, membersBuilder.length());
+            membersBuilder.append("...");
         }
         teamMember.setText(membersBuilder.toString());
 
@@ -184,7 +189,7 @@ class CustomAdapterGroups extends ArrayAdapter<Group> {
         } else {
             totalGroupNumber = 12;
         }
-        String capacity = String.valueOf(group.numberOfMembers) + "/" + String.valueOf(totalGroupNumber);
+        String capacity = group.numberOfMembers + "/" + totalGroupNumber;
         teamNumber.setText(capacity);
         String time = group.timeFrom + " to " + group.timeTo;
         teamSlot.setText(time);

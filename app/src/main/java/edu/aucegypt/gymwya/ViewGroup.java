@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -24,6 +26,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     TextView groupName;
     ImageView back;
     ListView listView;
+    Button joinGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +59,12 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         listView = findViewById(R.id.members_list);
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
+        joinGroup = findViewById(R.id.join_group);
 
         groupName.setText(name);
 
         back.setOnClickListener(this);
+        joinGroup.setOnClickListener(this);
 
         listView.setAdapter(adapter);
     }
@@ -68,7 +73,37 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     public void onClick(View v) {
         if (v == back) {
             finish();
+        } else if (v == joinGroup) {
+            match_dialog();
         }
+    }
+
+    private void match_dialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog, null);
+        builder.setView(dialogView);
+
+        TextView dialogTitle = dialogView.findViewById(R.id.dialog_title);
+        TextView dialogMessage = dialogView.findViewById(R.id.dialog_message);
+        Button cancelButton = dialogView.findViewById(R.id.dialog_cancel_button);
+        Button confirmButton = dialogView.findViewById(R.id.dialog_confirm_button);
+
+        dialogTitle.setText("Join " + groupName.getText());
+        dialogMessage.setText("Are you sure you want to join " + groupName.getText() + "?");
+        cancelButton.setText("Cancel");
+        confirmButton.setText("Confirm");
+
+        AlertDialog dialog = builder.create();
+
+        cancelButton.setOnClickListener(view -> dialog.dismiss());
+
+        confirmButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this,HomePage.class);
+            startActivity(intent);
+        });
+        dialog.setCancelable(false);
+        dialog.show();
     }
 }
 class CustomAdapterMembers extends ArrayAdapter<User> {

@@ -129,7 +129,7 @@ public class HomePage extends AppCompatActivity{
         sportList.add(new ModelClass("BasketBall", R.drawable.basketball, false));
         sportList.add(new ModelClass("Squash", R.drawable.squash, true));
         sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball, false));
-        sportList.add(new ModelClass("Tennis", R.drawable.tennis, false));
+        sportList.add(new ModelClass("Tennis", R.drawable.tennis, true));
         return sportList;
     }
 

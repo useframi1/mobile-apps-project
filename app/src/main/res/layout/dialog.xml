@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            app:backgroundTint="#2196F3"
+            app:backgroundTint="@color/blue"
             android:textColor="#FFFFFF" />
         <Space
             android:layout_width="70dp"
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Confirm"
-            app:backgroundTint="#2196F3"
+            app:backgroundTint="@color/blue"
             android:textColor="#FFFFFF"
              />
 
