@@ -115,7 +115,7 @@
         />
 <Space
     android:layout_width="0dp"
-    android:layout_height="30dp"/>
+    android:layout_height="20dp"/>
     <Button
         android:id="@+id/message"
         android:layout_width="150dp"
@@ -124,24 +124,26 @@
         android:text="Message"
         android:fontFamily="sans-serif-medium"
         app:cornerRadius="10dp"
-        app:backgroundTint="@color/blue" />
+        app:backgroundTint="@color/blue"
+        android:visibility="invisible"
+        />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/blue"
-        android:layout_marginTop="22dp"/>
+        android:layout_marginTop="15dp"/>
 
 
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/bottomNavigationView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="1dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:menu="@menu/bottom_nav_menu"-->
-<!--        app:itemTextColor="@color/black"-->
-<!--        app:itemIconTint="@color/blue" />-->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemTextColor="@color/black"
+        app:itemIconTint="@color/blue" />
 
         </LinearLayout>
