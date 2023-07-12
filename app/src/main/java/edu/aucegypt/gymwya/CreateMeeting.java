@@ -2,6 +2,7 @@ package edu.aucegypt.gymwya;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -25,6 +28,20 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_meeting);
+
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i;
+            if (item.getItemId() == R.id.home) {
+                i = new Intent(this, HomePage.class);
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else {
+                i = new Intent(this, CreateMeeting.class);
+            }
+            startActivity(i);
+            return true;
+        });
 
         btnDatePicker=(Button)findViewById(R.id.date);
         btnTimePickerFrom=(Button)findViewById(R.id.from);
@@ -49,6 +66,7 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
 
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
+
     }
 
     @Override

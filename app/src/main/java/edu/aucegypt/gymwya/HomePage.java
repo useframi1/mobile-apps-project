@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,10 +19,13 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomePage extends AppCompatActivity {
+public class HomePage extends AppCompatActivity{
 
     private GridViewAdapter gridAdapter;
     private List<ModelClass> sportList;
@@ -30,6 +34,20 @@ public class HomePage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i = new Intent();
+            if (item.getItemId() == R.id.home) {
+                return false;
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else if (item.getItemId() == R.id.profile){
+                i = new Intent(this, CreateMeeting.class);
+            }
+            startActivity(i);
+            return false;
+        });
 
         Button viewRequest = findViewById(R.id.viewRequest);
         Spinner create = findViewById(R.id.spinner);
@@ -40,6 +58,7 @@ public class HomePage extends AppCompatActivity {
         spinnerAdapter.add("Create Group");
         spinnerAdapter.add("Create Individual Meeting");
         create.setAdapter(spinnerAdapter);
+
 
         create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -67,18 +86,15 @@ public class HomePage extends AppCompatActivity {
         gridAdapter = new GridViewAdapter(this, sportList);
         gridView.setAdapter(gridAdapter);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        gridView.setOnItemClickListener((adapterView, view, position, id) -> {
 
-                Intent intent;
-                if (sportList.get(position).getIsIndividual())
-                    intent = new Intent(HomePage.this,IndividualMatching.class);
-                else
-                    intent = new Intent(HomePage.this,GroupMatching.class);
-                intent.putExtra("selectedSport", sportList.get(position).getSportName());
-                startActivity(intent);
-            }
+            Intent intent;
+            if (sportList.get(position).getIsIndividual())
+                intent = new Intent(HomePage.this,IndividualMatching.class);
+            else
+                intent = new Intent(HomePage.this,GroupMatching.class);
+            intent.putExtra("selectedSport", sportList.get(position).getSportName());
+            startActivity(intent);
         });
 
         // Set up the search functionality
@@ -113,7 +129,7 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new ModelClass("BasketBall", R.drawable.basketball, false));
         sportList.add(new ModelClass("Squash", R.drawable.squash, true));
         sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball, false));
-        sportList.add(new ModelClass("Tennis", R.drawable.tennis, false));
+        sportList.add(new ModelClass("Tennis", R.drawable.tennis, true));
         return sportList;
     }
 
