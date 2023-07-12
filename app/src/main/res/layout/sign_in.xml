@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/signIn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:textSize="30dp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:layout_marginTop="110dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-medium"
+        />
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Welcome Back to Gymwya!"
+        android:textSize="20dp"
+        android:textColor="#4A4B4C"
+        android:gravity="center"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="50dp"
+        android:fontFamily="sans-serif-medium"
+        />
+
+    <TextView
+        android:id="@+id/Email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        android:textSize="18dp"
+        android:textColor="#4A4B4C"
+        android:gravity="left"
+        android:layout_marginStart="58dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-medium"
+        />
+    <EditText
+        android:id="@+id/userEmail"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Email"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="45dp"/>
+
+    <TextView
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textSize="18dp"
+        android:textColor="#4A4B4C"
+        android:gravity="left"
+        android:layout_marginStart="58dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-medium"
+        />
+    <EditText
+        android:id="@+id/enteredPassword"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/edit_text_border"
+        android:fontFamily="sans-serif-medium"
+        android:hint="Password"
+        android:inputType="text"
+        android:paddingLeft="15dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#8F9091"
+        android:textSize="16sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="55dp"/>
+
+    <Button
+        android:id="@+id/signInPageButton"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="SIGN IN"
+        android:layout_gravity="center"
+        android:textSize="20dp"
+        app:cornerRadius="20dp"
+        app:backgroundTint="#FF0066BA"/>
+
+
+</LinearLayout>

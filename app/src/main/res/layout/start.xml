@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gymwya"
+        android:textSize="40dp"
+        android:textColor="#FF0066BA"
+        android:gravity="center"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="sans-serif-medium"
+        />
+
+
+        <ImageView
+            android:id="@+id/logo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:src="@drawable/logo"
+            android:layout_marginBottom="20dp"
+
+            />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        />
+
+    <Button
+        android:id="@+id/signUp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="SIGN UP"
+        android:layout_gravity="center"
+        android:textSize="20dp"
+        app:cornerRadius="20dp"
+        app:backgroundTint="#FF0066BA"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:text="Already have an account?"
+            android:fontFamily="sans-serif-medium"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/black"
+            android:layout_marginStart="80dp"
+            />
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="0dp"/>
+
+        <Button
+            android:id="@+id/signIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="SIGN IN"
+            android:textSize="10dp"
+            app:backgroundTint="#FF0066BA"
+            app:cornerRadius="20dp" />
+
+
+    </LinearLayout>
+
+</LinearLayout>
