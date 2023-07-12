@@ -11,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,7 +19,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 
 public class ViewGroup extends AppCompatActivity implements View.OnClickListener {
-    CustomAdapterMembers adapter;
+    ViewGroupAdapter adapter;
     ArrayList<User> members = new ArrayList<>();
     TextView groupName;
     ImageView back;
@@ -54,7 +52,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             members = (ArrayList<User>) bundle.getSerializable("Members");
         }
 
-        adapter = new CustomAdapterMembers(this, members);
+        adapter = new ViewGroupAdapter(this, members);
 
         listView = findViewById(R.id.members_list);
         groupName = findViewById(R.id.group_name);
@@ -107,8 +105,8 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     }
 }
 
-class CustomAdapterMembers extends ArrayAdapter<User> {
-    public CustomAdapterMembers(Context context, ArrayList<User> members) {
+class ViewGroupAdapter extends ArrayAdapter<User> {
+    public ViewGroupAdapter(Context context, ArrayList<User> members) {
         super(context, 0, members);
     }
 

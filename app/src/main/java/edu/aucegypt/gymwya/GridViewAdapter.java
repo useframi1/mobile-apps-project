@@ -13,13 +13,13 @@ import java.util.List;
 
 public class GridViewAdapter extends BaseAdapter {
     private Context context;
-    private List<ModelClass> sportList;
-    private List<ModelClass> filteredSportList;
+    private List<Sport> sportList;
+    private List<Sport> filteredSportList;
     private LayoutInflater inflater;
     private int convertViewLayoutResource;
 
 
-    public GridViewAdapter(Context context, List<ModelClass> sportList) {
+    public GridViewAdapter(Context context, List<Sport> sportList) {
         this.context = context;
         this.sportList = sportList;
         this.filteredSportList = new ArrayList<>(sportList);
@@ -59,7 +59,7 @@ public class GridViewAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        ModelClass sport = filteredSportList.get(position);
+        Sport sport = filteredSportList.get(position);
         holder.image.setImageResource(sport.getSportImage());
         holder.text.setText(sport.getSportName());
 
@@ -75,7 +75,7 @@ public class GridViewAdapter extends BaseAdapter {
         filteredSportList = new ArrayList<>();
 
         // Perform filtering based on the search query
-        for (ModelClass sport : sportList) {
+        for (Sport sport : sportList) {
             if (sport.getSportName().toLowerCase().contains(query.toLowerCase())) {
                 filteredSportList.add(sport);
             }

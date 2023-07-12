@@ -7,9 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -23,7 +21,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 
 public class GroupMatching extends AppCompatActivity {
-    CustomAdapterGroups adapter;
+    GroupMatchingAdapter adapter;
     ListView listView;
     ImageView backArrow;
     Button addGroup;
@@ -53,10 +51,6 @@ public class GroupMatching extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         String sport = bundle.getString("selectedSport");
 
-        groupIcons.add(R.drawable.volley1);
-        groupIcons.add(R.drawable.volley2);
-        groupIcons.add(R.drawable.volley3);
-        groupIcons.add(R.drawable.volley4);
 
         groups.add(new Group("Volley at 5", R.drawable.group_icon1, 3, new ArrayList<>(), "2:30", "4:00"));
         groups.add(new Group("Aqkwa Shabaka", R.drawable.group_icon2, 2, new ArrayList<>(), "3:00", "5:00"));
@@ -84,7 +78,7 @@ public class GroupMatching extends AppCompatActivity {
         groups.get(3).members.add(new User("Barbary", R.drawable.barbary));
 
         listView = findViewById(R.id.groupsList);
-        adapter = new CustomAdapterGroups(getApplicationContext(), groups);
+        adapter = new GroupMatchingAdapter(getApplicationContext(), groups);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((adapterView, view, position, l) -> {
@@ -132,7 +126,7 @@ public class GroupMatching extends AppCompatActivity {
                     listView.setVisibility(View.VISIBLE);
                     noResults.setVisibility(View.GONE);
 
-                    adapter = new CustomAdapterGroups(getApplicationContext(), groupsFound);
+                    adapter = new GroupMatchingAdapter(getApplicationContext(), groupsFound);
                     listView.setAdapter(adapter);
                     hideKeyboard();
                 }
@@ -147,9 +141,9 @@ public class GroupMatching extends AppCompatActivity {
     }
 }
 
-class CustomAdapterGroups extends ArrayAdapter<Group> {
+class GroupMatchingAdapter extends ArrayAdapter<Group> {
 
-    public CustomAdapterGroups(Context context, ArrayList<Group> groups) {
+    public GroupMatchingAdapter(Context context, ArrayList<Group> groups) {
         super(context, 0, groups);
     }
 
@@ -179,7 +173,7 @@ class CustomAdapterGroups extends ArrayAdapter<Group> {
                 membersBuilder.append(", ");
             }
         }
-        System.out.println(membersBuilder);
+
         if (membersBuilder.length() > 27) {
             membersBuilder.delete(27, membersBuilder.length());
             membersBuilder.append("...");

@@ -1,11 +1,17 @@
 package edu.aucegypt.gymwya;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,7 +20,7 @@ import java.util.List;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
-    private List<ModelClass> sportList;
+    private List<Sport> sportList;
     Button create;
 
 
@@ -29,29 +35,24 @@ public class CreateUser extends AppCompatActivity {
         sportList = createSportList();
         gridAdapter = new GridViewAdapter(this, sportList);
 
-        gridAdapter.setConvertViewLayoutResource(R.layout.sports_list); // Change to the desired layout file
-
         gridView.setAdapter(gridAdapter);
 
-        create.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CreateUser.this, HomePage.class);
-                startActivity(intent);
-            }
+        create.setOnClickListener(v -> {
+            Intent intent = new Intent(CreateUser.this, HomePage.class);
+            startActivity(intent);
         });
         
     }
-    private List<ModelClass> createSportList() {
-        List<ModelClass> sportList = new ArrayList<>();
-        sportList.add(new ModelClass("Swimming", R.drawable.swimming_icon, false));
-       // sportList.add(new ModelClass("Gym", R.drawable.gym, true));
-        //sportList.add(new ModelClass("Football", R.drawable.football, false));
-        sportList.add(new ModelClass("PingPong", R.drawable.pingpong_icon, true));
-        sportList.add(new ModelClass("BasketBall", R.drawable.basketball_icon, false));
-        sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball_icon, false));
-        sportList.add(new ModelClass("Tennis", R.drawable.tennis_icon, true));
-        sportList.add(new ModelClass("Sqaush", R.drawable.squash_icon, true));
+    private List<Sport> createSportList() {
+        List<Sport> sportList = new ArrayList<>();
+        sportList.add(new Sport("Swimming",false, new Sport.SportIcon(R.drawable.swimming_icon,false)));
+        sportList.add(new Sport("Gym", true, new Sport.SportIcon(R.drawable.gym, false)));
+        sportList.add(new Sport("Football", false, new Sport.SportIcon(R.drawable.football, false)));
+        sportList.add(new Sport("PingPong",true, new Sport.SportIcon(R.drawable.pingpong_icon,false)));
+        sportList.add(new Sport("BasketBall",false, new Sport.SportIcon(R.drawable.basketball_icon,false)));
+        sportList.add(new Sport("VolleyBall", false, new Sport.SportIcon(R.drawable.volleyball_icon,false)));
+        sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon,false)));
+        sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon,false)));
         return sportList;
     }
 }

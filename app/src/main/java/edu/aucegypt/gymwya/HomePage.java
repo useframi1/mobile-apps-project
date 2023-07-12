@@ -28,7 +28,7 @@ import java.util.List;
 public class HomePage extends AppCompatActivity {
 
     private GridViewAdapter gridAdapter;
-    private List<ModelClass> sportList;
+    private List<Sport> sportList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +82,6 @@ public class HomePage extends AppCompatActivity {
         GridView gridView = findViewById(R.id.gridView);
         sportList = createSportList();
         gridAdapter = new GridViewAdapter(this, sportList);
-        gridAdapter.setConvertViewLayoutResource(R.layout.grid_items);
         gridView.setAdapter(gridAdapter);
 
         gridView.setOnItemClickListener((adapterView, view, position, id) -> {
@@ -119,113 +118,16 @@ public class HomePage extends AppCompatActivity {
     }
 
     // Create the list of sports
-    private List<ModelClass> createSportList() {
-        List<ModelClass> sportList = new ArrayList<>();
-        sportList.add(new ModelClass("Swimming", R.drawable.swimming, false));
-        sportList.add(new ModelClass("Gym", R.drawable.gym, true));
-        sportList.add(new ModelClass("Football", R.drawable.football, false));
-        sportList.add(new ModelClass("PingPong", R.drawable.pingpong, true));
-        sportList.add(new ModelClass("BasketBall", R.drawable.basketball, false));
-        sportList.add(new ModelClass("VolleyBall", R.drawable.volleyball, false));
-        sportList.add(new ModelClass("Tennis", R.drawable.tennis, true));
-        sportList.add(new ModelClass("Squash", R.drawable.squash, true));
+    private List<Sport> createSportList() {
+        List<Sport> sportList = new ArrayList<>();
+        sportList.add(new Sport("Swimming",false, new Sport.SportIcon(R.drawable.swimming_icon,false)));
+        sportList.add(new Sport("Gym", true, new Sport.SportIcon(R.drawable.gym, false)));
+        sportList.add(new Sport("Football", false, new Sport.SportIcon(R.drawable.football, false)));
+        sportList.add(new Sport("PingPong",true, new Sport.SportIcon(R.drawable.pingpong_icon,false)));
+        sportList.add(new Sport("BasketBall",false, new Sport.SportIcon(R.drawable.basketball_icon,false)));
+        sportList.add(new Sport("VolleyBall", false, new Sport.SportIcon(R.drawable.volleyball_icon,false)));
+        sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon,false)));
+        sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon,false)));
         return sportList;
-    }
-
-    public static class ModelClass {
-        private String sportName;
-        private int sportImage;
-
-        private boolean isIndividual;
-
-        public ModelClass(String sportName, int sportImage, boolean isIndividual) {
-            this.sportName = sportName;
-            this.sportImage = sportImage;
-            this.isIndividual = isIndividual;
-        }
-
-        public String getSportName() {
-            return sportName;
-        }
-
-        public int getSportImage() {
-            return sportImage;
-        }
-
-        public boolean getIsIndividual() {
-            return isIndividual;
-        }
-    }
-}
-
-class GridViewAdapter extends BaseAdapter {
-    private Context context;
-    private List<HomePage.ModelClass> sportList;
-    private List<HomePage.ModelClass> filteredSportList;
-    private LayoutInflater inflater;
-
-    public GridViewAdapter(Context context, List<HomePage.ModelClass> sportList) {
-        this.context = context;
-        this.sportList = sportList;
-        this.filteredSportList = new ArrayList<>(sportList);
-        inflater = LayoutInflater.from(context);
-    }
-
-    @Override
-    public int getCount() {
-        return filteredSportList.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return filteredSportList.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.grid_items, parent, false);
-            holder = new ViewHolder();
-            holder.image = convertView.findViewById(R.id.sportImage);
-            holder.text = convertView.findViewById(R.id.sportText);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-
-        HomePage.ModelClass sport = filteredSportList.get(position);
-        holder.image.setImageResource(sport.getSportImage());
-        holder.text.setText(sport.getSportName());
-
-        return convertView;
-    }
-
-    private static class ViewHolder {
-        ImageView image;
-        TextView text;
-    }
-
-    public void filterData(String query) {
-        filteredSportList = new ArrayList<>();
-
-        // Perform filtering based on the search query
-        for (HomePage.ModelClass sport : sportList) {
-            if (sport.getSportName().toLowerCase().contains(query.toLowerCase())) {
-                filteredSportList.add(sport);
-            }
-        }
-
-        // Reset the filtered list when the query is empty
-        if (query.isEmpty()) {
-            filteredSportList = new ArrayList<>(sportList);
-        }
-
-        notifyDataSetChanged();
     }
 }
