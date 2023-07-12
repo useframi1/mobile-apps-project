@@ -30,10 +30,10 @@ public class VisitProfile extends AppCompatActivity {
         back = findViewById(R.id.back);
         pic = findViewById(R.id.profile_picture);
         message = findViewById(R.id.message);
-        name = findViewById(R.id.profileName);
-        username = findViewById(R.id.profileUserName);
-        age = findViewById(R.id.profileAge);
-        bio = findViewById(R.id.profileBio);
+        name = findViewById(R.id.name);
+        username = findViewById(R.id.username);
+        age = findViewById(R.id.age);
+        bio = findViewById(R.id.bio);
 
         sport_icons.add(R.drawable.basketball);
         sport_icons.add(R.drawable.football);
