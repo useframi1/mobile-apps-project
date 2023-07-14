@@ -82,7 +82,7 @@ public class GroupMatching extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((adapterView, view, position, l) -> {
-            Intent intent = new Intent(GroupMatching.this, edu.aucegypt.gymwya.ViewGroup.class);
+            Intent intent = new Intent(GroupMatching.this, edu.aucegypt.gymwya.ViewRequests.class);
             String chosenGroup = groups.get(position).name;
             intent.putExtra("Team", chosenGroup);
             Bundle temp = new Bundle();

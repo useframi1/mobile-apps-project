@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,7 +24,6 @@ public class ViewRequests extends AppCompatActivity {
 
     ViewRequestAdapter adapter;
     ArrayList<User> match_list = new ArrayList<>();
-    ArrayList<Sport> sport_list = new ArrayList<>();
 
 
     // TextView groupName;
@@ -72,15 +72,23 @@ public class ViewRequests extends AppCompatActivity {
             }
         });
 
+       // listView.setAdapter(adapter);
+
         listView.setAdapter(adapter);
 
-
+//        listView.setOnItemClickListener((adapterView, view, position, l) -> {
+//
+//                Intent intent = new Intent(ViewRequests.this, VisitProfile.class);
+//                //   intent.putExtra("User", clickedUser);
+//                startActivity(intent);
+//
+//        });
 
     }
 
 
     class ViewRequestAdapter extends ArrayAdapter<User> {
-        Button viewProfile,decline,confirm;
+        Button decline,confirm;
 
         public ViewRequestAdapter(Context context, ArrayList<User> members) {
             super(context, 0, members);
@@ -98,9 +106,9 @@ public class ViewRequests extends AppCompatActivity {
             TextView requestPerson = convertView.findViewById(R.id.request);
             TextView matchInfo = convertView.findViewById(R.id.info);
             ImageView personPic = convertView.findViewById(R.id.profile_picture);
-            viewProfile = convertView.findViewById(R.id.view_profile);
             decline = convertView.findViewById(R.id.decline);
             confirm = convertView.findViewById(R.id.confirm);
+
 
             requestPerson.setText(person.name);
           //  matchInfo.setText(sport from 3:00 PM - 4:00 PM");
