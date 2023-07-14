@@ -51,7 +51,6 @@ public class CreateUser extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-
         create.setOnClickListener(v -> {
             Intent intent = new Intent(CreateUser.this, HomePage.class);
             startActivity(intent);

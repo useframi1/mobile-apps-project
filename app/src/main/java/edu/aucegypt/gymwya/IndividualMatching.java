@@ -97,8 +97,7 @@ public class IndividualMatching extends AppCompatActivity {
         viewProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(IndividualMatching.this, GroupMatching.class);
-                //Intent intent = new Intent(IndividualMatching.this, Profile.class);
+                Intent intent = new Intent(IndividualMatching.this, VisitProfile.class);
                 //intent.putExtra("user",users[position]);
                 startActivity(intent);
             }

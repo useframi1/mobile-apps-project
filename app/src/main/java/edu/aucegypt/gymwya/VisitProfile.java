@@ -17,7 +17,7 @@ public class VisitProfile extends AppCompatActivity {
     ImageView back, pic;
     TextView name,username,age,bio;
 
-    ArrayList<Sport.SportIcon> sport_icons = new ArrayList<>();
+    static ArrayList<Sport.SportIcon> sport_icons = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
