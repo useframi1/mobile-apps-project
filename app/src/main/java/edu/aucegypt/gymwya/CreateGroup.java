@@ -52,16 +52,16 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         });
 
         recyclerView = findViewById(R.id.recyclerView);
-        iconsList.add(new Sport.SportIcon(R.drawable.football, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.volleyball, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.tennis, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.squash, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.basketball, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.swimming, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.pingpong, false));
-        iconsList.add(new Sport.SportIcon(R.drawable.gym, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.football_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.volleyball_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.tennis_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.squash_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.basketball_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.swimming_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.pingpong_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.gym_icon));
 
-        mAdapter = new IconsAdapter(iconsList);
+        mAdapter = new IconsAdapter(iconsList, true, true);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(mLayoutManager);

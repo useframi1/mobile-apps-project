@@ -107,7 +107,7 @@
         />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/iconRecyclerView"
+        android:id="@+id/recyclerView"
         android:layout_width="350dp"
         android:layout_height="70dp"
         android:layout_marginStart="25dp"

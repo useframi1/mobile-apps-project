@@ -88,12 +88,13 @@
 
         <Button
             android:id="@+id/view_profile_button"
-            android:layout_width="100dp"
-            android:layout_height="60dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="View Profile"
-            android:fontFamily="sans-serif-medium"
             app:cornerRadius="10dp"
-            app:backgroundTint="@color/blue" />
+            app:backgroundTint="@color/blue"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:fontFamily="sans-serif-medium"/>
 
 
         <Button

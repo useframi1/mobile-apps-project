@@ -120,14 +120,14 @@ public class HomePage extends AppCompatActivity {
     // Create the list of sports
     private List<Sport> createSportList() {
         List<Sport> sportList = new ArrayList<>();
-        sportList.add(new Sport("Swimming",false, new Sport.SportIcon(R.drawable.swimming_icon,false)));
-        sportList.add(new Sport("Gym", true, new Sport.SportIcon(R.drawable.gym, false)));
-        sportList.add(new Sport("Football", false, new Sport.SportIcon(R.drawable.football, false)));
-        sportList.add(new Sport("PingPong",true, new Sport.SportIcon(R.drawable.pingpong_icon,false)));
-        sportList.add(new Sport("BasketBall",false, new Sport.SportIcon(R.drawable.basketball_icon,false)));
-        sportList.add(new Sport("VolleyBall", false, new Sport.SportIcon(R.drawable.volleyball_icon,false)));
-        sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon,false)));
-        sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon,false)));
+        sportList.add(new Sport("Swimming",false, new Sport.SportIcon(R.drawable.swimming_icon)));
+        sportList.add(new Sport("Gym", true, new Sport.SportIcon(R.drawable.gym_icon)));
+        sportList.add(new Sport("Football", false, new Sport.SportIcon(R.drawable.football_icon)));
+        sportList.add(new Sport("PingPong",true, new Sport.SportIcon(R.drawable.pingpong_icon)));
+        sportList.add(new Sport("BasketBall",false, new Sport.SportIcon(R.drawable.basketball_icon)));
+        sportList.add(new Sport("VolleyBall", false, new Sport.SportIcon(R.drawable.volleyball_icon)));
+        sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon)));
+        sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon)));
         return sportList;
     }
 }

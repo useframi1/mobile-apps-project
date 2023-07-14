@@ -36,7 +36,9 @@
             android:layout_height="wrap_content"
             android:text="Cancel"
             app:backgroundTint="@color/blue"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:fontFamily="sans-serif-medium"/>
         <Space
             android:layout_width="70dp"
             android:layout_height="0dp"/>
@@ -48,7 +50,8 @@
             android:text="Confirm"
             app:backgroundTint="@color/blue"
             android:textColor="#FFFFFF"
-             />
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:fontFamily="sans-serif-medium"/>
 
     </LinearLayout>
 

@@ -14,15 +14,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
-    private List<Sport> sportList;
+    private List<Sport.SportIcon> iconsList = new ArrayList<>();
     Button create;
-
+    private IconsAdapter mAdapter;
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,29 +34,27 @@ public class CreateUser extends AppCompatActivity {
         setContentView(R.layout.create_user);
         create = findViewById(R.id.createUserButton);
 
+        recyclerView = findViewById(R.id.recyclerView);
+        iconsList.add(new Sport.SportIcon(R.drawable.football_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.volleyball_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.tennis_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.squash_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.basketball_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.swimming_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.pingpong_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.gym_icon));
 
-        GridView gridView = findViewById(R.id.sport_list);
-        sportList = createSportList();
-        gridAdapter = new GridViewAdapter(this, sportList);
+        mAdapter = new IconsAdapter(iconsList, false, true);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
 
-        gridView.setAdapter(gridAdapter);
 
         create.setOnClickListener(v -> {
             Intent intent = new Intent(CreateUser.this, HomePage.class);
             startActivity(intent);
         });
-        
-    }
-    private List<Sport> createSportList() {
-        List<Sport> sportList = new ArrayList<>();
-        sportList.add(new Sport("Swimming",false, new Sport.SportIcon(R.drawable.swimming_icon,false)));
-        sportList.add(new Sport("Gym", true, new Sport.SportIcon(R.drawable.gym, false)));
-        sportList.add(new Sport("Football", false, new Sport.SportIcon(R.drawable.football, false)));
-        sportList.add(new Sport("PingPong",true, new Sport.SportIcon(R.drawable.pingpong_icon,false)));
-        sportList.add(new Sport("BasketBall",false, new Sport.SportIcon(R.drawable.basketball_icon,false)));
-        sportList.add(new Sport("VolleyBall", false, new Sport.SportIcon(R.drawable.volleyball_icon,false)));
-        sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon,false)));
-        sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon,false)));
-        return sportList;
     }
 }

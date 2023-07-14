@@ -13,6 +13,8 @@ import java.util.List;
 class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder> {
     private List<Sport.SportIcon> iconsList;
     private ArrayList<MyViewHolder> iconsView = new ArrayList<>();
+    private boolean toggle;
+    private boolean isEditable;
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView icon;
@@ -28,8 +30,10 @@ class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder> {
         }
     }
 
-    public IconsAdapter(List<Sport.SportIcon> iconsList) {
+    public IconsAdapter(List<Sport.SportIcon> iconsList, boolean toggle, boolean isEditable) {
         this.iconsList = iconsList;
+        this.toggle = toggle;
+        this.isEditable = isEditable;
     }
 
     @Override
@@ -45,18 +49,21 @@ class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder> {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         int icon = iconsList.get(position).id;
         holder.icon.setImageResource(icon);
-        holder.itemView.setOnClickListener(v -> {
-            for (int i = 0; i < iconsView.size(); i++) {
-                if (iconsView.get(i).view != v) {
-                    iconsView.get(i).view.setBackgroundResource(0);
-                    iconsList.get(i).isPressed = false;
-                    iconsView.get(i).isPressed = false;
+        if (isEditable)
+            holder.itemView.setOnClickListener(v -> {
+                for (int i = 0; i < iconsView.size(); i++) {
+                    if (iconsView.get(i).view != v) {
+                        if (toggle) {
+                            iconsView.get(i).view.setBackgroundResource(0);
+                            iconsList.get(i).isPressed = false;
+                            iconsView.get(i).isPressed = false;
+                        }
+                    }
                 }
-            }
-            iconsView.get(position).view.setBackgroundResource(holder.isPressed ? 0 : R.drawable.circle_bg);
-            iconsList.get(position).isPressed = !holder.isPressed;
-            iconsView.get(position).isPressed = !holder.isPressed;
-        });
+                iconsView.get(position).view.setBackgroundResource(holder.isPressed ? 0 : R.drawable.circle_bg);
+                iconsList.get(position).isPressed = !holder.isPressed;
+                iconsView.get(position).isPressed = !holder.isPressed;
+            });
     }
 
     @Override

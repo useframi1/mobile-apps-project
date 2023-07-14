@@ -9,16 +9,16 @@
 
     <TextView
         android:id="@+id/appName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Gymwya"
-        android:textSize="40dp"
-        android:textColor="#FF0066BA"
+        android:layout_marginTop="80dp"
+        android:layout_marginBottom="40dp"
+        android:fontFamily="@font/charm"
         android:gravity="center"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="sans-serif-medium"
-        />
+        android:text="Gymwya"
+        android:textColor="#FF0066BA"
+        android:textSize="50sp"
+        android:layout_gravity="center"/>
 
 
         <ImageView
@@ -37,23 +37,26 @@
 
     <Button
         android:id="@+id/signUp"
-        android:layout_width="300dp"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:text="SIGN UP"
+        android:text="Sign Up"
         android:layout_gravity="center"
         android:textSize="20dp"
         app:cornerRadius="20dp"
-        app:backgroundTint="#FF0066BA"/>
+        app:backgroundTint="#FF0066BA"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:fontFamily="sans-serif-medium"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12dp"
+            android:textSize="14sp"
             android:text="Already have an account?"
             android:fontFamily="sans-serif-medium"
             android:layout_gravity="center_vertical"
@@ -66,13 +69,15 @@
 
         <Button
             android:id="@+id/signIn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
             android:layout_gravity="center"
-            android:text="SIGN IN"
-            android:textSize="10dp"
+            android:text="Sign In"
+            android:textSize="11sp"
             app:backgroundTint="#FF0066BA"
-            app:cornerRadius="20dp" />
+            app:cornerRadius="20dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:fontFamily="sans-serif-medium"/>
 
 
     </LinearLayout>

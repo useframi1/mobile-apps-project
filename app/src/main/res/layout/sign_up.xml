@@ -124,15 +124,16 @@
 
 
     <Button
-        android:id="@+id/signUp"
+        android:id="@+id/create_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CREATE ACCOUNT"
-        android:fontFamily="sans-serif-medium"
+        android:text="Create Account"
         android:layout_gravity="center"
         android:textSize="16dp"
         app:cornerRadius="20dp"
-        app:backgroundTint="#FF0066BA"/>
+        app:backgroundTint="#FF0066BA"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:fontFamily="sans-serif-medium"/>
 
 
 

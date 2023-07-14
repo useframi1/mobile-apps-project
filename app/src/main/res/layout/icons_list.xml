@@ -12,7 +12,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/football"
+        android:src="@drawable/football_icon"
         android:layout_gravity="center"/>
 
 </androidx.cardview.widget.CardView>

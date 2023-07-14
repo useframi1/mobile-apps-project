@@ -27,9 +27,9 @@ public class Sport {
         public int id;
         public boolean isPressed;
 
-        public SportIcon(int id, boolean isPressed) {
+        public SportIcon(int id) {
             this.id = id;
-            this.isPressed = isPressed;
+            this.isPressed = false;
         }
     }
 }
