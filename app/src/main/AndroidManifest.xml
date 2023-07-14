@@ -12,13 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Gymwya"
         tools:targetApi="31">
-        <activity
-            android:name=".EditProfile"
-            android:exported="false" />
-        <activity
-            android:name=".Profile"
-            android:exported="true">
-        </activity>
+
         <activity
             android:name=".Start"
             android:exported="true">
@@ -26,6 +20,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".EditProfile"
+            android:exported="false" />
+        <activity
+            android:name=".Profile"
+            android:exported="true">
         </activity>
         <activity
             android:name=".ViewGroup"
@@ -53,6 +54,16 @@
             android:name=".GroupMatching"
             android:exported="true">
         </activity>
+
+        <activity
+            android:name=".PeopleMatched"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".IndividualMatching"
             android:exported="true">
