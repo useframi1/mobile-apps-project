@@ -78,6 +78,7 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+
         // Set up the GridView
         GridView gridView = findViewById(R.id.gridView);
         sportList = createSportList();
@@ -112,7 +113,8 @@ public class HomePage extends AppCompatActivity {
         viewRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Open another activity
+                Intent i = new Intent(HomePage.this, ViewRequests.class);
+                startActivity(i);
             }
         });
     }
