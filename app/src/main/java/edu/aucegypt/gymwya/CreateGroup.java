@@ -45,7 +45,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             } else if (item.getItemId() == R.id.chats) {
                 i = new Intent(this, CreateGroup.class);
             } else {
-                i = new Intent(this, CreateMeeting.class);
+                i = new Intent(this, Profile.class);
             }
             startActivity(i);
             return true;

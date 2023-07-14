@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SignUp extends AppCompatActivity {
         Button createAcccount, googleSignUp;
         EditText email, password, rePassword;
+        ImageView back;
 
         @SuppressLint("MissingInflatedId")
         @Override
@@ -24,6 +26,7 @@ public class SignUp extends AppCompatActivity {
                 email = (EditText) findViewById(R.id.userEmail);
                 password = (EditText) findViewById(R.id.enteredPassword);
                 rePassword = (EditText) findViewById(R.id.reEnteredPassword);
+                back = findViewById(R.id.back);
 
                 createAcccount.setOnClickListener(view -> {
                         Intent intent = new Intent(SignUp.this, CreateUser.class);
@@ -38,6 +41,10 @@ public class SignUp extends AppCompatActivity {
                 // startActivity(intent);
                 // }
                 // });
+
+                back.setOnClickListener(v -> {
+                        finish();
+                });
 
         }
 }

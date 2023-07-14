@@ -10,6 +10,7 @@ public class Group implements Serializable {
     ArrayList<User> members;
     String timeFrom;
     String timeTo;
+    long groupID;
 
     public Group(String name, int iconId, int numberOfMembers, ArrayList<User> members, String timeFrom, String timeTo) {
         this.name = name;
@@ -18,5 +19,9 @@ public class Group implements Serializable {
         this.members = members;
         this.timeFrom = timeFrom;
         this.timeTo = timeTo;
+    }
+
+    public Group(){
+
     }
 }

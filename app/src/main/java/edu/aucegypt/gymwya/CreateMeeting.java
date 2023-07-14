@@ -18,11 +18,17 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
+import java.util.Date;
 
 public class CreateMeeting extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
-    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo;
+    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, addMeeting;
     ImageView back;
     private int mYear, mMonth, mDay, mHour, mMinute;
+    Sport sport;
+    ArrayAdapter<CharSequence> adapter;
+    Spinner spinner;
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +43,21 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             } else if (item.getItemId() == R.id.chats) {
                 i = new Intent(this, CreateGroup.class);
             } else {
-                i = new Intent(this, CreateMeeting.class);
+                i = new Intent(this, Profile.class);
             }
             startActivity(i);
             return true;
         });
 
-        btnDatePicker=(Button)findViewById(R.id.date);
-        btnTimePickerFrom=(Button)findViewById(R.id.from);
-        btnTimePickerTo=(Button)findViewById(R.id.to);
+        btnDatePicker= findViewById(R.id.date);
+        btnTimePickerFrom= findViewById(R.id.from);
+        btnTimePickerTo= findViewById(R.id.to);
+        addMeeting = findViewById(R.id.add_meeting);
 
         btnDatePicker.setOnClickListener(this);
         btnTimePickerFrom.setOnClickListener(this);
         btnTimePickerTo.setOnClickListener(this);
+        addMeeting.setOnClickListener(this);
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -58,11 +66,12 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         mHour = c.get(Calendar.HOUR_OF_DAY);
         mMinute = c.get(Calendar.MINUTE);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sports, android.R.layout.simple_spinner_item);
+        adapter = ArrayAdapter.createFromResource(this, R.array.sports, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Spinner spinner = findViewById(R.id.sport);
+        spinner = findViewById(R.id.sport);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
 
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
@@ -89,11 +98,12 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             setTime(btnTimePickerTo);
         } if (v == back) {
             finish();
+        } if (v == addMeeting) {
         }
     }
 
     public void setDate() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+        datePickerDialog = new DatePickerDialog(this,
                 (view, year, monthOfYear, dayOfMonth) -> {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -105,7 +115,7 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
     }
 
     public void setTime(Button button) {
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+        timePickerDialog = new TimePickerDialog(this,
                 (view, hourOfDay, minute) -> {
                     int tempHour = hourOfDay;
                     if (hourOfDay == 0)

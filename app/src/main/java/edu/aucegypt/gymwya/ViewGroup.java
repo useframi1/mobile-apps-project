@@ -39,7 +39,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             } else if (item.getItemId() == R.id.chats) {
                 i = new Intent(this, CreateGroup.class);
             } else {
-                i = new Intent(this, CreateMeeting.class);
+                i = new Intent(this, Profile.class);
             }
             startActivity(i);
             return true;

@@ -1,5 +1,6 @@
 package edu.aucegypt.gymwya;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +10,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
@@ -23,6 +26,20 @@ public class VisitProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.visit_profile);
+
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i;
+            if (item.getItemId() == R.id.home) {
+                i = new Intent(this, HomePage.class);
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else {
+                i = new Intent(this, Profile.class);
+            }
+            startActivity(i);
+            return true;
+        });
 
         back = findViewById(R.id.back);
         pic = findViewById(R.id.profile_picture);

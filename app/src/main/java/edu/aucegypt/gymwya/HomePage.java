@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -37,13 +38,14 @@ public class HomePage extends AppCompatActivity {
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
+            item.getIcon().setTint(Color.BLACK);
             Intent i = new Intent();
             if (item.getItemId() == R.id.home) {
                 return false;
             } else if (item.getItemId() == R.id.chats) {
                 i = new Intent(this, CreateGroup.class);
             } else if (item.getItemId() == R.id.profile) {
-                i = new Intent(this, CreateMeeting.class);
+                i = new Intent(this, Profile.class);
             }
             startActivity(i);
             return false;

@@ -1,6 +1,9 @@
 package edu.aucegypt.gymwya;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,46 +15,56 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-public class Profile extends AppCompatActivity {
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-    String [] profileItems={"People Matched","Interested Fields"};
-    ListView listview;
+import java.util.ArrayList;
+
+public class Profile extends AppCompatActivity {
     Button editProfile;
-    EditText reminder;
+    RecyclerView recyclerView;
+    ArrayList<Sport.SportIcon> iconsList = new ArrayList<>();
+    IconsAdapter mAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        editProfile = (Button) findViewById(R.id.editprofile);
-        reminder= (EditText) findViewById(R.id.reminder);
-        listview=(ListView) findViewById(R.id.profilelist);
-        ArrayAdapter<String> adapter= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,profileItems);
-        listview.setAdapter(adapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.i("CUSTOM_LIST_VIEW", "Item is clicked @ Position :: " +i);
-                if(i==0) {
-                   // Intent intent = new Intent(Profile.this, Activity_people_matched.class);
-                    //startActivity(intent);
-                }
-                else if (i==1)
-                {
-                    // Intent intent = new Intent(Profile.this, Activity_interested_fields.class);
-                    //startActivity(intent);
-                }
-            }
-        });
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent= new Intent(Profile.this, EditProfile.class);
-                startActivity(intent);
-            }
-        });
-        //not sure about this line yet
-        String editTextValue = reminder.getText().toString();
 
+        BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
+        menuView.setOnItemSelectedListener(item -> {
+            Intent i;
+            if (item.getItemId() == R.id.home) {
+                i = new Intent(this, HomePage.class);
+            } else if (item.getItemId() == R.id.chats) {
+                i = new Intent(this, CreateGroup.class);
+            } else {
+                return false;
+            }
+            startActivity(i);
+            return true;
+        });
 
+        recyclerView = findViewById(R.id.recyclerView);
+        iconsList.add(new Sport.SportIcon(R.drawable.football_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.volleyball_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.tennis_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.squash_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.basketball_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.swimming_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.pingpong_icon));
+        iconsList.add(new Sport.SportIcon(R.drawable.gym_icon));
+
+        mAdapter = new IconsAdapter(iconsList, true, false);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+
+        editProfile = findViewById(R.id.edit_profile);
+
+        editProfile.setOnClickListener(view -> {
+            Intent intent= new Intent(Profile.this, EditProfile.class);
+            startActivity(intent);
+        });
     }
 }

@@ -25,6 +25,7 @@ public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     Button create;
+    ImageView back;
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
 
@@ -33,6 +34,7 @@ public class CreateUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user);
         create = findViewById(R.id.createUserButton);
+        back = findViewById(R.id.back);
 
         recyclerView = findViewById(R.id.recyclerView);
         iconsList.add(new Sport.SportIcon(R.drawable.football_icon));
@@ -55,5 +57,10 @@ public class CreateUser extends AppCompatActivity {
             Intent intent = new Intent(CreateUser.this, HomePage.class);
             startActivity(intent);
         });
+
+        back.setOnClickListener(v -> {
+            finish();
+        });
+
     }
 }
