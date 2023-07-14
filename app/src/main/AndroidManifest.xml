@@ -25,6 +25,13 @@
             android:exported="true">
         </activity>
         <activity
+            android:name=".EditProfile"
+            android:exported="false" />
+        <activity
+            android:name=".Profile"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".ViewGroup"
             android:exported="true">
         </activity>
@@ -50,7 +57,10 @@
             android:name=".GroupMatching"
             android:exported="true">
         </activity>
-
+        <activity
+            android:name=".PeopleMatched"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".Chats"
             android:exported="true">
