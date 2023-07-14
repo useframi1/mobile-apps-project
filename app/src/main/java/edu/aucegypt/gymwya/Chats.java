@@ -41,7 +41,7 @@ public class Chats extends AppCompatActivity {
             if (item.getItemId() == R.id.home) {
                 i = new Intent(this, HomePage.class);
             } else if (item.getItemId() == R.id.chats) {
-                i = new Intent(this, CreateGroup.class);
+                return false;
             } else {
                 i = new Intent(this, CreateMeeting.class);
             }
@@ -49,12 +49,19 @@ public class Chats extends AppCompatActivity {
             return true;
         });
 
-        Bundle bundle = getIntent().getExtras();
-        String name = "Group Name";
-        if (bundle != null) {
-            name = bundle.getString("Team");
-            senders = (ArrayList<User>) bundle.getSerializable("Members");
-        }
+//        Bundle bundle = getIntent().getExtras();
+//        String name = "Group Name";
+//        if (bundle != null) {
+//            name = bundle.getString("Team");
+//            senders = (ArrayList<User>) bundle.getSerializable("Members");
+//        }
+
+        senders.add(new User("mariam", R.drawable.mariam));
+        senders.add(new User("youssef", R.drawable.ghaleb));
+        senders.add(new User("nadine", R.drawable.nadine));
+        senders.add(new User("nour", R.drawable.nour));
+
+
 
         adapter = new ViewRequestAdapter(this, senders);
 
