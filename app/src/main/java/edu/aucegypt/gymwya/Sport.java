@@ -1,20 +1,14 @@
 package edu.aucegypt.gymwya;
 
 public class Sport {
-    private String sportName;
-    private boolean isIndividual;
+    String sportName;
+    boolean isIndividual;
+    SportIcon sportIcon;
 
-    public Sport(String sportName, boolean isIndividual) {
+    public Sport(String sportName, boolean isIndividual, SportIcon sportIcon) {
         this.sportName = sportName;
         this.isIndividual = isIndividual;
-    }
-
-    public String getSportName() {
-        return sportName;
-    }
-
-    public boolean getIsIndividual() {
-        return isIndividual;
+        this.sportIcon = sportIcon;
     }
 
     public static class SportIcon {

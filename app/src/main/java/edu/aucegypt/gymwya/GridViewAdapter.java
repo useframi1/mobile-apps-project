@@ -60,8 +60,8 @@ public class GridViewAdapter extends BaseAdapter {
         }
 
         Sport sport = filteredSportList.get(position);
-        holder.image.setImageResource(sport.getSportImage());
-        holder.text.setText(sport.getSportName());
+        holder.image.setImageResource(sport.sportIcon.id);
+        holder.text.setText(sport.sportName);
 
         return convertView;
     }
@@ -76,7 +76,7 @@ public class GridViewAdapter extends BaseAdapter {
 
         // Perform filtering based on the search query
         for (Sport sport : sportList) {
-            if (sport.getSportName().toLowerCase().contains(query.toLowerCase())) {
+            if (sport.sportName.toLowerCase().contains(query.toLowerCase())) {
                 filteredSportList.add(sport);
             }
         }

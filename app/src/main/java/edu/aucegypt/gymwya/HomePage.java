@@ -89,11 +89,11 @@ public class HomePage extends AppCompatActivity {
         gridView.setOnItemClickListener((adapterView, view, position, id) -> {
 
             Intent intent;
-            if (sportList.get(position).getIsIndividual())
+            if (sportList.get(position).isIndividual)
                 intent = new Intent(HomePage.this, IndividualMatching.class);
             else
                 intent = new Intent(HomePage.this, GroupMatching.class);
-            intent.putExtra("selectedSport", sportList.get(position).getSportName());
+            intent.putExtra("selectedSport", sportList.get(position).sportName);
             startActivity(intent);
         });
 
