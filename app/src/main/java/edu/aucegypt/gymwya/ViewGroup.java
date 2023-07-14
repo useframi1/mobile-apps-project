@@ -106,6 +106,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 }
 
 class ViewGroupAdapter extends ArrayAdapter<User> {
+    Button viewProfile;
     public ViewGroupAdapter(Context context, ArrayList<User> members) {
         super(context, 0, members);
     }
@@ -121,9 +122,16 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
 
         TextView memberName = convertView.findViewById(R.id.name);
         ImageView memberPic = convertView.findViewById(R.id.profile_picture);
+        viewProfile = convertView.findViewById(R.id.view_profile);
 
         memberName.setText(member.name);
         memberPic.setImageResource(member.imageId);
+
+        viewProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), VisitProfile.class);
+            intent.putExtra("User", member);
+            getContext().startActivity(intent);
+        });
 
         return convertView;
     }

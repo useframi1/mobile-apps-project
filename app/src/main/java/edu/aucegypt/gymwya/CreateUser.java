@@ -14,6 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,9 @@ public class CreateUser extends AppCompatActivity {
     private List<Sport> sportList;
     Button create;
 
+    private List<Sport.SportIcon> iconsList = new ArrayList<>();
+    private IconsAdapter mAdapter;
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +37,29 @@ public class CreateUser extends AppCompatActivity {
         create = findViewById(R.id.createUserButton);
 
 
-        GridView gridView = findViewById(R.id.sport_list);
-        sportList = createSportList();
-        gridAdapter = new GridViewAdapter(this, sportList);
+        recyclerView = findViewById(R.id.sports_recycler_view);
+        iconsList.add(new Sport.SportIcon(R.drawable.football, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.volleyball, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.tennis, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.squash, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.basketball, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.swimming, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.pingpong, false));
+        iconsList.add(new Sport.SportIcon(R.drawable.gym, false));
 
-        gridView.setAdapter(gridAdapter);
+        mAdapter = new IconsAdapter(iconsList);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+
+
+//        GridView gridView = findViewById(R.id.sport_list);
+//        sportList = createSportList();
+//        gridAdapter = new GridViewAdapter(this, sportList);
+//
+//        gridView.setAdapter(gridAdapter);
 
         create.setOnClickListener(v -> {
             Intent intent = new Intent(CreateUser.this, HomePage.class);

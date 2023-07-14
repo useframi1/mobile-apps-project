@@ -19,20 +19,20 @@ public class SignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up);
 
-        createAcccount = (Button) findViewById(R.id.signInPageButton);
+        createAcccount = (Button) findViewById(R.id.signUp);
         googleSignUp = (Button) findViewById(R.id.continueWithGoogle);
         email = (EditText) findViewById(R.id.userEmail);
         password = (EditText) findViewById(R.id.enteredPassword);
         rePassword = (EditText) findViewById(R.id.reEnteredPassword);
 
-//        createAcccount.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(SignUp.this, NewAccount.class);
-//                intent = intent.putExtra("email", email.getText().toString());
-//                startActivity(intent);
-//            }
-//        });
+        createAcccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignUp.this, CreateUser.class);
+                intent = intent.putExtra("email", email.getText().toString());
+                startActivity(intent);
+            }
+        });
 //        googleSignUp.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
