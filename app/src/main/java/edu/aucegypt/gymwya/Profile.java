@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -24,6 +25,7 @@ public class Profile extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<Sport.SportIcon> iconsList = new ArrayList<>();
     IconsAdapter mAdapter;
+    TextView currentMatches;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +37,7 @@ public class Profile extends AppCompatActivity {
             if (item.getItemId() == R.id.home) {
                 i = new Intent(this, HomePage.class);
             } else if (item.getItemId() == R.id.chats) {
-                i = new Intent(this, CreateGroup.class);
+                i = new Intent(this, Chats.class);
             } else {
                 return false;
             }
@@ -61,9 +63,15 @@ public class Profile extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         editProfile = findViewById(R.id.edit_profile);
+        currentMatches = findViewById(R.id.view_current_matches);
 
         editProfile.setOnClickListener(view -> {
             Intent intent= new Intent(Profile.this, EditProfile.class);
+            startActivity(intent);
+        });
+
+        currentMatches.setOnClickListener(view -> {
+            Intent intent= new Intent(Profile.this, PeopleMatched.class);
             startActivity(intent);
         });
     }
