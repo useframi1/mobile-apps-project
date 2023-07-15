@@ -14,11 +14,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
-public class ViewRequests extends Main{
+public class ViewRequests extends AppCompatActivity {
 
     ViewRequestAdapter adapter;
     ArrayList<User> match_list = new ArrayList<>();

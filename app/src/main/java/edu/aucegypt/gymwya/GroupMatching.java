@@ -20,7 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
-public class GroupMatching extends Main {
+public class GroupMatching extends AppCompatActivity {
     GroupMatchingAdapter adapter;
     ListView listView;
     ImageView backArrow;

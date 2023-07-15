@@ -6,8 +6,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
-public class Main extends AppCompatActivity {
-    ArrayList<User> users;
-    ArrayList<IndividualMeeting> meetings;
-    // ba2it el fields
+public class Main {
+    private static Main instance;
+    private SubMain dataModel;
+
+    private Main() {
+        dataModel = new SubMain();
+    }
+
+    public static synchronized Main getInstance() {
+        if (instance == null) {
+            instance = new Main();
+        }
+        return instance;
+    }
+
+    public SubMain getDataModel() {
+        return dataModel;
+    }
 }

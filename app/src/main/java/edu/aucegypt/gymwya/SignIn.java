@@ -10,6 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import java.util.concurrent.TimeUnit;
 
 public class SignIn extends AppCompatActivity {
     Button signIn;
@@ -30,6 +36,9 @@ public class SignIn extends AppCompatActivity {
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.UNMETERED).build();
+                PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(API.class, 15, TimeUnit.MINUTES).setConstraints(constraints).build();
+                WorkManager.getInstance().enqueue(workRequest);
 
                 Intent intent = new Intent(SignIn.this, HomePage.class);
                 intent = intent.putExtra("email", email.getText().toString());

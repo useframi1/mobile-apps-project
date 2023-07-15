@@ -27,20 +27,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomePage extends Main {
+public class HomePage extends AppCompatActivity {
     GridViewAdapter gridAdapter;
     List<Sport> sportList;
     Button viewRequests;
+    private Main dataManager;
+    private SubMain dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
-
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+
+        dataManager = Main.getInstance();
+        dataModel = dataManager.getDataModel();
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
