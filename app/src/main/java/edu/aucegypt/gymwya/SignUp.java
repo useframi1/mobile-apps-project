@@ -8,11 +8,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SignUp extends AppCompatActivity {
@@ -32,10 +38,11 @@ public class SignUp extends AppCompatActivity {
                 password = (EditText) findViewById(R.id.enteredPassword);
                 rePassword = (EditText) findViewById(R.id.reEnteredPassword);
                 back = findViewById(R.id.back);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 createAccount.setOnClickListener(view -> {
-                        AtomicReference<Boolean> databaseError = new AtomicReference<>();
-                        Intent intent = new Intent(this, CreateUser.class);
+                        AtomicReference<Boolean> databaseError = new AtomicReference<>(false);
+
                         // add check for email and password to see if they are empty or not and if they
                         // are empty then send error message
                         if (!password.getText().toString().equals(rePassword.getText().toString())) {
@@ -62,25 +69,20 @@ public class SignUp extends AppCompatActivity {
                                                                                                 .getMessage(),
                                                                                 Toast.LENGTH_SHORT).show();
                                                         }
-                                                        databaseError.set(!task.isSuccessful());
-                                                });
-                                if (!databaseError.get()) {
-                                        intent.putExtra("password", password.getText().toString());
-                                        intent.putExtra("email", email.getText().toString());
-                                        startActivity(intent);
-                                }
+                                                        if (task.isSuccessful()) {
+                                                                Intent intent = new Intent(SignUp.this, CreateUser.class);
+                                                                intent.putExtra("password", password.getText().toString());
+                                                                intent.putExtra("email", email.getText().toString());
+                                                                startActivity(intent);
+                                                        }                                                });
+
 
                         }
 
+
                 });
-                // googleSignUp.setOnClickListener(new View.OnClickListener() {
-                // @Override
-                // public void onClick(View view) {
-                // Intent intent = new Intent(SignUp.this, NewAccount.class);
-                // intent = intent.putExtra("email", email.getText().toString());
-                // startActivity(intent);
-                // }
-                // });
+
+
 
                 back.setOnClickListener(v -> {
                         finish();
