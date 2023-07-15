@@ -30,6 +30,7 @@ public class SignIn extends AppCompatActivity {
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(SignIn.this, HomePage.class);
                 intent = intent.putExtra("email", email.getText().toString());
                 startActivity(intent);

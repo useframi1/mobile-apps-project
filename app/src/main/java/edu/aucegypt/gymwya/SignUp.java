@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SignUp extends AppCompatActivity {
-        Button createAcccount, googleSignUp;
+        Button createAccount;
         EditText email, password, rePassword;
         ImageView back;
 
@@ -21,14 +21,14 @@ public class SignUp extends AppCompatActivity {
                 super.onCreate(savedInstanceState);
                 setContentView(R.layout.sign_up);
 
-                createAcccount = (Button) findViewById(R.id.create_account);
-                googleSignUp = (Button) findViewById(R.id.continueWithGoogle);
+                createAccount = (Button) findViewById(R.id.create_account);
+//                googleSignUp = (Button) findViewById(R.id.continueWithGoogle);
                 email = (EditText) findViewById(R.id.userEmail);
                 password = (EditText) findViewById(R.id.enteredPassword);
                 rePassword = (EditText) findViewById(R.id.reEnteredPassword);
                 back = findViewById(R.id.back);
 
-                createAcccount.setOnClickListener(view -> {
+                createAccount.setOnClickListener(view -> {
                         Intent intent = new Intent(SignUp.this, CreateUser.class);
                         intent = intent.putExtra("email", email.getText().toString());
                         startActivity(intent);

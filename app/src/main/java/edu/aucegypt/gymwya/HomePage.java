@@ -26,10 +26,10 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomePage extends AppCompatActivity {
-
-    private GridViewAdapter gridAdapter;
-    private List<Sport> sportList;
+public class HomePage extends Main {
+    GridViewAdapter gridAdapter;
+    List<Sport> sportList;
+    Button viewRequests;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class HomePage extends AppCompatActivity {
             if (item.getItemId() == R.id.home) {
                 return false;
             } else if (item.getItemId() == R.id.chats) {
-                i = new Intent(this, CreateGroup.class);
+                i = new Intent(this, Chats.class);
             } else if (item.getItemId() == R.id.profile) {
                 i = new Intent(this, Profile.class);
             }
@@ -51,9 +51,9 @@ public class HomePage extends AppCompatActivity {
             return false;
         });
 
-        Button viewRequest = findViewById(R.id.viewRequest);
         Spinner create = findViewById(R.id.spinner);
         SearchView searchView = findViewById(R.id.searchView);
+        viewRequests = findViewById(R.id.viewRequest);
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
         spinnerAdapter.add("");
@@ -97,6 +97,11 @@ public class HomePage extends AppCompatActivity {
             startActivity(intent);
         });
 
+        viewRequests.setOnClickListener(v -> {
+            Intent i = new Intent(this, ViewRequests.class);
+            startActivity(i);
+        });
+
         // Set up the search functionality
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -108,13 +113,6 @@ public class HomePage extends AppCompatActivity {
             public boolean onQueryTextChange(String query) {
                 gridAdapter.filterData(query);
                 return false;
-            }
-        });
-
-        viewRequest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Open another activity
             }
         });
     }

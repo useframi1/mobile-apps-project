@@ -43,7 +43,7 @@ public class Chats extends AppCompatActivity {
             } else if (item.getItemId() == R.id.chats) {
                 return false;
             } else {
-                i = new Intent(this, CreateMeeting.class);
+                i = new Intent(this, Profile.class);
             }
             startActivity(i);
             return true;
