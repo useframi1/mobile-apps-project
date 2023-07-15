@@ -115,11 +115,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         } if (v == btnTimePickerTo) {
             setTime(btnTimePickerTo);
         } if (v == back) {
-            finish();
-        } if (v == btnCreateGroup) {
-            for (int i = 0; i < iconsList.size(); i++) {
-                System.out.println(iconsList.get(i).id + ": " + iconsList.get(i).isPressed);
-            }
+            Intent i = new Intent(this, HomePage.class);
+            startActivity(i);
         }
     }
 

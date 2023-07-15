@@ -97,7 +97,8 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         } if (v == btnTimePickerTo) {
             setTime(btnTimePickerTo);
         } if (v == back) {
-            finish();
+            Intent i = new Intent(this, HomePage.class);
+            startActivity(i);
         } if (v == addMeeting) {
         }
     }

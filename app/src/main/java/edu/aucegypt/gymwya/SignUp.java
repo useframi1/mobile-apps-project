@@ -73,8 +73,6 @@ public class SignUp extends AppCompatActivity {
             }
         });
 
-
-
         back.setOnClickListener(v -> {
             finish();
         });

@@ -73,6 +73,7 @@ public class HomePage extends AppCompatActivity {
                 Intent i;
                 if (position == 1) {
                     i = new Intent(HomePage.this, CreateGroup.class);
+                    System.out.println("pressed");
                     startActivity(i);
                 } else if (position == 2) {
                     i = new Intent(HomePage.this, CreateMeeting.class);
