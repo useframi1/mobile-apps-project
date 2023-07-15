@@ -111,6 +111,7 @@
         android:layout_gravity="center">
 
         <TextView
+            android:id="@+id/view_current_matches"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="View current matches"
