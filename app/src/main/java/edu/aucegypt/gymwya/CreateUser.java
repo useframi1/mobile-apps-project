@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
@@ -38,7 +41,7 @@ public class CreateUser extends AppCompatActivity {
     ImageView back;
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
-
+    AtomicReference<Boolean> Error = new AtomicReference<>(false);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,59 +69,116 @@ public class CreateUser extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         create.setOnClickListener(v -> {
-            Intent intent = new Intent(CreateUser.this, HomePage.class);
-            startActivity(intent);
+            // Retrieve data from the previous activity
+            Intent intentt = getIntent();
+            String email = intentt.getStringExtra("email");
+            String password = intentt.getStringExtra("password");
+
+            // Retrieve the username from the username text field in the XML file
+            String userName = ((TextView) findViewById(R.id.username)).getText().toString();
+            String Name = ((TextView) findViewById(R.id.name)).getText().toString();
+            String Age = ((TextView) findViewById(R.id.age)).getText().toString();
+            String Bio = ((TextView) findViewById(R.id.bio)).getText().toString();
+
+            // Check if the name text field is empty
+            if (Name.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Check if the username length is less than 6 characters
+            if (userName.length() < 6) {
+                Toast.makeText(getApplicationContext(), "Username must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Check if the age text field is a valid number between 10 and 100
+            int ageValue;
+                ageValue = Integer.parseInt(Age);
+            if (ageValue < 10 || ageValue > 100) {
+                Toast.makeText(getApplicationContext(), "Please enter a valid age between 10 and 100", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Check if the bio text field is empty
+            if (Bio.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Please enter a bio", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Perform the document retrieval and user creation logic
+            DocumentReference documentRef = db.collection("user").document(userName);
+            documentRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        Toast.makeText(getApplicationContext(), "Username already exists", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Username is available, proceed with creating the user and starting the HomePage activity
+                        Map<String, String> data = new HashMap<>();
+                        data.put("email", email);
+                        data.put("password", password);
+                        data.put("age", Age); // Save the age value as well
+                        // ... Add other data fields if needed
+                        db.collection("user")
+                                .document(userName)
+                                .set(data)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(CreateUser.this, "User created successfully", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(CreateUser.this, HomePage.class);
+                                    startActivity(intent);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(CreateUser.this, "Failed to create user", Toast.LENGTH_SHORT).show();
+                                    // Handle failure, if needed
+                                });
+                    }
+                } else {
+                    // An error occurred while checking for the document
+                    // Handle the error
+                    Toast.makeText(getApplicationContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            //put the data in the database
+            Map<String, Object> user = new HashMap<>();
+            user.put("name", Name);
+            user.put("age", Age);
+            user.put("bio", Bio);
+            user.put("email", email);
+            user.put("password", password);
+            user.put("sport", mAdapter.getSelectedItems());
+            db.collection("user")
+                    .document(userName) // Use userName as the document ID
+                    .set(user)
+                    .addOnSuccessListener(documentReference -> {
+                        Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(CreateUser.this, HomePage.class);
+                        startActivity(intent);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
+                        // Handle failure, if needed
+                    });
+
         });
+
 
         back.setOnClickListener(v -> {
             finish();
         });
 
-        //retrieve data from the previous activity
-        Intent intent = getIntent();
-        String email = intent.getStringExtra("email");
-        String password = intent.getStringExtra("password");
-        //retrieve the user name from the username text field in the xml file
-        String userName = ((TextView) findViewById(R.id.username)).getText().toString();
-        //checK if user name is taken and print a toast if it is
-        /*
-        DocumentReference documentRef = db.collection("users").document(userName);
-        documentRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot documentSnapshot = task.getResult();
-                if (documentSnapshot.exists()) {
-                    // The document with the specified ID exists
-                    // Handle the case when the document exists
-                    Toast.makeText(getApplicationContext(), "username exists", Toast.LENGTH_SHORT).show();
-                } else {
-                    // The document with the specified ID does not exist
-                    // Handle the case when the document does not exist
-                    Toast.makeText(getApplicationContext(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                }
+    }
+
+    private void onComplete(Task<DocumentSnapshot> task) {
+        if (task.isSuccessful()) {
+            DocumentSnapshot documentSnapshot = task.getResult();
+            if (documentSnapshot.exists()) {
+                Error.set(true);
+                Toast.makeText(getApplicationContext(), "username exists", Toast.LENGTH_SHORT).show();
             } else {
-                // An error occurred while checking for the document
-                // Handle the error
-                Toast.makeText(getApplicationContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "username does not exist", Toast.LENGTH_SHORT).show();
             }
-        });
-        Map<String, String> data = new HashMap<>();
-        data.put("email", email);
-        data.put("password", password);
-        db.collection("user")
-                .add(data)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(CreateUser.this, "Data inserted successfully", Toast.LENGTH_SHORT).show();
-                        // Continue with your logic after data insertion
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(CreateUser.this, "Failed to insert data", Toast.LENGTH_SHORT).show();
-                        // Handle failure, if needed
-                    }
-                });*/
+        } else {
+            // An error occurred while checking for the document
+            // Handle the error
+            Toast.makeText(getApplicationContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

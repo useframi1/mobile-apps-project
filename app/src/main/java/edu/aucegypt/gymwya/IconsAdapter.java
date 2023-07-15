@@ -16,6 +16,15 @@ class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder> {
     private boolean toggle;
     private boolean isEditable;
 
+    public Object getSelectedItems() {
+        ArrayList<Sport.SportIcon> selectedItems = new ArrayList<>();
+        for (int i = 0; i < iconsList.size(); i++) {
+            if (iconsList.get(i).isPressed)
+                selectedItems.add(iconsList.get(i));
+        }
+        return selectedItems;
+    }
+
     class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView icon;
         boolean isPressed;
