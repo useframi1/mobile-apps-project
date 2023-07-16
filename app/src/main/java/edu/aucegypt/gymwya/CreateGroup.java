@@ -31,11 +31,16 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
+    private Main dataManager;
+    private SubMain dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_group);
+
+        dataManager = Main.getInstance();
+        dataModel = dataManager.getDataModel();
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -115,7 +120,10 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         } if (v == btnTimePickerTo) {
             setTime(btnTimePickerTo);
         } if (v == back) {
-            Intent i = new Intent(this, HomePage.class);
+            Intent i;
+            if (dataModel.previousIsHome)
+                i = new Intent(this, HomePage.class);
+            else i = new Intent(this, GroupMatching.class);
             startActivity(i);
         }
     }

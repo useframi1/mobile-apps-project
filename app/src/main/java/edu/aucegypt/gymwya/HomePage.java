@@ -42,6 +42,7 @@ public class HomePage extends AppCompatActivity {
 
         dataManager = Main.getInstance();
         dataModel = dataManager.getDataModel();
+        dataModel.previousIsHome = true;
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {

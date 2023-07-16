@@ -28,11 +28,17 @@ public class GroupMatching extends AppCompatActivity{
     SearchView searchView;
     TextView noResults, sportName;
     ArrayList<Group> groups = new ArrayList<>();
+    private Main dataManager;
+    private SubMain dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.group_matching);
+
+        dataManager = Main.getInstance();
+        dataModel = dataManager.getDataModel();
+        dataModel.previousIsHome = false;
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -49,7 +55,7 @@ public class GroupMatching extends AppCompatActivity{
         });
 
         Bundle bundle = getIntent().getExtras();
-        String sport = bundle.getString("selectedSport");
+//        String sport = bundle.getString("selectedSport");
 
 
         groups.add(new Group("Volley at 5", R.drawable.group_icon1, 3, new ArrayList<>(), "2:30", "4:00"));
@@ -92,7 +98,13 @@ public class GroupMatching extends AppCompatActivity{
         });
 
         backArrow = (ImageView) findViewById(R.id.back_arrow2);
-        backArrow.setOnClickListener(view -> finish());
+        backArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(GroupMatching.this, HomePage.class);
+                startActivity(i);
+            }
+        });
 
         addGroup = findViewById(R.id.plus_button);
         addGroup.setOnClickListener(view -> {
