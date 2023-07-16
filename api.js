@@ -40,12 +40,32 @@ srv.post("/createUser", function (req, res) {
     });
 });
 
+// curl -X POST -H "Content-Type: application/json" -d '{"username":"useframi","name":"youssef rami","bio":"hello world","age":"20","email":"yousseframi@aucegypt.edu"}' http://localhost:3000/createUser
+
 // API: get requests
 // Method: GET
-srv.get("/getRequests", function (req, res) {});
+srv.get("/getRequests", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.reciever;
+
+    var sql = "SELECT * from Request WHERE reciever = ?";
+
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
 
 // API: get individual meetings
 // Method: GET
+srv.get("/getMeetings", function (req, res) {});
 
 // API: get group meetings
 // Method: GET
