@@ -42,7 +42,8 @@ public class CreateUser extends AppCompatActivity {
     private static final int REQUEST_PICK_IMAGE = 1;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     Button create, uploadProfilePictureButton;
-    ImageView back;
+
+    ImageView back, profilePicture;
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
@@ -54,6 +55,7 @@ public class CreateUser extends AppCompatActivity {
         create = findViewById(R.id.createUserButton);
         back = findViewById(R.id.back);
         uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
+        profilePicture = findViewById(R.id.profile_picture);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -200,8 +202,10 @@ public class CreateUser extends AppCompatActivity {
             Uri selectedImage = data.getData();
             // Do something with the selected image URI
             // For example, you can display it in an ImageView
-            // imageView.setImageURI(selectedImage);
 
+
+            // imageView.setImageURI(selectedImage);
+            profilePicture.setImageURI(selectedImage);
 
             //testing toast
             Toast.makeText(getApplicationContext(), "Image selected", Toast.LENGTH_SHORT).show();
