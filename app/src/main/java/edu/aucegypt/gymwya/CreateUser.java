@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    String email;
     private static final int REQUEST_PICK_IMAGE = 1;
     private StorageReference storageReference;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
@@ -98,7 +98,7 @@ public class CreateUser extends AppCompatActivity {
         create.setOnClickListener(v -> {
             // Retrieve data from the previous activity
             Intent intentt = getIntent();
-            String email = intentt.getStringExtra("email");
+            email = intentt.getStringExtra("email");
             String password = intentt.getStringExtra("password");
 
             // Retrieve the username from the username text field in the XML file
@@ -155,6 +155,8 @@ public class CreateUser extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(CreateUser.this, "User created successfully", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(CreateUser.this, HomePage.class);
+                                    //send email to next screen
+                                    intent.putExtra("email", email);
                                     startActivity(intent);
                                 })
                                 .addOnFailureListener(e -> {
@@ -249,7 +251,7 @@ public class CreateUser extends AppCompatActivity {
                             user.put("image", imageUrl);
 
                             db.collection("Images")
-                                    .document(userName) // Use userName as the document ID
+                                    .document(email) // Use userName as the document ID
                                     .set(user)
                                     .addOnSuccessListener(documentReference -> {
                                         Toast.makeText(getApplicationContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
