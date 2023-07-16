@@ -69,10 +69,14 @@ public class SignIn extends AppCompatActivity {
                             @Override
                             public void onComplete(Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+
+                                    //toast
+                                    Toast.makeText(getApplicationContext(), "Signed in successfully", Toast.LENGTH_SHORT).show();
                                     // Sign-in successful, proceed to the HomePage activity
                                     Intent intent = new Intent(SignIn.this, HomePage.class);
                                     intent.putExtra("email", userEmail);
                                     startActivity(intent);
+
                                 } else {
                                     // Sign-in failed, display an error message
                                     Toast.makeText(getApplicationContext(), "Failed to sign in. Please check your credentials.", Toast.LENGTH_SHORT).show();
