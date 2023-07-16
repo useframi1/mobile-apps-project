@@ -64,6 +64,13 @@
     <Space
         android:layout_width="match_parent"
         android:layout_height="30dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        >
     <TextView
         android:id="@+id/name"
         android:layout_width="320dp"
@@ -129,8 +136,9 @@
         android:fontFamily="sans-serif-medium"
         app:cornerRadius="10dp"
         app:backgroundTint="@color/blue"
-        android:visibility="invisible"
+        android:visibility="visible"
         />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

@@ -51,7 +51,7 @@
             android:layout_height="100dp"
             app:cardCornerRadius="50dp"
             app:cardBackgroundColor="@android:color/white"
-            android:layout_marginLeft="100dp">
+            android:layout_marginLeft="95dp">
 
             <ImageView
                 android:id="@+id/profile_picture"
@@ -151,19 +151,19 @@
 
     <LinearLayout
         android:layout_width="350dp"
-        android:layout_height="340dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:layout_marginBottom="10dp">
+        >
 
         <GridView
             android:id="@+id/gridView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:horizontalSpacing="20dp"
-            android:verticalSpacing="20dp"
+            android:layout_height="440dp"
             android:gravity="center"
-            android:numColumns="2" />
+            android:horizontalSpacing="20dp"
+            android:numColumns="2"
+            android:verticalSpacing="20dp" />
 
     </LinearLayout>
 
@@ -171,10 +171,9 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/blue"
-        android:layout_marginTop="22dp"/>
+        />
 
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+        <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -183,7 +182,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:itemTextColor="@color/black"
-        app:itemIconTint="@color/blue" />
+        app:itemIconTint="@color/blue"
+            android:layout_weight="1"
+            />
 
 </LinearLayout>
 
