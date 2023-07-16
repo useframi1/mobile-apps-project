@@ -107,12 +107,6 @@ public class CreateUser extends AppCompatActivity {
             String Age = ((TextView) findViewById(R.id.age)).getText().toString();
             String Bio = ((TextView) findViewById(R.id.bio)).getText().toString();
 
-            try {
-                uploadImage(selectedImage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             // Check if the name text field is empty
             if (Name.isEmpty()) {
                 Toast.makeText(getApplicationContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
@@ -136,6 +130,11 @@ public class CreateUser extends AppCompatActivity {
                 return;
             }
 
+            try {
+                uploadImage(selectedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             // Perform the document retrieval and user creation logic
             DocumentReference documentRef = db.collection("user").document(userName);
             documentRef.get().addOnCompleteListener(task -> {
