@@ -26,10 +26,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,25 +44,34 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     private static final int REQUEST_PICK_IMAGE = 1;
+    private StorageReference storageReference;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     Button create, uploadProfilePictureButton;
 
+    String userName;
     ImageView back, profilePicture;
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
+
+    Uri selectedImage;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user);
+        FirebaseApp.initializeApp(this);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         create = findViewById(R.id.createUserButton);
         back = findViewById(R.id.back);
         uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
         profilePicture = findViewById(R.id.profile_picture);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+          storageReference = FirebaseStorage.getInstance().getReference();
+
 
         uploadProfilePictureButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -88,10 +102,16 @@ public class CreateUser extends AppCompatActivity {
             String password = intentt.getStringExtra("password");
 
             // Retrieve the username from the username text field in the XML file
-            String userName = ((TextView) findViewById(R.id.username)).getText().toString();
+            userName = ((TextView) findViewById(R.id.username)).getText().toString();
             String Name = ((TextView) findViewById(R.id.name)).getText().toString();
             String Age = ((TextView) findViewById(R.id.age)).getText().toString();
             String Bio = ((TextView) findViewById(R.id.bio)).getText().toString();
+
+            try {
+                uploadImage(selectedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             // Check if the name text field is empty
             if (Name.isEmpty()) {
@@ -199,16 +219,54 @@ public class CreateUser extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImage = data.getData();
-            // Do something with the selected image URI
-            // For example, you can display it in an ImageView
+            selectedImage = data.getData();
 
 
-            // imageView.setImageURI(selectedImage);
+            //set image in imageview pfp
             profilePicture.setImageURI(selectedImage);
 
             //testing toast
-            Toast.makeText(getApplicationContext(), "Image selected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Profile Picture Set ", Toast.LENGTH_SHORT).show();
         }
     }
+    private void uploadImage(Uri imageUri) throws IOException {
+        if (imageUri != null) {
+            // Create a unique filename for the image
+            String filename = "profile_picture.jpg";
+            StorageReference imageRef = storageReference.child(filename);
+
+            // Upload the image to Firebase Storage
+            imageRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image upload successful
+                        Task<Uri> downloadUrlTask = imageRef.getDownloadUrl();
+                        downloadUrlTask.addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            // Do something with the image URL, e.g., save it to a user profile
+                            // Add your desired code here to handle the image URL
+
+                            // Example: Add the image URL to Firestore
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("image", imageUrl);
+
+                            db.collection("Images")
+                                    .document(userName) // Use userName as the document ID
+                                    .set(user)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                        // Handle failure, if needed
+                                    });
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle any errors
+                        Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
 }
