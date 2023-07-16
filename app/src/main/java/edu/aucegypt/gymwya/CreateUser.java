@@ -64,7 +64,7 @@ public class CreateUser extends AppCompatActivity {
 
         create = findViewById(R.id.createUserButton);
         back = findViewById(R.id.back);
-        uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
+        uploadProfilePictureButton = findViewById(R.id.uploadProfilePicture);
         profilePicture = findViewById(R.id.profile_picture);
 
           storageReference = FirebaseStorage.getInstance().getReference();
