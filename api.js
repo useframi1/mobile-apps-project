@@ -20,6 +20,8 @@ connection.connect(function (err) {
     console.log("Connected");
 });
 
+// API: create user
+// Method: POST
 srv.post("/createUser", function (req, res) {
     const { username, name, bio, age, email } = req.body; // parse json body
 
@@ -37,6 +39,31 @@ srv.post("/createUser", function (req, res) {
         res.send("1");
     });
 });
+
+// API: get requests
+// Method: GET
+srv.get("/getRequests", function (req, res) {});
+
+// API: get individual meetings
+// Method: GET
+
+// API: get group meetings
+// Method: GET
+
+// API: create group
+// Method: POST
+
+// API: create meeting
+// Method: POST
+
+// API: get current matches
+// Method: GET
+
+// API: update user
+// Method: POST
+
+// API: get chats
+// Method: GET
 
 // make server listen for connections at port 3000
 srv.listen(3000, function () {
