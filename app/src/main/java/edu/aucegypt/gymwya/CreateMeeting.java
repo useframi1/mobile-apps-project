@@ -29,11 +29,16 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
     Spinner spinner;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
+    private Main dataManager;
+    private SubMain dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_meeting);
+
+        dataManager = Main.getInstance();
+        dataModel = dataManager.getDataModel();
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -97,7 +102,10 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         } if (v == btnTimePickerTo) {
             setTime(btnTimePickerTo);
         } if (v == back) {
-            Intent i = new Intent(this, HomePage.class);
+            Intent i;
+            if (dataModel.previousIsHome)
+                i = new Intent(this, HomePage.class);
+            else i = new Intent(this, IndividualMatching.class);
             startActivity(i);
         } if (v == addMeeting) {
         }

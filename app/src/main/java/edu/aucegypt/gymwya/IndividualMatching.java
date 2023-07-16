@@ -19,18 +19,22 @@ import java.util.ArrayList;
 
 public class IndividualMatching extends AppCompatActivity {
     int i = 0;
-
     TextView name, bio;
     Button check, addMeeting, reject, viewProfile;
     ImageView backArrow, profilePic;
-
     ArrayList<User> users = new ArrayList<>();
+    private Main dataManager;
+    private SubMain dataModel;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.individual_matching);
+
+        dataManager = Main.getInstance();
+        dataModel = dataManager.getDataModel();
+        dataModel.previousIsHome = false;
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -65,8 +69,8 @@ public class IndividualMatching extends AppCompatActivity {
 
 
         Bundle bundle = getIntent().getExtras();
-        String sport = bundle.getString("selectedSport");
-        bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
+//        String sport = bundle.getString("selectedSport");
+        bio.setText("Wants a partner to join them at the gym from 2:30 to 4:00 PM");
 //        String startTime = bundle.getString("start");
 //        String endTime = bundle.getString("end");
 
@@ -77,7 +81,8 @@ public class IndividualMatching extends AppCompatActivity {
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                Intent i = new Intent(IndividualMatching.this, HomePage.class);
+                startActivity(i);
             }
         });
 
@@ -91,7 +96,7 @@ public class IndividualMatching extends AppCompatActivity {
 
                 profilePic.setImageResource(users.get(i).imageId);
                 name.setText(users.get(i).name);
-                bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
+                bio.setText("Wants a partner to join them at the gym from 2:30 to 4:00 PM");
             }
         });
         viewProfile.setOnClickListener(new View.OnClickListener() {
