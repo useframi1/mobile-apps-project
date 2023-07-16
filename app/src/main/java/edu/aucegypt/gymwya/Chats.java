@@ -64,10 +64,10 @@ public class Chats extends AppCompatActivity {
 //            senders = (ArrayList<User>) bundle.getSerializable("Members");
 //        }
 
-        senders.add(new User("mariam", R.drawable.mariam));
-        senders.add(new User("youssef", R.drawable.ghaleb));
-        senders.add(new User("nadine", R.drawable.nadine));
-        senders.add(new User("nour", R.drawable.nour));
+//        senders.add(new User("mariam", R.drawable.mariam));
+//        senders.add(new User("youssef", R.drawable.ghaleb));
+//        senders.add(new User("nadine", R.drawable.nadine));
+//        senders.add(new User("nour", R.drawable.nour));
 
 
 
@@ -113,7 +113,7 @@ public class Chats extends AppCompatActivity {
 
             senderName.setText(person.name);
             //  matchInfo.setText(sport from 3:00 PM - 4:00 PM");
-            senderPic.setImageResource(person.imageId);
+//            senderPic.setImageResource(person.imageId);
 
 
 

@@ -1,12 +1,10 @@
 package edu.aucegypt.gymwya;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,8 +21,8 @@ public class IndividualMatching extends AppCompatActivity {
     Button check, addMeeting, reject, viewProfile;
     ImageView backArrow, profilePic;
     ArrayList<User> users = new ArrayList<>();
-    private Main dataManager;
-    private SubMain dataModel;
+    private DataManager dataManager;
+    private Data dataModel;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -32,7 +30,7 @@ public class IndividualMatching extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.individual_matching);
 
-        dataManager = Main.getInstance();
+        dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
         dataModel.previousIsHome = false;
 
@@ -50,12 +48,12 @@ public class IndividualMatching extends AppCompatActivity {
             return true;
         });
 
-        users.add(new User("Jennifer Lopez", R.drawable.barbary));
-        users.add(new User("Nour", R.drawable.nour));
-        users.add(new User("Youssef", R.drawable.ghaleb));
-        users.add(new User("Mariam", R.drawable.mariam));
-        users.add(new User("Nadine", R.drawable.nadine));
-        users.add(new User("Dana", R.drawable.dana));
+//        users.add(new User("Jennifer Lopez", R.drawable.barbary));
+//        users.add(new User("Nour", R.drawable.nour));
+//        users.add(new User("Youssef", R.drawable.ghaleb));
+//        users.add(new User("Mariam", R.drawable.mariam));
+//        users.add(new User("Nadine", R.drawable.nadine));
+//        users.add(new User("Dana", R.drawable.dana));
 
 
         check = (Button) findViewById(R.id.check_button);
@@ -75,7 +73,7 @@ public class IndividualMatching extends AppCompatActivity {
 //        String endTime = bundle.getString("end");
 
         //inital profile
-        profilePic.setImageResource(users.get(i).imageId);
+//        profilePic.setImageResource(users.get(i).imageId);
         name.setText(users.get(i).name);
 
         backArrow.setOnClickListener(new View.OnClickListener() {
@@ -94,7 +92,7 @@ public class IndividualMatching extends AppCompatActivity {
                 if (i == users.size())
                     i=0;
 
-                profilePic.setImageResource(users.get(i).imageId);
+//                profilePic.setImageResource(users.get(i).imageId);
                 name.setText(users.get(i).name);
                 bio.setText("Wants a partner to join them at the gym from 2:30 to 4:00 PM");
             }

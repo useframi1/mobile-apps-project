@@ -2,29 +2,22 @@ package edu.aucegypt.gymwya;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
-import android.widget.TextView;
+
 import com.squareup.picasso.Picasso;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 //import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,8 +34,8 @@ public class HomePage extends AppCompatActivity {
     ImageView profile_picture;
     List<Sport> sportList;
     LinearLayout viewRequests;
-    private Main dataManager;
-    private SubMain dataModel;
+    private DataManager dataManager;
+    private Data dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +73,7 @@ public class HomePage extends AppCompatActivity {
 
                 });
 
-        dataManager = Main.getInstance();
+        dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
         dataModel.previousIsHome = true;
 

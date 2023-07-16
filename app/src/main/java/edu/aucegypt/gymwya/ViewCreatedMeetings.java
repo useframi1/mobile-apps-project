@@ -54,9 +54,9 @@ public class ViewCreatedMeetings extends AppCompatActivity {
 //            match_list = (ArrayList<User>) bundle.getSerializable("Members");
 //        }
 
-        match_list.add(new User("youssef", R.drawable.ghaleb));
-        match_list.add(new User("nour", R.drawable.nour));
-        match_list.add(new User("dana", R.drawable.dana));
+//        match_list.add(new User("youssef", R.drawable.ghaleb));
+//        match_list.add(new User("nour", R.drawable.nour));
+//        match_list.add(new User("dana", R.drawable.dana));
 
         adapter = new ViewPeopleMatchedAdapter(this, match_list);
 
@@ -99,7 +99,7 @@ public class ViewCreatedMeetings extends AppCompatActivity {
 
             requestPerson.setText(person.name);
             //  matchInfo.setText(sport from 3:00 PM - 4:00 PM");
-            personPic.setImageResource(person.imageId);
+//            personPic.setImageResource(person.imageId);
 
             return convertView;
         }

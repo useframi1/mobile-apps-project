@@ -1,7 +1,9 @@
 package edu.aucegypt.gymwya;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 
@@ -13,8 +15,17 @@ public class Start extends AppCompatActivity {
     @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start);
 
+        SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+//        SharedPreferences.Editor editor = credentials.edit();
+//        editor.putString("username", "mariam");
+//        editor.commit();
+//        if (credentials.contains("username")) {
+//            Intent i = new Intent(this, HomePage.class);
+//            startActivity(i);
+//        }
+
+        setContentView(R.layout.start);
         signUp = (Button) findViewById(R.id.signUp);
         signIn = (Button) findViewById(R.id.signIn);
 

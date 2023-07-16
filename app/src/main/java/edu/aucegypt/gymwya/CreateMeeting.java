@@ -18,7 +18,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
-import java.util.Date;
 
 public class CreateMeeting extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, addMeeting;
@@ -29,15 +28,15 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
     Spinner spinner;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
-    private Main dataManager;
-    private SubMain dataModel;
+    private DataManager dataManager;
+    private Data dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_meeting);
 
-        dataManager = Main.getInstance();
+        dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);

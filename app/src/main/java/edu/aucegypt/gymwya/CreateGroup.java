@@ -31,15 +31,15 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
-    private Main dataManager;
-    private SubMain dataModel;
+    private DataManager dataManager;
+    private Data dataModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_group);
 
-        dataManager = Main.getInstance();
+        dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);

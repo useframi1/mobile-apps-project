@@ -170,7 +170,7 @@ public class CreateUser extends AppCompatActivity {
             String requestBody = jsonBody.toString();
 
             // Create an HTTP request
-            Request request = new Request.Builder()
+            okhttp3.Request request = new Request.Builder()
                     .url("http://localhost:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
