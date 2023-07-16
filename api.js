@@ -23,19 +23,19 @@ connection.connect(function (err) {
 // API: create user
 // Method: POST
 srv.post("/createUser", function (req, res) {
-    const { username, name, bio, age, email } = req.body; // parse json body
+    const { username, name, email, age, bio } = req.body; // parse json body
 
     var sql =
-        "INSERT INTO UserAccount (username, name, bio, age, email) VALUES (?, ?, ?, ?, ?)"; // sql command to insert a record in the database
+        "INSERT INTO Users (username, name, email, age, bio) VALUES (?, ?, ?, ?, ?)"; // sql command to insert a record in the database
 
     // execute the sql command
-    connection.query(sql, [username, name, bio, age, email], function (err) {
+    connection.query(sql, [username, name, email, age, bio], function (err) {
         if (err) {
             res.send("0");
             throw err;
         }
 
-        console.log("1 record inserted");
+        console.log("User record inserted");
         res.send("1");
     });
 });
@@ -47,9 +47,10 @@ srv.post("/createUser", function (req, res) {
 srv.get("/getRequests", function (req, res) {
     var q = url.parse(req.url, true).query; // parse the url to get the query
 
-    const username = q.reciever;
+    const username = q.creator;
 
-    var sql = "SELECT * from Request WHERE reciever = ?";
+    var sql =
+        "SELECT M.mDate , M.sport , M.startTime , M.endTime , R.username FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE M.creator = ?";
 
     // execute sql command
     connection.query(sql, username, function (err, result) {
@@ -65,22 +66,273 @@ srv.get("/getRequests", function (req, res) {
 
 // API: get individual meetings
 // Method: GET
-srv.get("/getMeetings", function (req, res) {});
+srv.get("/getMeetings", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.user;
+
+    var sql =
+        "SELECT mDate, sport, startTime, endTime, creator FROM Meetings WHERE creator != ?";
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
 
 // API: get group meetings
 // Method: GET
+srv.get("/getGroups", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.user;
+
+    var sql =
+        "SELECT gDate, sport, startTime ,endTime, name FROM GroupMeetings WHERE creator != ?";
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
 
 // API: create group
 // Method: POST
+srv.post("/createGroup", function (req, res) {
+    const { creator, name, sport, startTime, endTime, gDate } = req.body; // parse json body
+
+    var sql =
+        "INSERT INTO GroupMeetings (creator, name, sport, startTime, endTime, gDate) VALUES (?, ?, ?, ?, ?, ?)"; // sql command to insert a record in the database
+
+    // execute the sql command
+    connection.query(
+        sql,
+        [creator, name, sport, startTime, endTime, gDate],
+        function (err) {
+            if (err) {
+                res.send("0");
+                throw err;
+            }
+
+            console.log("Group meeting record inserted");
+            res.send("1");
+        }
+    );
+});
+
+// API; add group members
+// Method: POST
+srv.post("/addGroupMembers", function (req, res) {
+    const { ID, groupMembers } = req.body;
+
+    for (let i = 0; i < groupMembers.length; i++) {
+        const member = groupMembers[i];
+        var sql = "INSERT INTO GroupMembers (ID, username) VALUES (?,?)";
+        connection.query(sql, [ID, member], function (err) {
+            if (err) {
+                res.send("0");
+                throw err;
+            }
+
+            console.log("Group members record inserted");
+        });
+    }
+    res.send("1");
+});
 
 // API: create meeting
 // Method: POST
+srv.post("/createMeeting", function (req, res) {
+    const { creator, sport, startTime, endTime, mDate } = req.body; // parse json body
 
-// API: get current matches
+    var sql =
+        "INSERT INTO Meetings (creator, sport, startTime, endTime, mDate) VALUES (?, ?, ?, ?, ?)"; // sql command to insert a record in the database
+
+    // execute the sql command
+    connection.query(
+        sql,
+        [creator, sport, startTime, endTime, mDate],
+        function (err) {
+            if (err) {
+                res.send("0");
+                throw err;
+            }
+
+            console.log("Group meeting record inserted");
+            res.send("1");
+        }
+    );
+});
+
+// API: get created meetings
 // Method: GET
+srv.get("/getCreatedMeetings", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.user;
+
+    var sql =
+        "SELECT mDate, sport, startTime, endTime FROM Meetings WHERE creator = ?";
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+// API: get created groups
+// Method: GET
+srv.get("/getCreatedGroups", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.user;
+
+    var sql =
+        "SELECT gDate, sport, startTime, endTime, name FROM GroupMeetings WHERE creator = ?";
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+// API: get accepted meetings
+// Method: GET
+srv.get("/getAcceptedMeetings", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.user;
+
+    var sql =
+        "SELECT M.mDate , M.sport , M.startTime , M.endTime , M.creator FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE R.username = ?";
+
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
 
 // API: update user
 // Method: POST
+srv.post("/updateUser", function (req, res) {
+    const { username, newUsername, name, bio } = req.body; // parse json body
+
+    var sql =
+        "UPDATE Users SET username = ?, name = ?, bio = ? WHERE username = ?";
+
+    // execute sql command
+    connection.query(
+        sql,
+        [newUsername, name, bio, username],
+        function (err, result) {
+            if (err) {
+                res.send("0");
+                throw err;
+            }
+
+            console.log("Request recieved");
+            res.send(result);
+        }
+    );
+
+    var sql = "DELETE FROM PreferredSports WHERE username = ?";
+    connection.query(sql, username, function (err) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Preferred sports deleted");
+    });
+});
+
+// API: add preferred sports
+// Method: POST
+
+srv.post("/addPreferredSports", function (req, res) {
+    const { username, preferredSports } = req.body;
+
+    for (let i = 0; i < preferredSports.length; i++) {
+        const sport = preferredSports[i];
+        var sql = "INSERT INTO PreferredSports (username, sport) VALUES (?,?)";
+        connection.query(sql, [username, sport], function (err) {
+            if (err) {
+                res.send("0");
+                throw err;
+            }
+
+            console.log("Preferred sport record inserted");
+        });
+    }
+    res.send("1");
+});
+
+// API: update partner
+// Method: POST
+srv.get("/updatePartner", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const partner = q.partner;
+    const ID = q.ID;
+
+    var sql = "UPDATE Meetings SET partner = ? WHERE ID = ?";
+
+    // execute sql command
+    connection.query(sql, [partner, ID], function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+
+    sql = "DELETE FROM Requests WHERE ID = ?";
+
+    // execute sql command
+    connection.query(sql, [ID, partner], function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Deleted requests");
+        res.send(result);
+    });
+});
+
+// API: delete Meeting
+// Method: GET
+// srv.get("/deleteMeeting", function (req, res) {
+
+// });
 
 // API: get chats
 // Method: GET
