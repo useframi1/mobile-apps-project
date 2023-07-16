@@ -16,6 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,7 +31,7 @@ import java.util.List;
 public class HomePage extends AppCompatActivity {
     GridViewAdapter gridAdapter;
     List<Sport> sportList;
-    Button viewRequests;
+    LinearLayout viewRequests;
     private Main dataManager;
     private SubMain dataModel;
 
@@ -59,7 +60,7 @@ public class HomePage extends AppCompatActivity {
 
         Spinner create = findViewById(R.id.spinner);
         SearchView searchView = findViewById(R.id.searchView);
-        viewRequests = findViewById(R.id.viewRequest);
+        viewRequests = findViewById(R.id.view_requests);
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
         spinnerAdapter.add("");
