@@ -27,6 +27,11 @@
             android:screenOrientation="portrait"
         />
         <activity
+            android:name=".ViewCreatedMeetings"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            />
+        <activity
             android:name=".Profile"
             android:exported="true"
             android:screenOrientation="portrait"

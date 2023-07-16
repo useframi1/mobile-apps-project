@@ -17,7 +17,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
-public class PeopleMatched extends AppCompatActivity {
+public class ViewCreatedMeetings extends AppCompatActivity {
 
     ViewPeopleMatchedAdapter adapter;
     ArrayList<User> match_list = new ArrayList<>();
@@ -30,7 +30,7 @@ public class PeopleMatched extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.people_matched);
+        setContentView(R.layout.view_created_meetings);
 
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
@@ -56,11 +56,11 @@ public class PeopleMatched extends AppCompatActivity {
 
         match_list.add(new User("youssef", R.drawable.ghaleb));
         match_list.add(new User("nour", R.drawable.nour));
-        match_list.add(new User("youssef", R.drawable.ghaleb));
+        match_list.add(new User("dana", R.drawable.dana));
 
         adapter = new ViewPeopleMatchedAdapter(this, match_list);
 
-        listView = findViewById(R.id.people_matched_list);
+        listView = findViewById(R.id.view_created_matches_list);
         back = findViewById(R.id.back);
 
         //groupName.setText(name);
@@ -90,11 +90,11 @@ public class PeopleMatched extends AppCompatActivity {
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(
-                        getContext()).inflate(R.layout.matched_list, parent, false);
+                        getContext()).inflate(R.layout.activity_created_meetings_list, parent, false);
             }
 
-            TextView requestPerson = convertView.findViewById(R.id.request);
-            TextView matchInfo = convertView.findViewById(R.id.info);
+            TextView requestPerson = convertView.findViewById(R.id.name);
+         //   TextView matchInfo = convertView.findViewById(R.id.info);
             ImageView personPic = convertView.findViewById(R.id.profile_picture);
 
             requestPerson.setText(person.name);

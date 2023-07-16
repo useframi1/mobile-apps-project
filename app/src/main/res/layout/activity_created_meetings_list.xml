@@ -9,8 +9,8 @@
     android:layout_gravity="center">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         app:cardCornerRadius="50dp"
         app:cardBackgroundColor="@android:color/white"
         android:layout_gravity="center_vertical"
@@ -29,12 +29,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center_vertical">
+
         <TextView
-            android:id="@+id/request"
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="right"
+            android:text="Status"
+            android:textColor="@color/blue"
+            android:textSize="15dp"
+            android:textStyle="italic" />
+        <TextView
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:text="Ahmed"
+            android:text="Group name/name"
             android:textColor="#323131"
             android:textSize="18sp"
             android:textStyle="bold"
