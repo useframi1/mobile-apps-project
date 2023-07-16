@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "238874360478",
+    "project_id": "gymawaya",
+    "storage_bucket": "gymawaya.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238874360478:android:048fd6a57cf55d2afc598f",
+        "android_client_info": {
+          "package_name": "edu.aucegypt.gymwya"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "238874360478-grcpnkgf9j1kgcebvct0mhmm1iqv6kgp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.aucegypt.gymwya",
+            "certificate_hash": "bc95ad4ae6c2605a7eebb2ae4154022477165f59"
+          }
+        },
+        {
+          "client_id": "238874360478-7lc4uc035actgnt21gja0nfrqkqtklk6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxMQvzpn-uE6fp4zxLlzjNwzbLP9B1D78"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "238874360478-7lc4uc035actgnt21gja0nfrqkqtklk6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

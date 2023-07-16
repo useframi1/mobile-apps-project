@@ -29,9 +29,11 @@ public class SignUp extends AppCompatActivity {
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up);
         FirebaseApp.initializeApp(this);
+
         createAccount = (Button) findViewById(R.id.create_account);
         // googleSignUp = (Button) findViewById(R.id.continueWithGoogle);
         email = (EditText) findViewById(R.id.userEmail);
