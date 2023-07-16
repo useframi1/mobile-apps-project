@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.squareup.picasso.Picasso;
 
 
@@ -51,12 +53,15 @@ public class HomePage extends AppCompatActivity {
         //retrieve email from prev screen
         Intent intente = getIntent();
         String email = intente.getStringExtra("email");
+        email = "testuser";
 
         profile_picture = findViewById(R.id.profile_picture);
+
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
+
 
 
 // Retrieve the image URL from Firestore based on the user's email
@@ -70,12 +75,14 @@ public class HomePage extends AppCompatActivity {
                         if (imageUrl != null) {
                             // Use a library like Picasso, Glide, or Universal Image Loader to load the image into the ImageView
                             Picasso.get().load(imageUrl).into(profile_picture);
+                            System.out.println("Image attempted to loaddd");
 
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
                     // Handle failure, if needed
+                    System.out.println("Failed to loaddd image");
 
                 });
 
