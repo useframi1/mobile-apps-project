@@ -19,16 +19,25 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import com.squareup.picasso.Picasso;
+
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 //import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomePage extends AppCompatActivity {
     GridViewAdapter gridAdapter;
+
+    ImageView profile_picture;
     List<Sport> sportList;
     Button viewRequests;
     private Main dataManager;
@@ -38,6 +47,37 @@ public class HomePage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+
+        //retrieve email from prev screen
+        Intent intente = getIntent();
+        String email = intente.getStringExtra("email");
+
+        profile_picture = findViewById(R.id.profile_picture);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference();
+
+
+// Retrieve the image URL from Firestore based on the user's email
+        db.collection("Images")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        String imageUrl = documentSnapshot.getString("image");
+                        if (imageUrl != null) {
+                            // Use a library like Picasso, Glide, or Universal Image Loader to load the image into the ImageView
+                            Picasso.get().load(imageUrl).into(profile_picture);
+
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure, if needed
+
+                });
 
         dataManager = Main.getInstance();
         dataModel = dataManager.getDataModel();
