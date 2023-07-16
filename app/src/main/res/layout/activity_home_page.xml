@@ -152,14 +152,13 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
         android:layout_weight="1"
         >
 
         <GridView
             android:id="@+id/gridView"
             android:layout_width="match_parent"
-            android:layout_height="380dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:horizontalSpacing="20dp"
             android:numColumns="2"
@@ -182,7 +181,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:itemTextColor="@color/black"
-        app:itemIconTint="@color/blue" android:layout_weight="1"
+        app:itemIconTint="@color/blue"
             />
 
 </LinearLayout>
