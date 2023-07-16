@@ -120,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <TextView
-                    android:layout_width="50dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Time:"
                     android:textSize="18sp"
@@ -153,12 +153,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <TextView
-                    android:layout_width="50dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Date:"
                     android:textSize="18sp"
                     android:fontFamily="sans-serif-medium"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="13dp"
                     android:layout_gravity="center"/>
 
                 <Button
