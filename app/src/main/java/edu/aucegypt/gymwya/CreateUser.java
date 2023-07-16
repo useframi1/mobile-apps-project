@@ -13,6 +13,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,8 +39,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
+    private static final int REQUEST_PICK_IMAGE = 1;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
-    Button create;
+    Button create, uploadProfilePictureButton;
     ImageView back;
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
@@ -46,10 +50,17 @@ public class CreateUser extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user);
+
         create = findViewById(R.id.createUserButton);
         back = findViewById(R.id.back);
+        uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        uploadProfilePictureButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, REQUEST_PICK_IMAGE);
+        });
 
         recyclerView = findViewById(R.id.recyclerView);
         iconsList.add(new Sport.SportIcon(R.drawable.football_icon));
@@ -179,6 +190,21 @@ public class CreateUser extends AppCompatActivity {
             // An error occurred while checking for the document
             // Handle the error
             Toast.makeText(getApplicationContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            Uri selectedImage = data.getData();
+            // Do something with the selected image URI
+            // For example, you can display it in an ImageView
+            // imageView.setImageURI(selectedImage);
+
+
+            //testing toast
+            Toast.makeText(getApplicationContext(), "Image selected", Toast.LENGTH_SHORT).show();
         }
     }
 }
