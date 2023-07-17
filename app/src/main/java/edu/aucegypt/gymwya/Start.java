@@ -9,21 +9,30 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class Start extends AppCompatActivity {
     Button signUp, signIn;
 
     @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DataManager dataManager = DataManager.getInstance();
+        Data dataModel = dataManager.getDataModel();
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
 //        SharedPreferences.Editor editor = credentials.edit();
-//        editor.putString("username", "mariam");
+//        editor.putString("username","youffy");
 //        editor.commit();
-//        if (credentials.contains("username")) {
-//            Intent i = new Intent(this, HomePage.class);
-//            startActivity(i);
-//        }
+
+        if (credentials.contains("username")) {
+            dataModel.currentUser.username = credentials.getString("username", "");
+            API api = new API();
+            api.execute("http://192.168.1.182:3000/");
+            Intent i = new Intent(this, HomePage.class);
+            startActivity(i);
+        }
 
         setContentView(R.layout.start);
         signUp = (Button) findViewById(R.id.signUp);

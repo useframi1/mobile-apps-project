@@ -179,10 +179,12 @@ class GroupMatchingAdapter extends ArrayAdapter<Group> {
 
         StringBuilder membersBuilder = new StringBuilder();
 
-        for (int i = 0; i < group.numberOfMembers; i++) {
-            membersBuilder.append(group.members.get(i).name);
-            if (i < group.numberOfMembers - 1) {
-                membersBuilder.append(", ");
+        if (group.members.size()>0) {
+            for (int i = 0; i < group.numberOfMembers; i++) {
+                membersBuilder.append(group.members.get(i).name);
+                if (i < group.numberOfMembers - 1) {
+                    membersBuilder.append(", ");
+                }
             }
         }
 
