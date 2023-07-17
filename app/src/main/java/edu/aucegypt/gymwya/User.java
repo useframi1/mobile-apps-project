@@ -14,5 +14,17 @@ public class User implements Serializable {
     ArrayList<Meeting> currentMatches = new ArrayList<>();
     ArrayList<Meeting> createdMeetings = new ArrayList<>();
     ArrayList<String> preferredSports = new ArrayList<>();
+
+    public User(String name, String email, String username, int age, String bio) {
+        this.name = name;
+        this.email = email;
+        this.username = username;
+        this.age = age;
+        this.bio = bio;
+    }
+
+    public User() {
+
+    }
 }
 

@@ -40,6 +40,23 @@ srv.get("/getUser", function (req, res) {
     });
 });
 
+// API: get user
+// Method: GET
+srv.get("/getAllUsers", function (req, res) {
+    var sql = "SELECT * FROM Users";
+
+    // execute the sql command
+    connection.query(sql, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("users fetched");
+        res.send(result);
+    });
+});
+
 // API: create user
 // Method: POST
 srv.post("/createUser", function (req, res) {
@@ -70,7 +87,7 @@ srv.get("/getRequests", function (req, res) {
     const username = q.creator;
 
     var sql =
-        "SELECT M.ID M.mDate , M.sport , M.startTime , M.endTime , R.username FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE M.creator = ?";
+        "SELECT M.ID, M.mDate , M.sport , M.startTime , M.endTime , R.username FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE M.creator = ?";
 
     // execute sql command
     connection.query(sql, username, function (err, result) {
@@ -93,7 +110,7 @@ srv.get("/getMeetings", function (req, res) {
     const username = q.username;
 
     var sql =
-        "SELECT mDate, sport, startTime, endTime, creator FROM Meetings WHERE creator != ?";
+        "SELECT ID, mDate, sport, startTime, endTime, creator FROM Meetings WHERE creator != ?";
     // execute sql command
     connection.query(sql, username, function (err, result) {
         if (err) {
@@ -114,9 +131,27 @@ srv.get("/getGroups", function (req, res) {
     const username = q.creator;
 
     var sql =
-        "SELECT gDate, sport, startTime ,endTime, name FROM GroupMeetings WHERE creator != ?";
+        "SELECT ID, gDate, sport, startTime ,endTime, name FROM GroupMeetings WHERE creator != ?";
     // execute sql command
     connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+srv.get("/getGroupMembers", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const ID = q.ID;
+
+    var sql = "SELECT username FROM GroupMembers WHERE ID = ?";
+
+    connection.query(sql, ID, function (err, result) {
         if (err) {
             res.send("0");
             throw err;
