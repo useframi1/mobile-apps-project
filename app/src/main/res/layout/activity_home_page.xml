@@ -39,7 +39,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="Mariam"
+                android:text="Ahmed"
                 android:textColor="@color/blue"
                 android:textSize="30dp"
                 android:textStyle="bold" />

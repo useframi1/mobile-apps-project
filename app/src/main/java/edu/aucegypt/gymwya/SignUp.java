@@ -74,6 +74,9 @@ public class SignUp extends AppCompatActivity {
                                     FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                                     if (currentUser != null && currentUser.isEmailVerified()) {
                                         Intent intent = new Intent(SignUp.this, CreateUser.class);
+                                        //add email and password to intent
+                                        intent.putExtra("email", userEmail);
+                                        intent.putExtra("password", userPassword);
                                         startActivity(intent);
 
                                         auth.removeAuthStateListener(authStateListener);
@@ -104,6 +107,9 @@ public class SignUp extends AppCompatActivity {
                                                                 boolean emailVerified = currentUser.isEmailVerified();
                                                                 if (emailVerified) {
                                                                     Intent intent = new Intent(SignUp.this, CreateUser.class);
+                                                                    //add email and password to intent
+                                                                    intent.putExtra("email", userEmail);
+                                                                    intent.putExtra("password", userPassword);
                                                                     startActivity(intent);
 
                                                                     progressDialog.dismiss();
@@ -125,6 +131,7 @@ public class SignUp extends AppCompatActivity {
 
                             } else {
                                 progressDialog.dismiss();
+                                String errorCode = ((com.google.firebase.auth.FirebaseAuthException) task.getException()).getErrorCode();
                                 Toast.makeText(SignUp.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });

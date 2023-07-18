@@ -390,6 +390,26 @@ srv.post("/updatePartner", function (req, res) {
 // API: get chats
 // Method: GET
 
+// API: get username using email
+// Method: GET
+srv.get("/getUsername", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const email = q.email;
+
+    var sql = "SELECT username FROM Users WHERE email = ?";
+    // execute sql command
+    connection.query(sql, email, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
 // make server listen for connections at port 3000
 srv.listen(3000, function () {
     console.log("Server is listening on port 3000.");

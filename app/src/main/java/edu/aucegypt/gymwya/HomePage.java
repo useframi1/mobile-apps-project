@@ -1,53 +1,70 @@
 package edu.aucegypt.gymwya;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import androidx.appcompat.app.AppCompatActivity;
 
-
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-//import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class HomePage extends AppCompatActivity {
     GridViewAdapter gridAdapter;
 
     ImageView profile_picture;
+    TextView name;
     List<Sport> sportList;
     LinearLayout viewRequests;
     private DataManager dataManager;
     private Data dataModel;
+    Button viewRequestsB;
+    String username;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intente = getIntent();
+        String email = intente.getStringExtra("email");
+        HomePage.GetUserTask createUserTask = new HomePage.GetUserTask();
+        createUserTask.execute(email);
         setContentView(R.layout.activity_home_page);
 
         //retrieve email from prev screen
-        Intent intente = getIntent();
-        String email = intente.getStringExtra("email");
 
+
+        name = findViewById(R.id.name);
         profile_picture = findViewById(R.id.profile_picture);
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
@@ -55,23 +72,33 @@ public class HomePage extends AppCompatActivity {
 
 // Retrieve the image URL from Firestore based on the user's email
         db.collection("Images")
-                .whereEqualTo("email", email)
+                .document(email)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
                         String imageUrl = documentSnapshot.getString("image");
                         if (imageUrl != null) {
-                            // Use a library like Picasso, Glide, or Universal Image Loader to load the image into the ImageView
-                            Picasso.get().load(imageUrl).into(profile_picture);
-
+                            // Image URL retrieved successfully, load the image into ImageView
+                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // Here's an example using Glide:
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .into(profile_picture);
+                        } else {
+                            // Image URL not found in Firestore
+                            // Handle the case accordingly
                         }
+                    } else {
+                        // Document not found in Firestore
+                        // Handle the case accordingly
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // Handle failure, if needed
-
+                    // Error occurred while retrieving the image URL from Firestore
+                    // Handle the error accordingly
                 });
+
 
         dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
@@ -172,4 +199,66 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon)));
         return sportList;
     }
+    private class GetUserTask extends AsyncTask<String, Void, String> {
+
+        private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        private OkHttpClient client = new OkHttpClient();
+
+        @Override
+        protected String doInBackground(String... params) {
+            String email = params[0];
+            OkHttpClient client = new OkHttpClient(); // Initialize the OkHttpClient
+
+            try {
+                // Create an HTTP request
+                Request request = new Request.Builder()
+                        .url("http://192.168.56.1:3000/getUsername?email=" + email)  // Replace with your actual URL
+                        .get()
+                        .build();
+
+                // Send the request and get the response
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    return response.body().string();
+                } else {
+                    return null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                try {
+                    JSONArray jsonArray = new JSONArray(result);
+
+                    // Iterate through the JSON array
+                    StringBuilder usernameBuilder = new StringBuilder();
+                        JSONObject jsonObject = jsonArray.getJSONObject(1);
+                        String username = jsonObject.getString("username");
+
+
+
+
+                    // Display the usernames in a Toast message
+                    Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
+
+                    // Set the usernames to the TextView
+                    String finalUsernames = username;
+                    name.post(() -> name.setText(finalUsernames));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    // Failed to parse JSON response
+                    Toast.makeText(getApplicationContext(), "Failed to parse JSON response", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // Failed to retrieve username
+                Toast.makeText(getApplicationContext(), "Failed to retrieve username", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
 }

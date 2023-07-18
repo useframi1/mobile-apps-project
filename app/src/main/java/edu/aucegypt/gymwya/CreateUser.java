@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.MediaType;
@@ -67,7 +68,7 @@ public class CreateUser extends AppCompatActivity {
         uploadProfilePictureButton = findViewById(R.id.uploadProfilePicture);
         profilePicture = findViewById(R.id.profile_picture);
 
-          storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference = FirebaseStorage.getInstance().getReference();
 
 
         uploadProfilePictureButton.setOnClickListener(v -> {
@@ -116,7 +117,7 @@ public class CreateUser extends AppCompatActivity {
             }
             // Check if the age text field is a valid number between 10 and 100
             int ageValue;
-                ageValue = Integer.parseInt(Age);
+            ageValue = Integer.parseInt(Age);
             if (ageValue < 10 || ageValue > 100) {
                 Toast.makeText(getApplicationContext(), "Please enter a valid age between 10 and 100", Toast.LENGTH_SHORT).show();
                 return;
@@ -131,14 +132,10 @@ public class CreateUser extends AppCompatActivity {
             new CreateUserTask().execute(userName, Name, Bio, Age, email);
 
         });
-            try {
-                uploadImage(selectedImage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // Perform the document retrieval and user creation logic
 
-            //put the data in the database
+        // Perform the document retrieval and user creation logic
+
+        //put the data in the database
 
 
         back.setOnClickListener(vv -> {
@@ -163,7 +160,7 @@ public class CreateUser extends AppCompatActivity {
                 jsonBody.put("name", Name);
                 jsonBody.put("bio", Bio);
                 jsonBody.put("age", Age);
-                jsonBody.put("email", "email");
+                jsonBody.put("email", email);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -171,7 +168,7 @@ public class CreateUser extends AppCompatActivity {
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://localhost:3000/createUser")
+                    .url("http://192.168.56.1:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -193,6 +190,11 @@ public class CreateUser extends AppCompatActivity {
             if (result != null && result.equals("1")) {
                 // User created successfully
                 Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+                try {
+                    uploadImage(selectedImage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Intent intent = new Intent(CreateUser.this, HomePage.class);
                 startActivity(intent);
             } else {
@@ -219,7 +221,7 @@ public class CreateUser extends AppCompatActivity {
     private void uploadImage(Uri imageUri) throws IOException {
         if (imageUri != null) {
             // Create a unique filename for the image
-            String filename = "profile_picture.jpg";
+            String filename = UUID.randomUUID().toString();
             StorageReference imageRef = storageReference.child(filename);
 
             // Upload the image to Firebase Storage
