@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.Task;
+import com.google.common.net.MediaType;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -24,18 +26,27 @@ import com.google.firebase.storage.StorageReference;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+//import okhttp3.MediaType;
+//import okhttp3.OkHttpClient;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
@@ -54,7 +65,7 @@ public class CreateUser extends AppCompatActivity {
     Uri selectedImage;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private OkHttpClient client = new OkHttpClient();
+    //private OkHttpClient client = new OkHttpClient();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,13 +133,46 @@ public class CreateUser extends AppCompatActivity {
                 return;
             }
             // Check if the bio text field is empty
-            if (Bio.isEmpty()) {
+            if (Bio.isEmpty())
+            {
                 Toast.makeText(getApplicationContext(), "Please enter a bio", Toast.LENGTH_SHORT).show();
-                return;
+            }
+            else {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
             }
 
+
+
             //call the async task
-            new CreateUserTask().execute(userName, Name, Bio, Age, email);
+
+
+                    try {
+                        // Create a JSON object with the user-entered data
+                        JSONObject postData = new JSONObject();
+                        postData.put("name", Name);
+                        postData.put("username", userName);
+                        postData.put("email", "n.kasaby@aucegypt.edu");
+                        postData.put("age", Age);
+                        postData.put("bio", Bio);
+
+                        // Convert the JSONObject to a string
+                        String jsonString = postData.toString();
+
+                        // Replace the URL with your actual Node.js API endpoint
+                        String url = "http://192.168.56.1:3000/createUser";
+
+                        // Execute the POST request asynchronously using the PostCreateGroup AsyncTask
+                        PostCreateUser asyncTask = new PostCreateUser(url, jsonString);
+                        asyncTask.execute();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                //  new CreateUserTask().execute(userName, Name, Bio, Age, email);
 
         });
             try {
@@ -146,61 +190,124 @@ public class CreateUser extends AppCompatActivity {
         });
 
     }
-    private class CreateUserTask extends AsyncTask<String, Void, String> {
 
-        @Override
-        protected String doInBackground(String... params) {
-            String userName = params[0];
-            String Name = params[1];
-            String Bio = params[2];
-            String Age = params[3];
-            String email = params[4];
+    private class PostCreateUser extends AsyncTask<String, Void, Void> {
 
-            // Prepare the JSON request body
-            JSONObject jsonBody = new JSONObject();
-            try {
-                jsonBody.put("username", userName);
-                jsonBody.put("name", Name);
-                jsonBody.put("bio", Bio);
-                jsonBody.put("age", Age);
-                jsonBody.put("email", "email");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            String requestBody = jsonBody.toString();
-
-            // Create an HTTP request
-            okhttp3.Request request = new Request.Builder()
-                    .url("http://localhost:3000/createUser")
-                    .post(RequestBody.create(JSON, requestBody))
-                    .build();
-
-            try {
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    return response.body().string();
-                } else {
-                    return null;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
+        private String jsonData;
+        private String url;
+        public PostCreateUser(String url,String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            if (result != null && result.equals("1")) {
-                // User created successfully
-                Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(CreateUser.this, HomePage.class);
-                startActivity(intent);
-            } else {
-                // Failed to create user
-                Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
+        protected Void doInBackground(String... params) {
+            // String urlString = params[0];
+            String result = "";
+            HttpURLConnection connection;
+            try {
+                // String urlStr = "http://192.168.56.1/createUser";
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                    result = response.toString();
+                } else {
+                    result = "Error: " + responseCode;
+                }
+                connection.disconnect();
+                return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
         }
     }
+
+
+    //    private class CreateUserTask extends AsyncTask<String, Void, String> {
+//
+//        @Override
+//        protected String doInBackground(String... params) {
+//            String userName = params[0];
+//            String Name = params[1];
+//            String Bio = params[2];
+//            String Age = params[3];
+//            String email = params[4];
+//
+//            // Prepare the JSON request body
+//            JSONObject jsonBody = new JSONObject();
+//            try {
+//                jsonBody.put("username", userName);
+//                jsonBody.put("name", Name);
+//                jsonBody.put("bio", Bio);
+//                jsonBody.put("age", Age);
+//                jsonBody.put("email", "email");
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            String requestBody = jsonBody.toString();
+//
+//            // Create an HTTP request
+//            okhttp3.Request request = new Request.Builder()
+//                    .url("http://localhost:3000/createUser")
+//                    .post(RequestBody.create(JSON, requestBody))
+//                    .build();
+//
+//            try {
+//                Response response = client.newCall(request).execute();
+//                if (response.isSuccessful()) {
+//                    return response.body().string();
+//                } else {
+//                    return null;
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result) {
+//            if (result != null && result.equals("1")) {
+//                // User created successfully
+//                Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent(CreateUser.this, HomePage.class);
+//                startActivity(intent);
+//            } else {
+//                // Failed to create user
+//                Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -86,8 +86,8 @@
         android:background="@drawable/edit_text_border"
         android:fontFamily="sans-serif-medium"
         android:hint="Password"
-        android:inputType="text"
         android:paddingLeft="15dp"
+        android:inputType="textPassword"
         android:layout_gravity="center_horizontal"
         android:textColor="#8F9091"
         android:textSize="16sp" />
