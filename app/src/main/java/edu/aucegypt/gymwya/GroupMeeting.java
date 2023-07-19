@@ -1,14 +1,16 @@
 package edu.aucegypt.gymwya;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.Time;
-import java.util.Date;
+import java.util.ArrayList;
 
-public class GroupMeeting implements Serializable {
-    Group group;
-    Sport sport;
-    User user;
-    Time from, to;
-    Date date;
-    long meetingID;
+public class GroupMeeting extends Meeting implements Serializable {
+    ArrayList<User> members = new ArrayList<>();
+    String name;
+    public GroupMeeting(int ID, String sport, String start, String end, String date, User creator, ArrayList<User> members, String name) {
+        super(ID, sport, start, end, date, creator);
+        this.members = members;
+        this.name = name;
+    }
 }

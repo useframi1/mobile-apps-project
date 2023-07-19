@@ -125,7 +125,7 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
         viewProfile = convertView.findViewById(R.id.view_profile);
 
         memberName.setText(member.name);
-        memberPic.setImageResource(member.imageId);
+//        memberPic.setImageResource(member.imageId);
 
         viewProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), VisitProfile.class);

@@ -25,7 +25,7 @@ public class Profile extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<Sport.SportIcon> iconsList = new ArrayList<>();
     IconsAdapter mAdapter;
-    TextView currentMatches;
+    TextView currentMatches, createdMeetings;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +64,7 @@ public class Profile extends AppCompatActivity {
 
         editProfile = findViewById(R.id.edit_profile);
         currentMatches = findViewById(R.id.view_current_matches);
+        createdMeetings = findViewById(R.id.view_created_matches);
 
         editProfile.setOnClickListener(view -> {
             Intent intent= new Intent(Profile.this, EditProfile.class);
@@ -72,6 +73,11 @@ public class Profile extends AppCompatActivity {
 
         currentMatches.setOnClickListener(view -> {
             Intent intent= new Intent(Profile.this, PeopleMatched.class);
+            startActivity(intent);
+        });
+
+        createdMeetings.setOnClickListener(view-> {
+            Intent intent = new Intent (Profile.this, ViewCreatedMeetings.class);
             startActivity(intent);
         });
     }

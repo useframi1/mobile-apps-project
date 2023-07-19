@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    >
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:srcCompat="@drawable/back_arrow"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="CREATED MEETINGS"
+        android:textColor="@color/blue"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+
+    <ListView
+        android:id="@+id/view_created_matches_list"
+        android:layout_width="350dp"
+        android:layout_height="400dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:divider="@android:color/transparent"
+        android:layout_weight="1"
+        android:dividerHeight="10.0dp"
+        />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/blue"
+        />
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemTextColor="@color/black"
+        app:itemIconTint="@color/blue" />
+</LinearLayout>

@@ -11,14 +11,14 @@
         android:id="@+id/appName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginTop="80dp"
         android:layout_marginBottom="40dp"
         android:fontFamily="@font/charm"
         android:gravity="center"
         android:text="Gymwya"
         android:textColor="#FF0066BA"
-        android:textSize="50sp"
-        android:layout_gravity="center"/>
+        android:textSize="50sp" />
 
 
         <ImageView

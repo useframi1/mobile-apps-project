@@ -111,10 +111,39 @@
         android:layout_gravity="center">
 
         <TextView
+            android:id="@+id/view_created_matches"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View Created Meetings"
+            android:textSize="20sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/black"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/arrow_button2"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/arrow_button"
+            android:layout_marginRight="20dp"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/edit_text_border"
+        android:paddingLeft="20dp"
+        android:layout_gravity="center">
+
+        <TextView
             android:id="@+id/view_current_matches"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View current matches"
+            android:text="View Current Matches"
             android:textSize="20sp"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/black"
@@ -128,8 +157,8 @@
             android:layout_gravity="center_vertical"
             android:src="@drawable/arrow_button"
             android:layout_marginRight="20dp"/>
-
     </LinearLayout>
+
 
 
 

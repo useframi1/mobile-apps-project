@@ -39,7 +39,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="Mariam"
+                android:text="Ahmed"
                 android:textColor="@color/blue"
                 android:textSize="30dp"
                 android:textStyle="bold" />
@@ -51,7 +51,7 @@
             android:layout_height="100dp"
             app:cardCornerRadius="50dp"
             app:cardBackgroundColor="@android:color/white"
-            android:layout_marginLeft="100dp">
+            android:layout_marginLeft="95dp">
 
             <ImageView
                 android:id="@+id/profile_picture"
@@ -73,28 +73,61 @@
         android:layout_gravity="center"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:orientation="horizontal"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:gravity="left">
 
-        <Button
-            android:id="@+id/viewRequest"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="190dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/blue"
-            android:text="View Requests"
-            app:cornerRadius="15dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:fontFamily="sans-serif-medium"/>
+            android:orientation="horizontal"
+            android:layout_marginRight="108dp">
+
+            <LinearLayout
+                android:id="@+id/view_requests"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:background="@drawable/round_button2"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View requests"
+                    android:textColor="@color/white"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="18sp"
+                    android:layout_gravity="center_vertical"/>
+
+                <TextView
+                    android:id="@+id/view_requests_count"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:text="3"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:background="@drawable/view_requests_notification"
+                    android:textAlignment="center"
+                    android:visibility="gone"/>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@drawable/edit_text_border"
-            android:layout_marginLeft="150dp">
+            android:background="@drawable/edit_text_border">
             <Spinner
                 android:id="@+id/spinner"
                 android:layout_width="50dp"
@@ -104,7 +137,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
 
     <TextView
         android:layout_width="wrap_content"
@@ -118,19 +150,19 @@
 
     <LinearLayout
         android:layout_width="350dp"
-        android:layout_height="340dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        android:layout_marginBottom="10dp">
+        android:layout_weight="1"
+        >
 
         <GridView
             android:id="@+id/gridView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:horizontalSpacing="20dp"
-            android:verticalSpacing="20dp"
             android:gravity="center"
-            android:numColumns="2" />
+            android:horizontalSpacing="20dp"
+            android:numColumns="2"
+            android:verticalSpacing="20dp" />
 
     </LinearLayout>
 
@@ -138,10 +170,9 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/blue"
-        android:layout_marginTop="22dp"/>
+        />
 
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+        <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -150,7 +181,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:itemTextColor="@color/black"
-        app:itemIconTint="@color/blue" />
+        app:itemIconTint="@color/blue"
+            />
 
 </LinearLayout>
 

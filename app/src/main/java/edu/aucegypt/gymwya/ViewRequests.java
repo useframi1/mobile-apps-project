@@ -57,12 +57,12 @@ public class ViewRequests extends AppCompatActivity {
 //            match_list = (ArrayList<User>) bundle.getSerializable("Members");
 //        }
 
-        match_list.add(new User("youssef", R.drawable.ghaleb));
-        match_list.add(new User("nour", R.drawable.nour));
-        match_list.add(new User("youssef", R.drawable.ghaleb));
-        match_list.add(new User("nour", R.drawable.nour));
-        match_list.add(new User("youssef", R.drawable.ghaleb));
-        match_list.add(new User("nour", R.drawable.nour));
+//        match_list.add(new User("youssef", R.drawable.ghaleb));
+//        match_list.add(new User("nour", R.drawable.nour));
+//        match_list.add(new User("youssef", R.drawable.ghaleb));
+//        match_list.add(new User("nour", R.drawable.nour));
+//        match_list.add(new User("youssef", R.drawable.ghaleb));
+//        match_list.add(new User("nour", R.drawable.nour));
 
 
 
@@ -115,7 +115,7 @@ public class ViewRequests extends AppCompatActivity {
 
             requestPerson.setText(person.name);
             //  matchInfo.setText(sport from 3:00 PM - 4:00 PM");
-            personPic.setImageResource(person.imageId);
+//            personPic.setImageResource(person.imageId);
 
             decline.setOnClickListener(new View.OnClickListener() {
                 @Override

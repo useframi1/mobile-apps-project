@@ -1,14 +1,13 @@
 package edu.aucegypt.gymwya;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.Time;
-import java.util.Date;
 
-public class IndividualMeeting implements Serializable {
-    Sport sport;
-    User user1, user2;
-    Time from, to;
-    Date date;
-    boolean bothMatched;
-    long meetingID;
+public class IndividualMeeting extends Meeting implements Serializable {
+    User partner;
+    public IndividualMeeting(int ID, String sport, String start, String end, String date, User creator, User partner) {
+        super(ID, sport, start, end, date, creator);
+        this.partner = partner;
+    }
 }

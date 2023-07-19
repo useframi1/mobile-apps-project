@@ -1,12 +1,10 @@
 package edu.aucegypt.gymwya;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,18 +17,22 @@ import java.util.ArrayList;
 
 public class IndividualMatching extends AppCompatActivity {
     int i = 0;
-
     TextView name, bio;
     Button check, addMeeting, reject, viewProfile;
     ImageView backArrow, profilePic;
-
     ArrayList<User> users = new ArrayList<>();
+    private DataManager dataManager;
+    private Data dataModel;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.individual_matching);
+
+        dataManager = DataManager.getInstance();
+        dataModel = dataManager.getDataModel();
+        dataModel.previousIsHome = false;
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -46,12 +48,12 @@ public class IndividualMatching extends AppCompatActivity {
             return true;
         });
 
-        users.add(new User("Jennifer Lopez", R.drawable.barbary));
-        users.add(new User("Nour", R.drawable.nour));
-        users.add(new User("Youssef", R.drawable.ghaleb));
-        users.add(new User("Mariam", R.drawable.mariam));
-        users.add(new User("Nadine", R.drawable.nadine));
-        users.add(new User("Dana", R.drawable.dana));
+//        users.add(new User("Jennifer Lopez", R.drawable.barbary));
+//        users.add(new User("Nour", R.drawable.nour));
+//        users.add(new User("Youssef", R.drawable.ghaleb));
+//        users.add(new User("Mariam", R.drawable.mariam));
+//        users.add(new User("Nadine", R.drawable.nadine));
+//        users.add(new User("Dana", R.drawable.dana));
 
 
         check = (Button) findViewById(R.id.check_button);
@@ -65,19 +67,20 @@ public class IndividualMatching extends AppCompatActivity {
 
 
         Bundle bundle = getIntent().getExtras();
-        String sport = bundle.getString("selectedSport");
-        bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
+//        String sport = bundle.getString("selectedSport");
+        bio.setText("Wants a partner to join them at the gym from 2:30 to 4:00 PM");
 //        String startTime = bundle.getString("start");
 //        String endTime = bundle.getString("end");
 
         //inital profile
-        profilePic.setImageResource(users.get(i).imageId);
+//        profilePic.setImageResource(users.get(i).imageId);
         name.setText(users.get(i).name);
 
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                Intent i = new Intent(IndividualMatching.this, HomePage.class);
+                startActivity(i);
             }
         });
 
@@ -89,9 +92,9 @@ public class IndividualMatching extends AppCompatActivity {
                 if (i == users.size())
                     i=0;
 
-                profilePic.setImageResource(users.get(i).imageId);
+//                profilePic.setImageResource(users.get(i).imageId);
                 name.setText(users.get(i).name);
-                bio.setText("Wants a partner to join them at the " + sport + " from 2:30 to 4:00 PM");
+                bio.setText("Wants a partner to join them at the gym from 2:30 to 4:00 PM");
             }
         });
         viewProfile.setOnClickListener(new View.OnClickListener() {

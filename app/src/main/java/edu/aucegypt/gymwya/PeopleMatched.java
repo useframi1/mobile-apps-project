@@ -7,12 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -21,9 +19,8 @@ import java.util.ArrayList;
 
 public class PeopleMatched extends AppCompatActivity {
 
-    ViewRequestAdapter adapter;
+    ViewPeopleMatchedAdapter adapter;
     ArrayList<User> match_list = new ArrayList<>();
-    ArrayList<Sport> sport_list = new ArrayList<>();
 
 
     // TextView groupName;
@@ -44,20 +41,24 @@ public class PeopleMatched extends AppCompatActivity {
             } else if (item.getItemId() == R.id.chats) {
                 i = new Intent(this, CreateGroup.class);
             } else {
-                i = new Intent(this, CreateMeeting.class);
+                i = new Intent(this, Profile.class);
             }
             startActivity(i);
             return true;
         });
 
-        Bundle bundle = getIntent().getExtras();
-        String name = "Group Name";
-        if (bundle != null) {
-            name = bundle.getString("Team");
-            match_list = (ArrayList<User>) bundle.getSerializable("Members");
-        }
+//        Bundle bundle = getIntent().getExtras();
+//        String name = "Group Name";
+//        if (bundle != null) {
+//            name = bundle.getString("Team");
+//            match_list = (ArrayList<User>) bundle.getSerializable("Members");
+//        }
 
-        adapter = new ViewRequestAdapter(this, match_list);
+//        match_list.add(new User("youssef", R.drawable.ghaleb));
+//        match_list.add(new User("nour", R.drawable.nour));
+//        match_list.add(new User("youssef", R.drawable.ghaleb));
+
+        adapter = new ViewPeopleMatchedAdapter(this, match_list);
 
         listView = findViewById(R.id.people_matched_list);
         back = findViewById(R.id.back);
@@ -77,9 +78,9 @@ public class PeopleMatched extends AppCompatActivity {
     }
 
 
-    class ViewRequestAdapter extends ArrayAdapter<User> {
+    class ViewPeopleMatchedAdapter extends ArrayAdapter<User> {
 
-        public ViewRequestAdapter(Context context, ArrayList<User> members) {
+        public ViewPeopleMatchedAdapter(Context context, ArrayList<User> members) {
             super(context, 0, members);
         }
 
@@ -98,7 +99,7 @@ public class PeopleMatched extends AppCompatActivity {
 
             requestPerson.setText(person.name);
             //  matchInfo.setText(sport from 3:00 PM - 4:00 PM");
-            personPic.setImageResource(person.imageId);
+//            personPic.setImageResource(person.imageId);
 
             return convertView;
         }

@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:text="tennis from 2:00pm to 4:00pm"
+            android:text="Tennis from 2:00pm to 4:00pm on 16/7/2023"
             android:textColor="#323131"
             android:textSize="14dp"
             android:layout_marginLeft="10dp"

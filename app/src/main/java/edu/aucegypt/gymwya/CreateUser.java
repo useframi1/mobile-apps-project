@@ -1,46 +1,42 @@
 package edu.aucegypt.gymwya;
 
-import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.provider.MediaStore;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
@@ -58,6 +54,8 @@ public class CreateUser extends AppCompatActivity {
 
     Uri selectedImage;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private OkHttpClient client = new OkHttpClient();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,10 +65,10 @@ public class CreateUser extends AppCompatActivity {
 
         create = findViewById(R.id.createUserButton);
         back = findViewById(R.id.back);
-        uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
+        uploadProfilePictureButton = findViewById(R.id.uploadProfilePicture);
         profilePicture = findViewById(R.id.profile_picture);
 
-          storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference = FirebaseStorage.getInstance().getReference();
 
 
         uploadProfilePictureButton.setOnClickListener(v -> {
@@ -119,7 +117,7 @@ public class CreateUser extends AppCompatActivity {
             }
             // Check if the age text field is a valid number between 10 and 100
             int ageValue;
-                ageValue = Integer.parseInt(Age);
+            ageValue = Integer.parseInt(Age);
             if (ageValue < 10 || ageValue > 100) {
                 Toast.makeText(getApplicationContext(), "Please enter a valid age between 10 and 100", Toast.LENGTH_SHORT).show();
                 return;
@@ -130,89 +128,79 @@ public class CreateUser extends AppCompatActivity {
                 return;
             }
 
-            try {
-                uploadImage(selectedImage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // Perform the document retrieval and user creation logic
-            DocumentReference documentRef = db.collection("user").document(userName);
-            documentRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
-                        Toast.makeText(getApplicationContext(), "Username already exists", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Username is available, proceed with creating the user and starting the HomePage activity
-                        Map<String, String> data = new HashMap<>();
-                        data.put("email", email);
-                        data.put("password", password);
-                        data.put("age", Age); // Save the age value as well
-                        // ... Add other data fields if needed
-                        db.collection("user")
-                                .document(userName)
-                                .set(data)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(CreateUser.this, "User created successfully", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(CreateUser.this, HomePage.class);
-                                    //send email to next screen
-                                    intent.putExtra("email", email);
-                                    startActivity(intent);
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(CreateUser.this, "Failed to create user", Toast.LENGTH_SHORT).show();
-                                    // Handle failure, if needed
-                                });
-                    }
-                } else {
-                    // An error occurred while checking for the document
-                    // Handle the error
-                    Toast.makeText(getApplicationContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            //put the data in the database
-            Map<String, Object> user = new HashMap<>();
-            user.put("name", Name);
-            user.put("age", Age);
-            user.put("bio", Bio);
-            user.put("email", email);
-            user.put("password", password);
-            user.put("sport", mAdapter.getSelectedItems());
-            db.collection("user")
-                    .document(userName) // Use userName as the document ID
-                    .set(user)
-                    .addOnSuccessListener(documentReference -> {
-                        Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(CreateUser.this, HomePage.class);
-                        startActivity(intent);
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
-                        // Handle failure, if needed
-                    });
+            //call the async task
+            new CreateUserTask().execute(userName, Name, Bio, Age, email);
 
         });
 
+        // Perform the document retrieval and user creation logic
 
-        back.setOnClickListener(v -> {
+        //put the data in the database
+
+
+        back.setOnClickListener(vv -> {
             finish();
         });
 
     }
+    private class CreateUserTask extends AsyncTask<String, Void, String> {
 
-    private void onComplete(Task<DocumentSnapshot> task) {
-        if (task.isSuccessful()) {
-            DocumentSnapshot documentSnapshot = task.getResult();
-            if (documentSnapshot.exists()) {
-                Error.set(true);
-                Toast.makeText(getApplicationContext(), "username exists", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "username does not exist", Toast.LENGTH_SHORT).show();
+        @Override
+        protected String doInBackground(String... params) {
+            String userName = params[0];
+            String Name = params[1];
+            String Bio = params[2];
+            String Age = params[3];
+            String email = params[4];
+
+            // Prepare the JSON request body
+            JSONObject jsonBody = new JSONObject();
+            try {
+                jsonBody.put("username", userName);
+                jsonBody.put("name", Name);
+                jsonBody.put("bio", Bio);
+                jsonBody.put("age", Age);
+                jsonBody.put("email", email);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } else {
-            // An error occurred while checking for the document
-            // Handle the error
-            Toast.makeText(getApplicationContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            String requestBody = jsonBody.toString();
+
+            // Create an HTTP request
+            okhttp3.Request request = new Request.Builder()
+                    .url("http://192.168.56.1:3000/createUser")
+                    .post(RequestBody.create(JSON, requestBody))
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    return response.body().string();
+                } else {
+                    return null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null && result.equals("1")) {
+                // User created successfully
+                Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+                try {
+                    uploadImage(selectedImage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Intent intent = new Intent(CreateUser.this, HomePage.class);
+                startActivity(intent);
+            } else {
+                // Failed to create user
+                Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
+            }
         }
     }
     @Override
@@ -233,7 +221,7 @@ public class CreateUser extends AppCompatActivity {
     private void uploadImage(Uri imageUri) throws IOException {
         if (imageUri != null) {
             // Create a unique filename for the image
-            String filename = "profile_picture.jpg";
+            String filename = UUID.randomUUID().toString();
             StorageReference imageRef = storageReference.child(filename);
 
             // Upload the image to Firebase Storage
