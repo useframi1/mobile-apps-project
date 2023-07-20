@@ -114,6 +114,7 @@ public class HomePage extends AppCompatActivity {
                 i = new Intent(this, Chats.class);
             } else if (item.getItemId() == R.id.profile) {
                 i = new Intent(this, Profile.class);
+                i.putExtra("email", email);
             }
             startActivity(i);
             return false;
