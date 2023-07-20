@@ -164,7 +164,7 @@ public class Profile extends AppCompatActivity {
             try {
                 // Create an HTTP request
                 Request request = new Request.Builder()
-                        .url("http://172.20.10.2:3000/getUsername?email=" + email)  // Replace with your actual URL
+                        .url("http://172.20.10.2:3000/getAllUsers")
                         .get()
                         .build();
 
@@ -187,29 +187,46 @@ public class Profile extends AppCompatActivity {
                 try {
                     JSONArray jsonArray = new JSONArray(result);
 
-                    // Iterate through the JSON array
-                    StringBuilder usernameBuilder = new StringBuilder();
-                    JSONObject jsonObject = jsonArray.getJSONObject(1);
-                    String usernamedb = jsonObject.getString("username");
+                    // Find the JSON object that matches the given email
+                    String emailToFind = email;
+                    JSONObject userObject = null;
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String userEmail = jsonObject.getString("email");
+                        if (userEmail.equalsIgnoreCase(emailToFind)) {
+                            userObject = jsonObject;
+                            break;
+                        }
+                    }
 
+                    if (userObject != null) {
+                        // User with the given email found, extract "username" and "bio" fields
+                        String usernamedb = userObject.getString("username");
+                        String biodb = userObject.getString("bio");
 
-                    // Display the usernames in a Toast message
-                    Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
+                        // Display the retrieved data in a Toast message (optional)
+                        Toast.makeText(getApplicationContext(), "Username: " + usernamedb + ", Bio: " + biodb, Toast.LENGTH_SHORT).show();
 
-                    // Set the usernames to the TextView
-                    String finalUsernames = usernamedb;
-                    username.post(() -> username.setText(finalUsernames));
-                    bio.setText("testing bio");
+                        // Set the "username" and "bio" to the TextViews
+                        String finalUsername = usernamedb;
+                        String finalBio = biodb;
+                        username.post(() -> username.setText(finalUsername));
+                        bio.post(() -> bio.setText(finalBio));
+                    } else {
+                        // User with the given email not found
+                        Toast.makeText(getApplicationContext(), "User not found with the given email", Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     // Failed to parse JSON response
                     Toast.makeText(getApplicationContext(), "Failed to parse JSON response", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                // Failed to retrieve username
-                Toast.makeText(getApplicationContext(), "Failed to retrieve username", Toast.LENGTH_SHORT).show();
+                // Failed to retrieve data
+                Toast.makeText(getApplicationContext(), "Failed to retrieve data", Toast.LENGTH_SHORT).show();
             }
         }
+
 
     }
 }
