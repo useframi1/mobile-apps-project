@@ -228,6 +228,7 @@ public class HomePage extends AppCompatActivity {
                 return null;
             }
         }
+
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
@@ -236,12 +237,8 @@ public class HomePage extends AppCompatActivity {
 
                     // Iterate through the JSON array
                     StringBuilder usernameBuilder = new StringBuilder();
-                        JSONObject jsonObject = jsonArray.getJSONObject(1);
+                        JSONObject jsonObject = jsonArray.getJSONObject(0);
                         String username = jsonObject.getString("username");
-
-
-
-
                     // Display the usernames in a Toast message
                     Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
 
