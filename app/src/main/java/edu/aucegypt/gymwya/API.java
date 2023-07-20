@@ -1,33 +1,17 @@
 package edu.aucegypt.gymwya;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import io.grpc.internal.JsonParser;
 
 public class API extends AsyncTask<String, Void, String> {
     DataManager dataManager = DataManager.getInstance();
@@ -43,7 +27,6 @@ public class API extends AsyncTask<String, Void, String> {
         }
         reader.close();
 
-        // Return the response as a string
         return response.toString();
     }
 
@@ -62,28 +45,18 @@ public class API extends AsyncTask<String, Void, String> {
         URL requestUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
 
-        // Set request method
         connection.setRequestMethod("POST");
 
-        // Enable input and output streams
         connection.setDoInput(true);
         connection.setDoOutput(true);
 
-        // Set request headers
         connection.setRequestProperty("Content-Type", "application/json");
 
-        // Create JSON data
-//        String jsonData = "{\"username\": \"joe\", \"email\":\"yousseframi@aucegypt.edu\", \"name\":\"youssef\", \"age\":20, \"bio\":\"hellooo\"}"; // Replace with your JSON data
-
-
-
-        // Write JSON data to the request body
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
         outputStream.writeBytes(jsonString);
         outputStream.flush();
         outputStream.close();
 
-        // Get response code
         int responseCode = connection.getResponseCode();
         System.out.println("Response Code: " + responseCode);
     }
@@ -91,21 +64,7 @@ public class API extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... strings) {
         String url = strings[0];
-//                    JSONObject jsonObject = new JSONObject();
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                try {
-//                    jsonObject.append("username", "ahhhhhhh");
-//                    jsonObject.append("email" ,"yousseframi@aucegypt.edu");
-//                    jsonObject.append("name", "youssef");
-//                    jsonObject.append("age", 20);
-//                    jsonObject.append("bio", "heloooo");
-//                    String jsonData = jsonObject.toString();
-//                    postHttpRequest(url+"createUser", jsonData);
-//                } catch (JSONException | IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
+
         try {
             HttpURLConnection connection_getAllUsers = getHttpRequest(url+"getAllUsers");
             HttpURLConnection connection_getRequests = getHttpRequest(url+"getRequests/?creator="+dataModel.currentUser.username);
@@ -196,5 +155,7 @@ public class API extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         System.out.println(result);
+       // return result;
+       // return result;
     }
 }

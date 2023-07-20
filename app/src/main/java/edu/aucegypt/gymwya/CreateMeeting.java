@@ -55,8 +55,6 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
 
-
-
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
             Intent i;
@@ -95,11 +93,8 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
-
-
 
     }
 
@@ -126,12 +121,14 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             if (dataModel.previousIsHome) {
                 i = new Intent(this, HomePage.class);
             }
-            else {i = new Intent(this, IndividualMatching.class);}
-            startActivity(i);
+            else {
+                i = new Intent(this, IndividualMatching.class);
+            }
+           // startActivity(i);
         } if (v == addMeeting) {
             CreateUserTask createUserTask = new CreateUserTask();
             String sportName = spinner.getSelectedItem().toString();
-            createUserTask.execute("barbary", sportName, fromTime, toTime, date);
+            createUserTask.execute("feweeee", sportName, fromTime, toTime, date);
 
         }
     }
@@ -168,19 +165,15 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
                 }, mHour, mMinute,false);
         timePickerDialog.show();
     }
-    //create an async task to add the meeting we will pass creator, sport, startTime, endTime, mDate to the database
-    //then we will add the meeting to the user's meetings list
+
     private class CreateUserTask extends AsyncTask<String, Void, String> {
 
         private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         private OkHttpClient client = new OkHttpClient();
 
-
-
         @Override
         protected String doInBackground(String... params) {
             try {
-                // Prepare the JSON request body
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("creator", params[0]);
                 jsonBody.put("sport", params[1]);
@@ -189,13 +182,11 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
                 jsonBody.put("mDate", params[4]);
 
 
-                // Create an HTTP request
                 okhttp3.Request request = new Request.Builder()
                         .url("http://192.168.56.1:3000/createMeeting")
                         .post(RequestBody.create(JSON, jsonBody.toString()))
                         .build();
 
-                // Send the request and get the response
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     return response.body().string();
@@ -211,13 +202,11 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         @Override
         protected void onPostExecute(String result) {
             if (result != null && result.equals("1")) {
-                // User created successfully
                 Toast.makeText(getApplicationContext(), "meeting created successfully", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(CreateMeeting.this, HomePage.class);
                 startActivity(intent);
             } else {
-                // Failed to create user
                 Toast.makeText(getApplicationContext(), "Failed to create meeting", Toast.LENGTH_SHORT).show();
             }
         }

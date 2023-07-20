@@ -70,7 +70,6 @@ public class CreateUser extends AppCompatActivity {
 
         storageReference = FirebaseStorage.getInstance().getReference();
 
-
         uploadProfilePictureButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intent, REQUEST_PICK_IMAGE);
@@ -187,6 +186,8 @@ public class CreateUser extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(), "you are in post excute", Toast.LENGTH_SHORT).show();
+
             if (result != null && result.equals("1")) {
                 // User created successfully
                 Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
@@ -195,7 +196,10 @@ public class CreateUser extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                //pass the email to the home page
+
                 Intent intent = new Intent(CreateUser.this, HomePage.class);
+                intent.putExtra("email", email);
                 startActivity(intent);
             } else {
                 // Failed to create user
@@ -209,11 +213,8 @@ public class CreateUser extends AppCompatActivity {
 
         if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
             selectedImage = data.getData();
-
-
             //set image in imageview pfp
             profilePicture.setImageURI(selectedImage);
-
             //testing toast
             Toast.makeText(getApplicationContext(), "Profile Picture Set ", Toast.LENGTH_SHORT).show();
         }

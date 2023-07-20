@@ -9,6 +9,7 @@ public class User implements Serializable {
     String username;
     String password;
     int age;
+    int pic;
     String bio;
     ArrayList<IndividualMeeting> requests = new ArrayList<>();
     ArrayList<Meeting> currentMatches = new ArrayList<>();
@@ -23,6 +24,11 @@ public class User implements Serializable {
         this.bio = bio;
     }
 
+    public User(String name, int pic) {
+        this.name = name;
+        this.pic = pic;
+
+    }
     public User() {
 
     }

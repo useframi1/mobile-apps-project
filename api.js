@@ -168,20 +168,20 @@ srv.post("/createGroup", function (req, res) {
     const { creator, name, sport, startTime, endTime, gDate } = req.body; // parse json body
 
     var sql =
-        "INSERT INTO GroupMeetings (creator, name, sport, startTime, endTime, gDate) VALUES (?, ?, ?, ?, ?, ?)"; // sql command to insert a record in the database
-
+    "INSERT INTO GroupMeetings (creator, name, sport, startTime, endTime, gDate) VALUES (?, ?, ?, ?, ?, ?)"; // sql command to insert a record in the database
+     
     // execute the sql command
     connection.query(
         sql,
         [creator, name, sport, startTime, endTime, gDate],
-        function (err) {
+        function (err,result) {
             if (err) {
                 res.send("0");
                 throw err;
             }
 
             console.log("Group meeting record inserted");
-            res.send("1");
+            res.send(result.insertId.toString());
         }
     );
 });
@@ -190,6 +190,7 @@ srv.post("/createGroup", function (req, res) {
 // Method: POST
 srv.post("/addGroupMembers", function (req, res) {
     const { ID, groupMembers } = req.body;
+    console.log("in node");
 
     for (let i = 0; i < groupMembers.length; i++) {
         const member = groupMembers[i];
@@ -199,11 +200,10 @@ srv.post("/addGroupMembers", function (req, res) {
                 res.send("0");
                 throw err;
             }
-
             console.log("Group members record inserted");
         });
     }
-    res.send("1");
+    //res.send("1");
 });
 
 // API: create meeting
@@ -220,12 +220,12 @@ srv.post("/createMeeting", function (req, res) {
         [creator, sport, startTime, endTime, mDate],
         function (err) {
             if (err) {
-                res.send("0");
+                //res.send("0");
                 throw err;
             }
 
             console.log("Group meeting record inserted");
-            res.send("1");
+           // res.send("1");
         }
     );
 });
@@ -318,7 +318,7 @@ srv.post("/updateUser", function (req, res) {
     );
 
     var sql = "DELETE FROM PreferredSports WHERE username = ?";
-    connection.query(sql, username, function (err) {
+    connection.query(sql, newUsername, function (err) {
         if (err) {
             res.send("0");
             throw err;
@@ -338,6 +338,7 @@ srv.post("/addPreferredSports", function (req, res) {
         const sport = preferredSports[i];
         var sql = "INSERT INTO PreferredSports (username, sport) VALUES (?,?)";
         connection.query(sql, [username, sport], function (err) {
+
             if (err) {
                 res.send("0");
                 throw err;
@@ -346,7 +347,6 @@ srv.post("/addPreferredSports", function (req, res) {
             console.log("Preferred sport record inserted");
         });
     }
-    res.send("1");
 });
 
 // API: update partner
@@ -364,7 +364,7 @@ srv.post("/updatePartner", function (req, res) {
         }
 
         console.log("Request recieved");
-        res.send(result);
+    //    res.send(result);
     });
 
     sql = "DELETE FROM Requests WHERE ID = ?";
@@ -375,8 +375,38 @@ srv.post("/updatePartner", function (req, res) {
             res.send("0");
             throw err;
         }
-
         console.log("Deleted requests");
+        res.send(result);
+    });
+});
+
+// API: add meeting request
+// Method: POST
+srv.post("/addRequest", function (req, res) {
+    const { ID, username } = req.body;
+    
+    var sql = "INSERT INTO Requests (ID, username) VALUES (?,?)";
+    connection.query(sql, [ID, username], function (err) {
+        if (err) {
+           // res.send("0");
+            throw err;
+        }
+        console.log("Meeting request inserted");
+    });
+     res.send("1");
+
+});
+
+srv.post("/deleteRequest", function (req, res) {
+    sql = "DELETE FROM Requests WHERE ID = ?";
+
+    // execute sql command
+    connection.query(sql, [ID, partner], function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+        console.log("Deleted request");
         res.send(result);
     });
 });

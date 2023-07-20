@@ -18,8 +18,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -56,6 +54,7 @@ public class HomePage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Intent intente = getIntent();
         String email = intente.getStringExtra("email");
+
         HomePage.GetUserTask createUserTask = new HomePage.GetUserTask();
         createUserTask.execute(email);
         setContentView(R.layout.activity_home_page);
@@ -70,34 +69,34 @@ public class HomePage extends AppCompatActivity {
         StorageReference storageReference = storage.getReference();
 
 
-// Retrieve the image URL from Firestore based on the user's email
-        db.collection("Images")
-                .document(email)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("image");
-                        if (imageUrl != null) {
-                            // Image URL retrieved successfully, load the image into ImageView
-                            // You can use any image loading library or method here, for example, Glide or Picasso
-                            // Here's an example using Glide:
-                            Glide.with(this)
-                                    .load(imageUrl)
-                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
-                                    .into(profile_picture);
-                        } else {
-                            // Image URL not found in Firestore
-                            // Handle the case accordingly
-                        }
-                    } else {
-                        // Document not found in Firestore
-                        // Handle the case accordingly
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Error occurred while retrieving the image URL from Firestore
-                    // Handle the error accordingly
-                });
+ //Retrieve the image URL from Firestore based on the user's email
+//        db.collection("Images")
+//                .document(email)
+//                .get()
+//                .addOnSuccessListener(documentSnapshot -> {
+//                    if (documentSnapshot.exists()) {
+//                        String imageUrl = documentSnapshot.getString("image");
+//                        if (imageUrl != null) {
+//                            // Image URL retrieved successfully, load the image into ImageView
+//                            // You can use any image loading library or method here, for example, Glide or Picasso
+//                            // Here's an example using Glide:
+//                            Glide.with(this)
+//                                    .load(imageUrl)
+//                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+//                                    .into(profile_picture);
+//                        } else {
+//                            // Image URL not found in Firestore
+//                            // Handle the case accordingly
+//                        }
+//                    } else {
+//                        // Document not found in Firestore
+//                        // Handle the case accordingly
+//                    }
+//                })
+//                .addOnFailureListener(e -> {
+//                    // Error occurred while retrieving the image URL from Firestore
+//                    // Handle the error accordingly
+//                });
 
 
         dataManager = DataManager.getInstance();
@@ -239,9 +238,6 @@ public class HomePage extends AppCompatActivity {
                         JSONObject jsonObject = jsonArray.getJSONObject(1);
                         String username = jsonObject.getString("username");
 
-
-
-
                     // Display the usernames in a Toast message
                     Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
 
@@ -257,6 +253,7 @@ public class HomePage extends AppCompatActivity {
                 // Failed to retrieve username
                 Toast.makeText(getApplicationContext(), "Failed to retrieve username", Toast.LENGTH_SHORT).show();
             }
+            //return result;
         }
 
     }

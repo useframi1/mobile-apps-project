@@ -2,6 +2,7 @@ package edu.aucegypt.gymwya;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +14,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class IndividualMatching extends AppCompatActivity {
@@ -48,12 +65,12 @@ public class IndividualMatching extends AppCompatActivity {
             return true;
         });
 
-//        users.add(new User("Jennifer Lopez", R.drawable.barbary));
-//        users.add(new User("Nour", R.drawable.nour));
-//        users.add(new User("Youssef", R.drawable.ghaleb));
-//        users.add(new User("Mariam", R.drawable.mariam));
-//        users.add(new User("Nadine", R.drawable.nadine));
-//        users.add(new User("Dana", R.drawable.dana));
+        users.add(new User("Jennifer Lopez", R.drawable.barbary));
+        users.add(new User("Nour", R.drawable.nour));
+        users.add(new User("Youssef", R.drawable.ghaleb));
+        users.add(new User("Mariam", R.drawable.mariam));
+        users.add(new User("Nadine", R.drawable.nadine));
+        users.add(new User("Dana", R.drawable.dana));
 
 
         check = (Button) findViewById(R.id.check_button);
@@ -136,10 +153,80 @@ public class IndividualMatching extends AppCompatActivity {
         cancelButton.setOnClickListener(view -> dialog.dismiss());
 
         confirmButton.setOnClickListener(view -> {
+            try {
+                JSONObject postData = new JSONObject();
+                postData.put("ID", 15);
+                postData.put("username", "MGhobary256");
+
+                String jsonString = postData.toString();
+
+                String url = "http://192.168.56.1:3000/addRequest";
+
+                PostCreateRequest asyncTask = new PostCreateRequest(url, jsonString);
+                asyncTask.execute();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             Intent intent = new Intent(this,HomePage.class);
             startActivity(intent);
         });
         dialog.setCancelable(false);
         dialog.show();
+    }
+
+    private class PostCreateRequest extends AsyncTask<String, Void, Void> {
+
+        private String jsonData;
+        private String url;
+        public PostCreateRequest(String url,String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                }
+                connection.disconnect();
+                return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
     }
 }

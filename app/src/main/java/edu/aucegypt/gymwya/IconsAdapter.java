@@ -79,4 +79,45 @@ class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder> {
     public int getItemCount() {
         return iconsList.size();
     }
+
+    public ArrayList<Integer> getPressedIconIds() {
+        ArrayList<Integer> pressedIconIds = new ArrayList<>();
+        for (int i = 0; i < iconsList.size(); i++) {
+            if (iconsList.get(i).isPressed) {
+                pressedIconIds.add(iconsList.get(i).id);
+            }
+        }
+        return pressedIconIds;
+    }
+
+    public ArrayList<String> getSelectedSportNames(ArrayList<Integer> pressedIconIds) {
+        ArrayList<String> selectedSportNames = new ArrayList<>();
+        for (int iconId : pressedIconIds) {
+            String sportName;
+                if (iconId ==  R.drawable.football_icon)
+                     sportName = "Football";
+                else if (iconId == R.drawable.volleyball_icon)
+                    sportName = "Volleyball";
+                else if (iconId == R.drawable.tennis_icon)
+                    sportName = "Tennis";
+                else if (iconId == R.drawable.squash_icon)
+                    sportName = "Squash";
+                else if (iconId == R.drawable.basketball_icon)
+                    sportName = "Basketball";
+                else if (iconId == R.drawable.swimming_icon)
+                    sportName = "Swimming";
+                else if (iconId == R.drawable.pingpong_icon)
+                    sportName = "Ping Pong";
+                else if (iconId == R.drawable.gym_icon)
+                    sportName = "Gym";
+                else
+                    sportName = "";
+
+            selectedSportNames.add(sportName);
+
+        }
+
+        return selectedSportNames;
+    }
+
 }
