@@ -168,7 +168,7 @@ public class CreateUser extends AppCompatActivity {
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.56.1:3000/createUser")
+                    .url("http://172.20.10.2:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -237,6 +237,7 @@ public class CreateUser extends AppCompatActivity {
                             // Example: Add the image URL to Firestore
                             Map<String, Object> user = new HashMap<>();
                             user.put("image", imageUrl);
+
 
                             db.collection("Images")
                                     .document(email) // Use userName as the document ID

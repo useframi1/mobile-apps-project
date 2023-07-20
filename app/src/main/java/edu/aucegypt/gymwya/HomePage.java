@@ -212,9 +212,10 @@ public class HomePage extends AppCompatActivity {
             try {
                 // Create an HTTP request
                 Request request = new Request.Builder()
-                        .url("http://192.168.56.1:3000/getUsername?email=" + email)  // Replace with your actual URL
+                        .url("http://172.20.10.2:3000/getUsername?email=" + email)  // Replace with your actual URL
                         .get()
                         .build();
+
 
                 // Send the request and get the response
                 Response response = client.newCall(request).execute();
