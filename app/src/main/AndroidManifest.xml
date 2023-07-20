@@ -80,7 +80,9 @@
             android:name=".HomePage"
             android:exported="true"
             android:screenOrientation="portrait"
-            />
+            >
+
+        </activity>
         <activity
             android:name=".GroupMatching"
             android:exported="true"
