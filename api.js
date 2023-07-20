@@ -398,10 +398,12 @@ srv.post("/addRequest", function (req, res) {
 });
 
 srv.post("/deleteRequest", function (req, res) {
-    sql = "DELETE FROM Requests WHERE ID = ?";
+    const {ID}  = req.body;
+
+    var sql = "DELETE FROM Requests WHERE ID = ?";
 
     // execute sql command
-    connection.query(sql, [ID, partner], function (err, result) {
+    connection.query(sql, ID, function (err, result) {
         if (err) {
             res.send("0");
             throw err;

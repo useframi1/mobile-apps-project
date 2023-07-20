@@ -128,12 +128,12 @@ public class ViewRequests extends AppCompatActivity {
 
                     try {
                         JSONObject postData = new JSONObject();
-                        postData.put("ID", 5);
-                        postData.put("partner", "Elbarbary");
+                        postData.put("ID", 21);
+                        //postData.put("partner", "feweeee");
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/updatePartner";
+                        String url = "http://192.168.56.1:3000/deleteRequest";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();
