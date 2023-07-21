@@ -168,12 +168,12 @@ public class IndividualMatching extends AppCompatActivity {
         confirmButton.setOnClickListener(view -> {
             try {
                 JSONObject postData = new JSONObject();
-                postData.put("ID", 10);
-                postData.put("username", "feweeee");
+                postData.put("ID", meeting.ID);
+                postData.put("username", dataModel.currentUser.username);
 
                 String jsonString = postData.toString();
 
-                String url = "http://192.168.56.1:3000/addRequest";
+                String url = "http://192.168.1.182:3000/addRequest";
 
                 PostCreateRequest asyncTask = new PostCreateRequest(url, jsonString);
                 asyncTask.execute();

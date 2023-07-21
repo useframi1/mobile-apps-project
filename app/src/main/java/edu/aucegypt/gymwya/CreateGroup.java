@@ -52,8 +52,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class CreateGroup extends AppCompatActivity
-        implements View.OnClickListener, AdapterView.OnItemSelectedListener, PostCreateGroup.MyCallback {
+public class CreateGroup extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, PostCreateGroup.MyCallback {
     DataManager dataManager = DataManager.getInstance();
     String apiResponse;
     Data dataModel = dataManager.getDataModel();
@@ -131,40 +130,42 @@ public class CreateGroup extends AppCompatActivity
         btnDatePicker.setOnClickListener(this);
         btnTimePickerFrom.setOnClickListener(this);
         btnTimePickerTo.setOnClickListener(this);
-        btnCreateGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String groupNameString = groupName.getText().toString();
-                String sport = selectedSport;
+        btnCreateGroup.setOnClickListener(v -> {
+            String groupNameString = groupName.getText().toString();
+            String sport = selectedSport;
 
-                String members = CreateGroup.groupMembersEditText.getText().toString();
-                String[] membersList = members.split(",");
+            try {
+                if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
+                        && !Objects.equals(sportName, "")) {
+                    if (isInvalidMeeting()) {
+                        errorMessage.setText("Please choose valid time");
+                        errorMessage.setVisibility(View.VISIBLE);
+                    } else if (hasCollidingMeeting()) {
+                        errorMessage.setText("There is another meeting at that time");
+                        errorMessage.setVisibility(View.VISIBLE);
+                    } else {
+                        errorMessage.setVisibility(View.INVISIBLE);
+                        JSONObject postData = new JSONObject();
 
-                try {
-                    JSONObject postData = new JSONObject();
+                        postData.put("creator", dataModel.currentUser.username);
+                        postData.put("name", groupNameString);
+                        postData.put("sport", sport);
+                        postData.put("startTime", btnTimePickerFrom.getText().toString());
+                        postData.put("endTime", btnTimePickerTo.getText().toString());
+                        postData.put("gDate", btnDatePicker.getText().toString());
 
-                    postData.put("creator", "sawsan");
-                    postData.put("name", groupNameString);
-                    postData.put("sport", sport);
-                    postData.put("startTime", btnTimePickerFrom.getText().toString());
-                    postData.put("endTime", btnTimePickerTo.getText().toString());
-                    postData.put("gDate", btnDatePicker.getText().toString());
+                        String jsonString = postData.toString();
 
-                    String jsonString = postData.toString();
-
-                    String url = "http://192.168.56.1:3000/createGroup";
-                    System.out.println("create group");
-                    PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
-                    asyncTask.execute();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                        String url = "http://192.168.1.182:3000/createGroup";
+                        System.out.println("create group");
+                        PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
+                        asyncTask.execute();
+                    }
                 }
 
-                Intent i = new Intent(CreateGroup.this, ViewCreatedMeetings.class);
-                startActivity(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
         });
         back.setOnClickListener(this);
 
@@ -205,10 +206,10 @@ public class CreateGroup extends AppCompatActivity
             setDate();
         }
         if (v == btnTimePickerFrom) {
-            setTime(btnTimePickerFrom, true);
+            setTime(btnTimePickerFrom);
         }
         if (v == btnTimePickerTo) {
-            setTime(btnTimePickerTo, false);
+            setTime(btnTimePickerTo);
         }
         if (v == back) {
             Intent i;
@@ -217,23 +218,6 @@ public class CreateGroup extends AppCompatActivity
             else
                 i = new Intent(this, GroupMatching.class);
             startActivity(i);
-        }
-        if (v == btnCreateGroup) {
-            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
-                    && !Objects.equals(sportName, "")) {
-                if (isInvalidMeeting()) {
-                    errorMessage.setText("Please choose valid time");
-                    errorMessage.setVisibility(View.VISIBLE);
-                } else if (hasCollidingMeeting()) {
-                    errorMessage.setText("There is another meeting at that time");
-                    errorMessage.setVisibility(View.VISIBLE);
-                } else {
-                    errorMessage.setVisibility(View.INVISIBLE);
-                    CreateGroup.CreateUserTask createUserTask = new CreateGroup.CreateUserTask();
-                    createUserTask.execute(dataModel.currentUser.username, name, sportName, fromTime, toTime, gDate);
-                }
-            }
-
         }
     }
 
@@ -349,151 +333,159 @@ public class CreateGroup extends AppCompatActivity
         timePickerDialog.show();
     }
 
-    class PostCreateGroup extends AsyncTask<String, Void, String> {
+    @Override
+    public void onTaskComplete(String jsonData) {
+        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.1.182:3000/addGroupMembers", jsonData);
+        postAddMembers.execute();
+    }
 
-        private String jsonData;
-        private String url;
-        MyCallback myCallback;
 
-        public PostCreateGroup(String url, String jsonData, MyCallback myCallback) {
-            System.out.println("here");
-            this.jsonData = jsonData;
-            this.url = url;
-            this.myCallback = myCallback;
-        }
+}
 
-        @Override
-        protected String doInBackground(String... params) {
-            // String urlString = params[0];
-            String result = "";
-            HttpURLConnection connection;
-            try {
-                URL url = new URL(this.url);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
+class PostCreateGroup extends AsyncTask<String, Void, String> {
 
-                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                writer.write(jsonData);
-                writer.flush();
-                writer.close();
-                out.close();
+    private String jsonData;
+    private String url;
+    MyCallback myCallback;
 
-                int responseCode = connection.getResponseCode();
+    public PostCreateGroup(String url, String jsonData, MyCallback myCallback) {
+        System.out.println("here");
+        this.jsonData = jsonData;
+        this.url = url;
+        this.myCallback = myCallback;
+    }
 
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("heere");
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder response = new StringBuilder();
-                    String line;
+    @Override
+    protected String doInBackground(String... params) {
+        // String urlString = params[0];
+        String result = "";
+        HttpURLConnection connection;
+        try {
+            URL url = new URL(this.url);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
 
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
+            OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+            writer.write(jsonData);
+            writer.flush();
+            writer.close();
+            out.close();
 
-                    reader.close();
-                    System.out.println(response);
-                    result = response.toString();
-                    System.out.println("result:");
-                    System.out.println(result);
-                    return result;
-                } else {
-                    result = "Error: " + responseCode;
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.out.println("heere");
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
                 }
-                connection.disconnect();
-                return null;
-            } catch (ProtocolException e) {
-                throw new RuntimeException(e);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+
+                reader.close();
+                System.out.println(response);
+                result = response.toString();
+                System.out.println("result:");
+                System.out.println(result);
+                return result;
+            } else {
+                result = "Error: " + responseCode;
             }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            JSONObject members = new JSONObject();
-
-            String groupMembersString = CreateGroup.groupMembersEditText.getText().toString();
-            String[] membersArray = groupMembersString.split(",");
-
-            ArrayList<String> groupMembersArray = new ArrayList<>(Arrays.asList(membersArray));
-            JSONArray groupMembersJSON = new JSONArray(groupMembersArray);
-
-            try {
-                members.put("ID", result);
-                members.put("groupMembers", groupMembersJSON);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-            String jsonString2 = members.toString();
-            if (groupMembersJSON.length() > 0)
-                myCallback.onTaskComplete(jsonString2);
-        }
-
-        public interface MyCallback {
-            void onTaskComplete(String jsonData);
+            connection.disconnect();
+            return null;
+        } catch (ProtocolException e) {
+            throw new RuntimeException(e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    class PostAddMembers extends AsyncTask<String, Void, String> {
+    @Override
+    protected void onPostExecute(String result) {
 
-        private String jsonData;
-        private String url;
+        JSONObject members = new JSONObject();
 
-        public PostAddMembers(String url, String jsonData) {
-            this.jsonData = jsonData;
-            this.url = url;
+        String groupMembersString = CreateGroup.groupMembersEditText.getText().toString();
+        String[] membersArray = groupMembersString.split(",");
+
+        ArrayList<String> groupMembersArray = new ArrayList<>(Arrays.asList(membersArray));
+        JSONArray groupMembersJSON = new JSONArray(groupMembersArray);
+
+        try {
+            members.put("ID", result);
+            members.put("groupMembers", groupMembersJSON);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
         }
+        String jsonString2 = members.toString();
+        if (groupMembersJSON.length() > 0)
+            myCallback.onTaskComplete(jsonString2);
+    }
 
-        @Override
-        protected String doInBackground(String... params) {
-            String result = "";
-            HttpURLConnection connection;
-            try {
-                URL url = new URL(this.url);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
+    public interface MyCallback {
+        void onTaskComplete(String jsonData);
+    }
+}
 
-                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                writer.write(jsonData);
-                writer.flush();
-                writer.close();
-                out.close();
+class PostAddMembers extends AsyncTask<String, Void, String> {
 
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("heere");
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder response = new StringBuilder();
-                    String line;
+    private String jsonData;
+    private String url;
 
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
+    public PostAddMembers(String url, String jsonData) {
+        this.jsonData = jsonData;
+        this.url = url;
+    }
 
-                    reader.close();
+    @Override
+    protected String doInBackground(String... params) {
+        String result = "";
+        HttpURLConnection connection;
+        try {
+            URL url = new URL(this.url);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
 
-                } else {
-                    result = "Error: " + responseCode;
+            OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+            writer.write(jsonData);
+            writer.flush();
+            writer.close();
+            out.close();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.out.println("heere");
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
                 }
-                connection.disconnect();
-                return null;
 
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                reader.close();
+
+            } else {
+                result = "Error: " + responseCode;
             }
+            connection.disconnect();
+            return null;
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

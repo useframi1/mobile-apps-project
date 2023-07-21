@@ -28,6 +28,7 @@ protected void onCreate(Bundle savedInstanceState) {
 //        editor.remove("password");
 //        editor.commit();
 
+        System.out.println(credentials.contains("email") || credentials.contains("password") || credentials.contains("username"));
         if (credentials.contains("email") && credentials.contains("password") && credentials.contains("username")) {
             dataModel.currentUser.username = credentials.getString("username", "");
             dataModel.currentUser.email = credentials.getString("email", "");

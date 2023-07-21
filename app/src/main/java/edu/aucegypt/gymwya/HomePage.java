@@ -182,7 +182,7 @@ public class HomePage extends AppCompatActivity {
             JSONObject jsonData = new JSONObject();
             String jsonString = jsonData.toString();
 
-            PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.56.1:3000/requestStatus",
+            PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.1.182:3000/requestStatus",
                     jsonString);
             postRequestsStatus.execute();
 
@@ -233,7 +233,7 @@ public class HomePage extends AppCompatActivity {
             try {
                 // Create an HTTP request
                 Request request = new Request.Builder()
-                        .url("http://192.168.56.1:3000/getUsername?email=" + email) // Replace with your actual URL
+                        .url("http://192.168.1.182:3000/getUsername?email=" + email) // Replace with your actual URL
                         .get()
                         .build();
 

@@ -52,7 +52,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class CreateUser extends AppCompatActivity {
+public class CreateUser extends AppCompatActivity  implements API.OnStart{
     private GridViewAdapter gridAdapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final int REQUEST_PICK_IMAGE = 1;
@@ -160,7 +160,13 @@ public class CreateUser extends AppCompatActivity {
 
     }
 
-    private class CreateUserTask extends AsyncTask<String, Void, String> implements API.OnStart {
+    @Override
+    public void onTaskComplete() {
+        Intent intent = new Intent(CreateUser.this, HomePage.class);
+        startActivity(intent);
+    }
+
+    private class CreateUserTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -220,7 +226,7 @@ public class CreateUser extends AppCompatActivity {
                 preferredSportsData.put("preferredSports", sportsArrayJSON);
 
                 String jsonString = preferredSportsData.toString();
-                String url = "http://192.168.56.1:3000/addPreferredSports";
+                String url = "http://192.168.1.182:3000/addPreferredSports";
 
                 PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
                 asyncTask.execute();
@@ -240,7 +246,7 @@ public class CreateUser extends AppCompatActivity {
                 editor.putString("username", userName);
                 editor.commit();
                 dataModel.currentUser.username = userName;
-                API api = new API((API.OnStart) CreateUser.this);
+                API api = new API(CreateUser.this);
                 api.execute("http://192.168.1.182:3000/");
                 try {
                     uploadImage(selectedImage);
@@ -251,12 +257,6 @@ public class CreateUser extends AppCompatActivity {
                 // Failed to create user
                 Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
             }
-        }
-
-        @Override
-        public void onTaskComplete() {
-            Intent intent = new Intent(CreateUser.this, HomePage.class);
-            startActivity(intent);
         }
     }
 

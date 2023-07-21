@@ -116,23 +116,19 @@ public class ViewRequests extends AppCompatActivity {
             decline.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dataModel.currentUser.requests.remove(position);
-
                     try {
                         JSONObject postData = new JSONObject();
-                        postData.put("ID", 21);
-                        // postData.put("partner", "feweeee");
-
+                        postData.put("ID", dataModel.currentUser.requests.get(position).ID);
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/deleteRequest";
+                        String url = "http://192.168.1.182:3000/deleteRequest";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    match_list.remove(position);
+                    dataModel.currentUser.requests.remove(position);
                     adapter.notifyDataSetChanged();
                 }
             });
@@ -143,12 +139,12 @@ public class ViewRequests extends AppCompatActivity {
 
                     try {
                         JSONObject postData = new JSONObject();
-                        postData.put("ID", 15);
-                        postData.put("partner", "MGhobary256");
+                        postData.put("ID", dataModel.currentUser.requests.get(position).ID);
+                        postData.put("partner", dataModel.currentUser.requests.get(position).partner);
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/updatePartner";
+                        String url = "http://192.168.1.182:3000/updatePartner";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();

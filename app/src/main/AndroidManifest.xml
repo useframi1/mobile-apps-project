@@ -31,11 +31,6 @@
             android:screenOrientation="portrait"
         />
         <activity
-            android:name=".ViewRequests"
-            android:exported="false"
-            android:screenOrientation="portrait"
-        />
-        <activity
             android:name=".ViewCreatedMeetings"
             android:exported="false"
             android:screenOrientation="portrait"
@@ -50,12 +45,6 @@
             android:name=".ViewGroup"
             android:exported="true"
             tools:ignore="ExtraText">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".CreateUser"
@@ -78,7 +67,11 @@
             android:exported="true"
             android:screenOrientation="portrait"
             >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity

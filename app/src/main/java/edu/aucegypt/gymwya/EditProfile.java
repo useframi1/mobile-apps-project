@@ -42,6 +42,8 @@ public class EditProfile extends AppCompatActivity {
     EditText name,username,bio;
 
     ImageView back;
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +102,7 @@ public class EditProfile extends AppCompatActivity {
                     JSONObject preferredSportsData = new JSONObject();
 
 
-                    postData.put("username", "MGhobary256");
+                    postData.put("username", dataModel.currentUser.username);
                     postData.put("newUsername", editUserName);
                     postData.put("name", editName);
                     postData.put("bio", editBio);
@@ -119,8 +121,8 @@ public class EditProfile extends AppCompatActivity {
 
                     jsonString2 = preferredSportsData.toString();
 
-                    String url = "http://192.168.56.1:3000/updateUser";
-                    urlSport = "http://192.168.56.1:3000/addPreferredSports";
+                    String url = "http://192.168.1.182:3000/updateUser";
+                    urlSport = "http://192.168.1.182:3000/addPreferredSports";
 
 
                     PostEditUser asyncTask = new PostEditUser(url, jsonString);

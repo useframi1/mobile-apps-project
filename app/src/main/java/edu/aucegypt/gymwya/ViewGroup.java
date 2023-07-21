@@ -93,7 +93,9 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == back) {
-            finish();
+            Intent i = new Intent(this, GroupMatching.class);
+            i.putExtra("selectedSport", group.sport);
+            startActivity(i);
         } else if (v == joinGroup) {
             match_dialog();
         }
@@ -124,12 +126,12 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             JSONObject members = new JSONObject();
 
             ArrayList<String> groupMembers = new ArrayList<>();
-            groupMembers.add("feweeee");
+            groupMembers.add(dataModel.currentUser.username);
             JSONArray groupMembersJSON = new JSONArray(groupMembers);
 
             try {
 
-                members.put("ID", 38);
+                members.put("ID", group.ID);
                 members.put("groupMembers", groupMembersJSON);
 
             } catch (JSONException e) {
@@ -137,7 +139,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             }
             String jsonString = members.toString();
 
-            String url = "http://192.168.56.1:3000/addGroupMembers";
+            String url = "http://192.168.1.182:3000/addGroupMembers";
 
             PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
             postAddMembers.execute();
@@ -261,7 +263,6 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("heere");
                     InputStream inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     StringBuilder response = new StringBuilder();

@@ -50,7 +50,7 @@ public class GroupMatching extends AppCompatActivity{
             if (item.getItemId() == R.id.home) {
                 i = new Intent(this, HomePage.class);
             } else if (item.getItemId() == R.id.chats) {
-                i = new Intent(this, CreateGroup.class);
+                i = new Intent(this, Chats.class);
             } else {
                 i = new Intent(this, Profile.class);
             }
@@ -69,7 +69,6 @@ public class GroupMatching extends AppCompatActivity{
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((adapterView, view, position, l) -> {
-            System.out.println(groups.get(position).ID);
             Intent intent = new Intent(GroupMatching.this, edu.aucegypt.gymwya.ViewGroup.class);
             intent.putExtra("Group", groups.get(position));
             startActivity(intent);
