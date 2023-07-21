@@ -10,4 +10,8 @@ public class IndividualMeeting extends Meeting {
         super(ID, sport, start, end, date, creator);
         this.partner = partner;
     }
+
+    public IndividualMeeting() {
+
+    }
 }

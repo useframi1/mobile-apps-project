@@ -22,4 +22,8 @@ public class Meeting implements Serializable {
         this.date = date;
         this.creator = creator;
     }
+
+    public Meeting() {
+
+    }
 }

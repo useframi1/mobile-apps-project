@@ -140,7 +140,6 @@ public class API extends AsyncTask<String, Void, String> {
                     dataModel.currentUser.requests.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.currentUser, dataModel.users.get(j)));
                     if (json.getJSONObject(i).getInt("seen") == 0)
                         dataModel.currentUser.unseenRequests++;
-                    System.out.println(dataModel.currentUser.unseenRequests);
                     j = 0;
                 }
             } if(connection_getGroups != null) {

@@ -24,29 +24,50 @@
     </androidx.cardview.widget.CardView>
 
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="140dp"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
-        android:text="Ahmed ElBarbary"
-        android:textColor="#323131"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:orientation="vertical"
         android:layout_marginLeft="10dp"
-        android:layout_gravity="center_vertical"/>
-
-    <Button
-        android:id="@+id/view_profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:backgroundTint="#0066BA"
-        android:fontFamily="sans-serif-medium"
-        android:text="View Profile"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:textSize="12sp"
-        app:cornerRadius="10dp" />
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="Ahmed ElBarbary"
+            android:textColor="#323131"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/kick"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_gravity="left"
+            android:layout_marginTop="5dp"
+            android:backgroundTint="@color/blue"
+            android:fontFamily="sans-serif-medium"
+            android:text="Kick"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="16sp"
+            app:cornerRadius="10dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:visibility="visible"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/arrow_button"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/arrow_button"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="20dp"/>
+
+
 
 </LinearLayout>

@@ -166,7 +166,7 @@ srv.get("/getGroupMembers", function (req, res) {
 // Method: POST
 srv.post("/createGroup", function (req, res) {
     const { creator, name, sport, startTime, endTime, gDate } = req.body; // parse json body
-
+    var id = 0;
     var sql =
         "INSERT INTO GroupMeetings (creator, name, sport, startTime, endTime, gDate) VALUES (?, ?, ?, ?, ?, ?)"; // sql command to insert a record in the database
 
@@ -179,19 +179,19 @@ srv.post("/createGroup", function (req, res) {
                 res.send("0");
                 throw err;
             }
+            id = result.insertId;
+            var sql = "INSERT INTO GroupMembers (ID, username) VALUES (?,?)";
+            connection.query(sql, [id, creator], function (err) {
+                if (err) {
+                    res.send("0");
+                    throw err;
+                }
+
+                console.log("Group meeting record inserted");
+                res.send(result.insertId.toString());
+            });
         }
     );
-
-    var sql = "INSERT INTO GroupMembers (ID, username) VALUES (?,?)";
-    connection.query(sql, [result.insertId, creator], function (err, result) {
-        if (err) {
-            res.send("0");
-            throw err;
-        }
-
-        console.log("Group meeting record inserted");
-        res.send(result.insertId.toString());
-    });
 });
 
 // API; add group members
@@ -298,7 +298,6 @@ srv.get("/getAcceptedMeetings", function (req, res) {
         }
 
         console.log("Request recieved");
-        console.log(result);
         res.send(result);
     });
 });
@@ -448,6 +447,70 @@ srv.get("/getUsername", function (req, res) {
     var sql = "SELECT username FROM Users WHERE email = ?";
     // execute sql command
     connection.query(sql, email, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+srv.post("/cancelMeeting", function (req, res) {
+    const { ID } = req.body;
+
+    var sql = "DELETE FROM Meetings WHERE ID = ?";
+
+    connection.query(sql, ID, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+srv.post("/cancelRequest", function (req, res) {
+    const { ID, username } = req.body;
+
+    var sql = "DELETE FROM Requests WHERE ID = ? AND username = ?";
+
+    connection.query(sql, [ID, username], function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+srv.post("/deleteGroup", function (req, res) {
+    const { ID } = req.body;
+
+    var sql = "DELETE FROM GroupMeetings WHERE ID = ?";
+
+    connection.query(sql, ID, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
+srv.post("/leaveGroup", function (req, res) {
+    const { ID, username } = req.body;
+
+    var sql = "DELETE FROM GroupMembers WHERE ID = ? AND username = ?";
+
+    connection.query(sql, [ID, username], function (err, result) {
         if (err) {
             res.send("0");
             throw err;

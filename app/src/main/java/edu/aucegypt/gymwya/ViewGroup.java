@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -34,7 +35,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     ImageView back;
     ListView listView;
     Button joinGroup;
-    GroupMeeting group;
+    GroupMeeting group = new GroupMeeting();
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
 
@@ -49,7 +50,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             if (item.getItemId() == R.id.home) {
                 i = new Intent(this, HomePage.class);
             } else if (item.getItemId() == R.id.chats) {
-                i = new Intent(this, CreateGroup.class);
+                i = new Intent(this, Chats.class);
             } else {
                 i = new Intent(this, Profile.class);
             }
@@ -70,8 +71,9 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         back = findViewById(R.id.back);
         joinGroup = findViewById(R.id.join_group);
 
-        if (Objects.equals(group.creator.username, dataModel.currentUser.username))
+        if (Objects.equals(group.creator.username, dataModel.currentUser.username)) {
             joinGroup.setVisibility(View.GONE);
+        }
 
         groupName.setText(group.name);
 
@@ -153,8 +155,8 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
                 if (connection != null) {
                     String response = getResponse(connection);
                     JSONArray json = new JSONArray(response);
-                    if (Objects.equals(group.creator.username, dataModel.currentUser.username))
-                        group.members.add(dataModel.currentUser);
+//                    if (Objects.equals(group.creator.username, dataModel.currentUser.username))
+//                        group.members.add(dataModel.currentUser);
                     for (int i = 0; i < json.length(); i++) {
                         String username = json.getJSONObject(i).getString("username");
                         int j = 0;
@@ -163,6 +165,10 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
                         }
                         if (j<dataModel.users.size())
                             group.members.add(dataModel.users.get(j));
+                        if (username.equals(dataModel.currentUser.username)) {
+                            group.members.add(0,dataModel.currentUser);
+                            group.currentUserJoined = true;
+                        }
                     }
                 }
             } catch (IOException | JSONException e) {
@@ -173,11 +179,22 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         @Override
         protected void onPostExecute(String s) {
+            if (group.currentUserJoined) {
+                joinGroup.setVisibility(View.GONE);
+            }
             TextView capacity = findViewById(R.id.capacity);
             capacity.setText(group.members.size()+"/10");
-            adapter = new ViewGroupAdapter(ViewGroup.this, group.members);
+            adapter = new ViewGroupAdapter(ViewGroup.this, group.members, group);
             listView = findViewById(R.id.members_list);
             listView.setAdapter(adapter);
+
+            listView.setOnItemClickListener((parent, view, position, id) -> {
+                if (!dataModel.currentUser.username.equals(group.members.get(position).username)){
+                    Intent intent = new Intent(ViewGroup.this, VisitProfile.class);
+                    intent.putExtra("User", group.members.get(position));
+                    startActivity(intent);
+                }
+            });
         }
     }
 }
@@ -186,9 +203,11 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
     ArrayList<User> members;
-    public ViewGroupAdapter(Context context, ArrayList<User> members) {
+    GroupMeeting group;
+    public ViewGroupAdapter(Context context, ArrayList<User> members, GroupMeeting group) {
         super(context, 0, members);
         this.members = members;
+        this.group = group;
     }
 
     @Override
@@ -202,20 +221,21 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
 
         TextView memberName = convertView.findViewById(R.id.name);
         ImageView memberPic = convertView.findViewById(R.id.profile_picture);
-        Button viewProfile = convertView.findViewById(R.id.view_profile);
+        Button kick = convertView.findViewById(R.id.kick);
+        ImageView arrow_btn = convertView.findViewById(R.id.arrow_button);
 
+        if (Objects.equals(member.username, dataModel.currentUser.username)) {
+            kick.setVisibility(View.GONE);
+            arrow_btn.setVisibility(View.INVISIBLE);
+        }
 
-        if (Objects.equals(member.username, dataModel.currentUser.username))
-            viewProfile.setVisibility(View.GONE);
+        if (!group.creator.username.equals(dataModel.currentUser.username))
+            kick.setVisibility(View.GONE);
+
 
         memberName.setText(member.username.equals(dataModel.currentUser.username)?"You":member.name);
 //        memberPic.setImageResource(member.imageId);
 
-        viewProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), VisitProfile.class);
-            intent.putExtra("User", member);
-            getContext().startActivity(intent);
-        });
 
         return convertView;
     }

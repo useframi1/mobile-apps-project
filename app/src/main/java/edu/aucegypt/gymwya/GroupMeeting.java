@@ -20,4 +20,8 @@ public class GroupMeeting extends Meeting implements Serializable{
         this.name = name;
         currentUserJoined = false;
     }
+
+    public GroupMeeting() {
+
+    }
 }

@@ -2,11 +2,13 @@ package edu.aucegypt.gymwya;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,6 +17,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -25,6 +34,7 @@ public class ViewCreatedMeetings extends AppCompatActivity {
     ListView listView;
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
+    ArrayList<IndividualMeeting> meetings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +56,7 @@ public class ViewCreatedMeetings extends AppCompatActivity {
             return true;
         });
 
-        ArrayList<IndividualMeeting> meetings = new ArrayList<>();
+        meetings = new ArrayList<>();
         meetings.addAll(dataModel.currentUser.createdMeetings);
         meetings.addAll(dataModel.currentUser.currentMatches);
         adapter = new ViewMeetingsCreatedAdapter(this, meetings);
@@ -97,6 +107,32 @@ public class ViewCreatedMeetings extends AppCompatActivity {
             TextView status = convertView.findViewById(R.id.status);
             TextView creator = convertView.findViewById(R.id.creator);
             ImageView arrow_btn = convertView.findViewById(R.id.arrow_button);
+            Button cancel = convertView.findViewById(R.id.cancel);
+
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CancelTask cancelTask;
+                    JSONObject jsonData = new JSONObject();
+                    if (meeting.creator.username.equals(dataModel.currentUser.username)) {
+                        try {
+                            jsonData.put("ID", meeting.ID);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        cancelTask = new CancelTask(meeting, jsonData, "cancelMeeting");
+                    } else {
+                        try {
+                            jsonData.put("ID", meeting.ID);
+                            jsonData.put("username", dataModel.currentUser.username);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        cancelTask = new CancelTask(meeting, jsonData, "cancelRequest");
+                    }
+                    cancelTask.execute("http://192.168.1.182:3000/");
+                }
+            });
 
             if (meeting.creator.username.equals(dataModel.currentUser.username))
                 arrow_btn.setVisibility(View.INVISIBLE);
@@ -117,6 +153,80 @@ public class ViewCreatedMeetings extends AppCompatActivity {
 
 
             return convertView;
+        }
+    }
+
+    class CancelTask extends AsyncTask<String, Void, String> {
+        IndividualMeeting meeting;
+        JSONObject jsonData;
+        String api;
+
+        public CancelTask(IndividualMeeting meeting, JSONObject jsonData, String api) {
+            this.meeting = meeting;
+            this.jsonData = jsonData;
+            this.api = api;
+        }
+        private HttpURLConnection postHttpRequest(String url) throws IOException, JSONException {
+            URL requestUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            OutputStream os = connection.getOutputStream();
+
+            String postData = jsonData.toString();
+
+            os.write(postData.getBytes());
+            os.flush();
+            os.close();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                return connection;
+
+            return null;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String url = strings[0];
+            try {
+                postHttpRequest(url+api);
+
+            } catch (IOException | JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            int i = 0;
+            if (Objects.equals(api, "cancelMeeting")) {
+                System.out.println(dataModel.currentUser.requests.size());
+                while (i < dataModel.currentUser.createdMeetings.size() && meeting.ID != dataModel.currentUser.createdMeetings.get(i).ID){
+                    i++;
+                }
+                dataModel.currentUser.createdMeetings.remove(i);
+                i = 0;
+                while (i < dataModel.currentUser.requests.size() && meeting.ID != dataModel.currentUser.requests.get(i).ID){
+                    i++;
+                }
+                System.out.println("here");
+                if (dataModel.currentUser.requests.size() > 0) {
+                    dataModel.currentUser.requests.remove(i);
+                    dataModel.currentUser.unseenRequests--;
+                }
+            }
+            else if (Objects.equals(api, "cancelRequest")) {
+                while (i < dataModel.currentUser.currentMatches.size() && meeting.ID != dataModel.currentUser.currentMatches.get(i).ID){
+                    i++;
+                }
+                dataModel.currentUser.currentMatches.remove(i);
+            }
+            meetings.remove(meeting);
+            adapter = new ViewMeetingsCreatedAdapter(ViewCreatedMeetings.this, meetings);
+            listView.setAdapter(adapter);
         }
     }
 }
