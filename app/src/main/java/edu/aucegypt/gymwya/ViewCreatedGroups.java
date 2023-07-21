@@ -16,11 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
-public class ViewCreatedMeetings extends AppCompatActivity {
+public class ViewCreatedGroups extends AppCompatActivity {
 
-    ViewMeetingsCreatedAdapter adapter;
+    ViewGroupsCreatedAdapter adapter;
     ImageView back;
     ListView listView;
     DataManager dataManager = DataManager.getInstance();
@@ -29,7 +28,7 @@ public class ViewCreatedMeetings extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.view_created_meetings);
+        setContentView(R.layout.view_created_groups);
 
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
@@ -46,15 +45,13 @@ public class ViewCreatedMeetings extends AppCompatActivity {
             return true;
         });
 
-        ArrayList<IndividualMeeting> meetings = new ArrayList<>();
-        meetings.addAll(dataModel.currentUser.createdMeetings);
-        meetings.addAll(dataModel.currentUser.currentMatches);
-        adapter = new ViewMeetingsCreatedAdapter(this, meetings);
+        ArrayList<GroupMeeting> allGroups = dataModel.currentUser.createdGroups;
+        allGroups.addAll(dataModel.currentUser.joinedGroups);
 
-        listView = findViewById(R.id.view_created_meetings_list);
+        adapter = new ViewGroupsCreatedAdapter(this, allGroups);
+
+        listView = findViewById(R.id.view_created_groups_list);
         back = findViewById(R.id.back);
-
-        //groupName.setText(name);
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,55 +63,41 @@ public class ViewCreatedMeetings extends AppCompatActivity {
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((adapterView, view, position, l) -> {
-            if (!meetings.get(position).creator.username.equals(dataModel.currentUser.username)){
-                Intent intent = new Intent(this, VisitProfile.class);
-                intent.putExtra("User", meetings.get(position).creator);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(this, edu.aucegypt.gymwya.ViewGroup.class);
+            intent.putExtra("Group", dataModel.currentUser.createdGroups.get(position));
+            startActivity(intent);
         });
     }
 
 
-    class ViewMeetingsCreatedAdapter extends ArrayAdapter<IndividualMeeting> {
+    class ViewGroupsCreatedAdapter extends ArrayAdapter<GroupMeeting> {
 
-        public ViewMeetingsCreatedAdapter(Context context, ArrayList<IndividualMeeting> members) {
+        public ViewGroupsCreatedAdapter(Context context, ArrayList<GroupMeeting> members) {
             super(context, 0, members);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            IndividualMeeting meeting = getItem(position);
+            GroupMeeting meeting = getItem(position);
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(
-                        getContext()).inflate(R.layout.created_meetings_list, parent, false);
+                        getContext()).inflate(R.layout.created_groups_list, parent, false);
             }
 
+            TextView groupName = convertView.findViewById(R.id.group_name);
             TextView sport = convertView.findViewById(R.id.sport);
             TextView from = convertView.findViewById(R.id.from);
             TextView to = convertView.findViewById(R.id.to);
             TextView date = convertView.findViewById(R.id.date);
-            TextView status = convertView.findViewById(R.id.status);
-            TextView creator = convertView.findViewById(R.id.creator);
-            ImageView arrow_btn = convertView.findViewById(R.id.arrow_button);
 
-            if (meeting.creator.username.equals(dataModel.currentUser.username))
-                arrow_btn.setVisibility(View.INVISIBLE);
-            creator.setText(Objects.equals(meeting.creator.username, dataModel.currentUser.username) ?"You":meeting.creator.username);
+            groupName.setText(meeting.name);
             String firstChar = meeting.sport.substring(0, 1).toUpperCase();
             String restOfString = meeting.sport.substring(1).toLowerCase();
             sport.setText(firstChar+restOfString);
             from.setText(meeting.start);
             to.setText(meeting.end);
             date.setText(meeting.date.substring(0,10));
-            if (meeting.partner == null) {
-                status.setText("Pending");
-                status.setTextColor(getResources().getColor(R.color.dark_grey));
-            } else {
-                status.setText("Matched");
-                status.setTextColor(getResources().getColor(R.color.blue));
-            }
-
 
             return convertView;
         }

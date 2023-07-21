@@ -35,15 +35,18 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/edit_text_border"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp">
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sport"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_marginStart="10dp"
                 android:spinnerMode="dropdown"
-                android:textColor="#8F9091" />
+                android:popupBackground="@drawable/bg_dropdown"
+                android:textColor="#8F9091"
+                android:dropDownWidth="255dp"
+                android:backgroundTint="@color/black" />
 
         </LinearLayout>
 
@@ -119,12 +122,27 @@
 
     </LinearLayout>
 
+
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Error message"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
+        android:visibility="invisible"/>
+
+
     <Button
         android:id="@+id/add_meeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:backgroundTint="#0066BA"
         android:fontFamily="sans-serif-medium"
         android:text="+ Add Meeting"

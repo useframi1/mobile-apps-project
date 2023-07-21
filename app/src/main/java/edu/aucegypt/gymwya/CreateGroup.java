@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,9 +28,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -44,14 +51,21 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
+    SpinnerAdapter adapter;
+    Spinner spinner;
     private DataManager dataManager;
     private Data dataModel;
     String creator;
     String name;
-    String sport;
-    String startTime;
-    String endTime;
+    String date = "";
+    String fromTime = "";
+    String toTime = "";
+    String sportName = "";
     String gDate;
+    TextView errorMessage;
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
+    ArrayList<String> sports = new ArrayList<>();
 
 
     @Override
@@ -98,6 +112,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnTimePickerTo=(Button)findViewById(R.id.to);
         btnCreateGroup = findViewById(R.id.add_group);
         back = findViewById(R.id.back);
+        errorMessage = findViewById(R.id.error_message);
 
         btnDatePicker.setOnClickListener(this);
         btnTimePickerFrom.setOnClickListener(this);
@@ -112,17 +127,24 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         mHour = c.get(Calendar.HOUR_OF_DAY);
         mMinute = c.get(Calendar.MINUTE);
 
+        sports.add("Sports:");
+        sports.add("Football");
+        sports.add("Volleyball");
+        sports.add("Basketball");
+        sports.add("Swimming");
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sports, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Spinner spinner = findViewById(R.id.sport);
-        spinner.setAdapter(adapter);
+        spinner = findViewById(R.id.sport);
         spinner.setOnItemSelectedListener(this);
+
+        adapter = new SpinnerAdapter(this, sports);
+        spinner.setAdapter(adapter);
+        int offsetInPixels = getResources().getDimensionPixelSize(R.dimen.dropdown_offset_sports);
+        spinner.setDropDownVerticalOffset(offsetInPixels);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+        sportName = sports.get(position);
     }
 
     @Override
@@ -146,20 +168,97 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             else i = new Intent(this, GroupMatching.class);
             startActivity(i);
         } if (v == btnCreateGroup) {
-            CreateGroup.CreateUserTask createUserTask = new CreateGroup.CreateUserTask();
-            sport = ((Spinner)findViewById(R.id.sport)).getSelectedItem().toString();
-            name = ((EditText)findViewById(R.id.group_name)).getText().toString();
-            createUserTask.execute("AUCAUC", name, sport, startTime, endTime, gDate);
+            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "") && !Objects.equals(sportName, "")) {
+                if (isInvalidMeeting()) {
+                    errorMessage.setText("Please choose valid time");
+                    errorMessage.setVisibility(View.VISIBLE);
+                } else if (hasCollidingMeeting()) {
+                    errorMessage.setText("There is another meeting at that time");
+                    errorMessage.setVisibility(View.VISIBLE);
+                } else {
+                    errorMessage.setVisibility(View.INVISIBLE);
+                    CreateGroup.CreateUserTask createUserTask = new CreateGroup.CreateUserTask();
+                    createUserTask.execute(dataModel.currentUser.username, name, sportName, fromTime, toTime, gDate);
+                }
+            }
+
         }
     }
 
+    public boolean hasCollidingMeeting() {
+        final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+        try {
+            Date startTime = TIME_FORMAT.parse(fromTime);
+            Date endTime = TIME_FORMAT.parse(toTime);
+
+            for (int i = 0; i < dataModel.groupMeetings.size(); i++) {
+                if (dataModel.groupMeetings.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.groupMeetings.get(i).date, date)) {
+                    Date existingStartTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).start);
+                    Date existingEndTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).end);
+
+                    if ((startTime.equals(existingStartTime) && endTime.equals(existingEndTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingStartTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingEndTime)) ||
+                            (startTime.after(existingStartTime) && endTime.before(existingEndTime))) {
+                        return true;
+                    }
+                }
+            }
+
+            for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
+                if (dataModel.currentUser.createdGroups.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.currentUser.createdGroups.get(i).date, date)) {
+                    Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).start);
+                    Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).end);
+
+                    if ((startTime.equals(existingStartTime) && endTime.equals(existingEndTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingStartTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingEndTime)) ||
+                            (startTime.after(existingStartTime) && endTime.before(existingEndTime))) {
+                        return true;
+                    }
+                }
+            }
+
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
+    }
+
+    public boolean isInvalidMeeting() {
+        final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String dateTimeStr = date + " " + fromTime;
+            LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, DATE_TIME_FORMATTER);
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            if (dateTime.isBefore(currentDateTime)) return true;
+        }
+
+        try {
+            Date startTime = TIME_FORMAT.parse(fromTime);
+            Date endTime = TIME_FORMAT.parse(toTime);
+
+            if (startTime.after(endTime)) {
+                return true;
+            } else return false;
+
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void setDate() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+        datePickerDialog = new DatePickerDialog(this,
                 (view, year, monthOfYear, dayOfMonth) -> {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         btnDatePicker.setText(dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
-                        gDate = year + "-" + ((monthOfYear<10)? "0" : "") + (monthOfYear+1) + "-" + ((dayOfMonth<10)? "0" : "") + dayOfMonth;
+                        //format the date to be in the format YYYY-MM-DD
+                        date = year + "-" + ((monthOfYear<10)? "0" : "") + (monthOfYear+1) + "-" + ((dayOfMonth<10)? "0" : "") + dayOfMonth;
                     }
 
                 }, mYear, mMonth, mDay);
@@ -167,7 +266,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     }
 
     public void setTime(Button button) {
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+        timePickerDialog = new TimePickerDialog(this,
                 (view, hourOfDay, minute) -> {
                     int tempHour = hourOfDay;
                     if (hourOfDay == 0)
@@ -177,16 +276,17 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                     button.setText(tempHour + ":" + ((minute<10)? "0" : "") + minute  + " " + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
                         //add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        startTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
+                        fromTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
                     } else {
-                        endTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
+                        toTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
                     }
                 }, mHour, mMinute,false);
         timePickerDialog.show();
     }
+
     private class CreateUserTask extends AsyncTask<String, Void, String> {
 
-        private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         private OkHttpClient client = new OkHttpClient();
 
 

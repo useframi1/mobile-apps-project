@@ -3,6 +3,7 @@ package edu.aucegypt.gymwya;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,10 +31,12 @@ public class SignUp extends AppCompatActivity {
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up);
         FirebaseApp.initializeApp(this);
+
+        DataManager dataManager = DataManager.getInstance();
+        Data dataModel = dataManager.getDataModel();
 
         createAccount = (Button) findViewById(R.id.create_account);
         email = (EditText) findViewById(R.id.userEmail);
@@ -73,11 +76,17 @@ public class SignUp extends AppCompatActivity {
                                 authStateListener = firebaseAuth -> {
                                     FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                                     if (currentUser != null && currentUser.isEmailVerified()) {
-                                        Intent intent = new Intent(SignUp.this, CreateUser.class);
+                                        SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+                                        SharedPreferences.Editor editor = credentials.edit();
+                                        editor.putString("email",userEmail);
+                                        editor.putString("password", userPassword);
+                                        editor.commit();
+                                        dataModel.currentUser.email = userEmail;
+                                        dataModel.currentUser.password = userPassword;
+
+                                        Intent i = new Intent(SignUp.this, CreateUser.class);
                                         //add email and password to intent
-                                        intent.putExtra("email", userEmail);
-                                        intent.putExtra("password", userPassword);
-                                        startActivity(intent);
+                                        startActivity(i);
 
                                         auth.removeAuthStateListener(authStateListener);
                                         timer.cancel();
@@ -107,9 +116,13 @@ public class SignUp extends AppCompatActivity {
                                                                 boolean emailVerified = currentUser.isEmailVerified();
                                                                 if (emailVerified) {
                                                                     Intent intent = new Intent(SignUp.this, CreateUser.class);
-                                                                    //add email and password to intent
-                                                                    intent.putExtra("email", userEmail);
-                                                                    intent.putExtra("password", userPassword);
+                                                                    dataModel.currentUser.email = userEmail;
+                                                                    dataModel.currentUser.password = userPassword;
+                                                                    SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+                                                                    SharedPreferences.Editor editor = credentials.edit();
+                                                                    editor.putString("email",userEmail);
+                                                                    editor.putString("password", userPassword);
+                                                                    editor.commit();
                                                                     startActivity(intent);
 
                                                                     progressDialog.dismiss();

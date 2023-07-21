@@ -51,7 +51,8 @@ public class GridViewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = inflater.inflate(convertViewLayoutResource, parent, false);            holder = new ViewHolder();
+            convertView = inflater.inflate(convertViewLayoutResource, parent, false);
+            holder = new ViewHolder();
             holder.image = convertView.findViewById(R.id.sportImage);
             holder.text = convertView.findViewById(R.id.sportText);
             convertView.setTag(holder);

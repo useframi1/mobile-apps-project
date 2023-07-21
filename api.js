@@ -43,10 +43,13 @@ srv.get("/getUser", function (req, res) {
 // API: get user
 // Method: GET
 srv.get("/getAllUsers", function (req, res) {
-    var sql = "SELECT * FROM Users";
+    var q = url.parse(req.url, true).query;
+    const username = q.username;
+
+    var sql = "SELECT * FROM Users WHERE username != ?";
 
     // execute the sql command
-    connection.query(sql, function (err, result) {
+    connection.query(sql, username, function (err, result) {
         if (err) {
             res.send("0");
             throw err;
@@ -87,7 +90,7 @@ srv.get("/getRequests", function (req, res) {
     const username = q.creator;
 
     var sql =
-        "SELECT M.ID, M.mDate , M.sport , M.startTime , M.endTime , R.username FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE M.creator = ?";
+        "SELECT M.ID, M.mDate , M.sport , M.startTime , M.endTime , R.username, R.seen FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE M.creator = ?";
 
     // execute sql command
     connection.query(sql, username, function (err, result) {
@@ -97,7 +100,6 @@ srv.get("/getRequests", function (req, res) {
         }
 
         console.log("Request recieved");
-        console.log(result);
         res.send(result);
     });
 });
@@ -109,8 +111,7 @@ srv.get("/getMeetings", function (req, res) {
 
     const username = q.username;
 
-    var sql =
-        "SELECT ID, mDate, sport, startTime, endTime, creator FROM Meetings WHERE creator != ?";
+    var sql = "SELECT * FROM Meetings WHERE creator != ? AND partner IS NULL";
     // execute sql command
     connection.query(sql, username, function (err, result) {
         if (err) {
@@ -130,8 +131,7 @@ srv.get("/getGroups", function (req, res) {
 
     const username = q.creator;
 
-    var sql =
-        "SELECT ID, gDate, sport, startTime ,endTime, name FROM GroupMeetings WHERE creator != ?";
+    var sql = "SELECT * FROM GroupMeetings WHERE creator != ?";
     // execute sql command
     connection.query(sql, username, function (err, result) {
         if (err) {
@@ -174,16 +174,24 @@ srv.post("/createGroup", function (req, res) {
     connection.query(
         sql,
         [creator, name, sport, startTime, endTime, gDate],
-        function (err) {
+        function (err, result) {
             if (err) {
                 res.send("0");
                 throw err;
             }
-
-            console.log("Group meeting record inserted");
-            res.send("1");
         }
     );
+
+    var sql = "INSERT INTO GroupMembers (ID, username) VALUES (?,?)";
+    connection.query(sql, [result.insertId, creator], function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Group meeting record inserted");
+        res.send(result.insertId.toString());
+    });
 });
 
 // API; add group members
@@ -235,10 +243,10 @@ srv.post("/createMeeting", function (req, res) {
 srv.get("/getCreatedMeetings", function (req, res) {
     var q = url.parse(req.url, true).query; // parse the url to get the query
 
-    const username = q.user;
+    const username = q.username;
 
     var sql =
-        "SELECT mDate, sport, startTime, endTime FROM Meetings WHERE creator = ?";
+        "SELECT ID, mDate, sport, startTime, endTime, partner FROM Meetings WHERE creator = ?";
     // execute sql command
     connection.query(sql, username, function (err, result) {
         if (err) {
@@ -256,10 +264,10 @@ srv.get("/getCreatedMeetings", function (req, res) {
 srv.get("/getCreatedGroups", function (req, res) {
     var q = url.parse(req.url, true).query; // parse the url to get the query
 
-    const username = q.user;
+    const username = q.username;
 
     var sql =
-        "SELECT gDate, sport, startTime, endTime, name FROM GroupMeetings WHERE creator = ?";
+        "SELECT ID, gDate, sport, startTime, endTime, name FROM GroupMeetings WHERE creator = ?";
     // execute sql command
     connection.query(sql, username, function (err, result) {
         if (err) {
@@ -277,13 +285,36 @@ srv.get("/getCreatedGroups", function (req, res) {
 srv.get("/getAcceptedMeetings", function (req, res) {
     var q = url.parse(req.url, true).query; // parse the url to get the query
 
-    const username = q.user;
+    const username = q.username;
 
     var sql =
-        "SELECT M.mDate , M.sport , M.startTime , M.endTime , M.creator FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE R.username = ?";
+        "SELECT M.ID, M.mDate , M.sport , M.startTime , M.endTime , M.creator, M.partner FROM Meetings M INNER JOIN Requests R ON M.ID = R.ID WHERE R.username = ?";
 
     // execute sql command
     connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        console.log(result);
+        res.send(result);
+    });
+});
+
+// API: get joined groups
+// Method: GET
+srv.get("/getJoinedGroups", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.username;
+
+    var sql =
+        "SELECT g.ID FROM GroupMeetings g INNER JOIN GroupMembers m ON g.ID = m.ID WHERE m.username = ? AND g.creator != ?";
+
+    // execute sql command
+    connection.query(sql, [username, username], function (err, result) {
         if (err) {
             res.send("0");
             throw err;
@@ -318,7 +349,7 @@ srv.post("/updateUser", function (req, res) {
     );
 
     var sql = "DELETE FROM PreferredSports WHERE username = ?";
-    connection.query(sql, username, function (err) {
+    connection.query(sql, newUsername, function (err) {
         if (err) {
             res.send("0");
             throw err;
@@ -330,7 +361,6 @@ srv.post("/updateUser", function (req, res) {
 
 // API: add preferred sports
 // Method: POST
-
 srv.post("/addPreferredSports", function (req, res) {
     const { username, preferredSports } = req.body;
 
@@ -347,6 +377,24 @@ srv.post("/addPreferredSports", function (req, res) {
         });
     }
     res.send("1");
+});
+
+srv.get("/getPreferredSports", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.username;
+
+    var sql = "SELECT sport FROM PreferredSports WHERE username = ?";
+    // execute sql command
+    connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
 });
 
 // API: update partner

@@ -38,26 +38,22 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class HomePage extends AppCompatActivity {
+public class HomePage extends AppCompatActivity{
     GridViewAdapter gridAdapter;
 
     ImageView profile_picture;
-    TextView name;
+    TextView name, viewRequestsCount;
     List<Sport> sportList;
     LinearLayout viewRequests;
-    private DataManager dataManager;
-    private Data dataModel;
-    Button viewRequestsB;
-    String username;
-
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
+    Spinner create;
+    SpinnerAdapter spinnerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intente = getIntent();
-        String email = intente.getStringExtra("email");
-        HomePage.GetUserTask createUserTask = new HomePage.GetUserTask();
-        createUserTask.execute(email);
+
         setContentView(R.layout.activity_home_page);
 
         //retrieve email from prev screen
@@ -70,38 +66,36 @@ public class HomePage extends AppCompatActivity {
         StorageReference storageReference = storage.getReference();
 
 
+        name.setText(dataModel.currentUser.username);
 // Retrieve the image URL from Firestore based on the user's email
-        db.collection("Images")
-                .document(email)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("image");
-                        if (imageUrl != null) {
-                            // Image URL retrieved successfully, load the image into ImageView
-                            // You can use any image loading library or method here, for example, Glide or Picasso
-                            // Here's an example using Glide:
-                            Glide.with(this)
-                                    .load(imageUrl)
-                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
-                                    .into(profile_picture);
-                        } else {
-                            // Image URL not found in Firestore
-                            // Handle the case accordingly
-                        }
-                    } else {
-                        // Document not found in Firestore
-                        // Handle the case accordingly
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Error occurred while retrieving the image URL from Firestore
-                    // Handle the error accordingly
-                });
+//        db.collection("Images")
+//                .document(dataModel.currentUser.email)
+//                .get()
+//                .addOnSuccessListener(documentSnapshot -> {
+//                    if (documentSnapshot.exists()) {
+//                        String imageUrl = documentSnapshot.getString("image");
+//                        if (imageUrl != null) {
+//                            // Image URL retrieved successfully, load the image into ImageView
+//                            // You can use any image loading library or method here, for example, Glide or Picasso
+//                            // Here's an example using Glide:
+//                            Glide.with(this)
+//                                    .load(imageUrl)
+//                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+//                                    .into(profile_picture);
+//                        } else {
+//                            // Image URL not found in Firestore
+//                            // Handle the case accordingly
+//                        }
+//                    } else {
+//                        // Document not found in Firestore
+//                        // Handle the case accordingly
+//                    }
+//                })
+//                .addOnFailureListener(e -> {
+//                    // Error occurred while retrieving the image URL from Firestore
+//                    // Handle the error accordingly
+//                });
 
-
-        dataManager = DataManager.getInstance();
-        dataModel = dataManager.getDataModel();
         dataModel.previousIsHome = true;
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
@@ -119,23 +113,31 @@ public class HomePage extends AppCompatActivity {
             return false;
         });
 
-        Spinner create = findViewById(R.id.spinner);
+        create = findViewById(R.id.spinner);
         SearchView searchView = findViewById(R.id.searchView);
         viewRequests = findViewById(R.id.view_requests);
+        viewRequestsCount = findViewById(R.id.view_requests_count);
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        spinnerAdapter.add("");
-        spinnerAdapter.add("Create Group");
-        spinnerAdapter.add("Create Individual Meeting");
+        if (dataModel.currentUser.unseenRequests > 0) {
+            viewRequestsCount.setText(String.valueOf(dataModel.currentUser.unseenRequests));
+            viewRequestsCount.setVisibility(View.VISIBLE);
+        }
+
+        ArrayList<String> menuTxt = new ArrayList<>();
+        menuTxt.add("");
+        menuTxt.add("Create group");
+        menuTxt.add("Create Individual meeting");
+
+        spinnerAdapter = new SpinnerAdapter(this, menuTxt);
         create.setAdapter(spinnerAdapter);
-
+        int offsetInPixels = getResources().getDimensionPixelSize(R.dimen.dropdown_offset_create);
+        create.setDropDownVerticalOffset(offsetInPixels);
         create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Intent i;
                 if (position == 1) {
                     i = new Intent(HomePage.this, CreateGroup.class);
-                    System.out.println("pressed");
                     startActivity(i);
                 } else if (position == 2) {
                     i = new Intent(HomePage.this, CreateMeeting.class);
@@ -157,18 +159,20 @@ public class HomePage extends AppCompatActivity {
 
         gridView.setOnItemClickListener((adapterView, view, position, id) -> {
 
-            Intent intent;
+            Intent i;
             if (sportList.get(position).isIndividual)
-                intent = new Intent(HomePage.this, IndividualMatching.class);
+                i = new Intent(HomePage.this, IndividualMatching.class);
             else
-                intent = new Intent(HomePage.this, GroupMatching.class);
-            intent.putExtra("selectedSport", sportList.get(position).sportName);
-            startActivity(intent);
+                i = new Intent(HomePage.this, GroupMatching.class);
+            i.putExtra("selectedSport", sportList.get(position).sportName);
+            startActivity(i);
         });
 
         viewRequests.setOnClickListener(v -> {
+            viewRequestsCount.setVisibility(View.GONE);
             Intent i = new Intent(this, ViewRequests.class);
             startActivity(i);
+            dataModel.currentUser.unseenRequests = 0;
         });
 
         // Set up the search functionality
@@ -199,66 +203,4 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new Sport("Squash",true, new Sport.SportIcon(R.drawable.squash_icon)));
         return sportList;
     }
-    private class GetUserTask extends AsyncTask<String, Void, String> {
-
-        private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        private OkHttpClient client = new OkHttpClient();
-
-        @Override
-        protected String doInBackground(String... params) {
-            String email = params[0];
-            OkHttpClient client = new OkHttpClient(); // Initialize the OkHttpClient
-
-            try {
-                // Create an HTTP request
-                Request request = new Request.Builder()
-                        .url("http://192.168.56.1:3000/getUsername?email=" + email)  // Replace with your actual URL
-                        .get()
-                        .build();
-
-                // Send the request and get the response
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    return response.body().string();
-                } else {
-                    return null;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                try {
-                    JSONArray jsonArray = new JSONArray(result);
-
-                    // Iterate through the JSON array
-                    StringBuilder usernameBuilder = new StringBuilder();
-                        JSONObject jsonObject = jsonArray.getJSONObject(1);
-                        String username = jsonObject.getString("username");
-
-
-
-
-                    // Display the usernames in a Toast message
-                    Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
-
-                    // Set the usernames to the TextView
-                    String finalUsernames = username;
-                    name.post(() -> name.setText(finalUsernames));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    // Failed to parse JSON response
-                    Toast.makeText(getApplicationContext(), "Failed to parse JSON response", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                // Failed to retrieve username
-                Toast.makeText(getApplicationContext(), "Failed to retrieve username", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-    }
-
 }

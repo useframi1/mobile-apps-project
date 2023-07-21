@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="140dp"
     android:layout_height="140dp"
@@ -9,13 +10,14 @@
     <ImageView
         android:id="@+id/sportImage"
         android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_height="100dp"
+        app:tint="@color/black"/>
 
     <TextView
         android:id="@+id/sportText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:textColor="@color/dark_grey"
         android:fontFamily="sans-serif-medium"
         android:text="My text"
         android:textSize="16sp" />

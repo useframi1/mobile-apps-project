@@ -1,9 +1,12 @@
 package edu.aucegypt.gymwya;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
 
-public class Meeting {
+public class Meeting implements Serializable {
     int ID;
     String sport;
     String start;

@@ -2,6 +2,7 @@ package edu.aucegypt.gymwya;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,15 +17,26 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ViewGroup extends AppCompatActivity implements View.OnClickListener {
     ViewGroupAdapter adapter;
-    ArrayList<User> members = new ArrayList<>();
     TextView groupName;
     ImageView back;
     ListView listView;
     Button joinGroup;
+    GroupMeeting group;
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,25 +58,25 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         });
 
         Bundle bundle = getIntent().getExtras();
-        String name = "Group Name";
         if (bundle != null) {
-            name = bundle.getString("Team");
-            members = (ArrayList<User>) bundle.getSerializable("Members");
+            group = (GroupMeeting) bundle.getSerializable("Group");
         }
 
-        adapter = new ViewGroupAdapter(this, members);
+        GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
+        getGroupMembersTask.execute("http://192.168.1.182:3000/");
 
-        listView = findViewById(R.id.members_list);
+
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
         joinGroup = findViewById(R.id.join_group);
 
-        groupName.setText(name);
+        if (Objects.equals(group.creator.username, dataModel.currentUser.username))
+            joinGroup.setVisibility(View.GONE);
+
+        groupName.setText(group.name);
 
         back.setOnClickListener(this);
         joinGroup.setOnClickListener(this);
-
-        listView.setAdapter(adapter);
     }
 
     @Override
@@ -103,12 +115,80 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         dialog.setCancelable(false);
         dialog.show();
     }
+
+    class GetGroupMembersTask extends AsyncTask<String, Void, String> {
+
+        private String getResponse(HttpURLConnection connection) throws IOException {
+            // Read the response from the input stream
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            StringBuilder response = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            // Return the response as a string
+            return response.toString();
+        }
+
+        private HttpURLConnection getHttpRequest(String url) throws IOException {
+            URL requestUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                return connection;
+
+            return null;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String url = strings[0];
+
+            try {
+                HttpURLConnection connection = getHttpRequest(url+"getGroupMembers/?ID=" + group.ID);
+                if (connection != null) {
+                    String response = getResponse(connection);
+                    JSONArray json = new JSONArray(response);
+                    if (Objects.equals(group.creator.username, dataModel.currentUser.username))
+                        group.members.add(dataModel.currentUser);
+                    for (int i = 0; i < json.length(); i++) {
+                        String username = json.getJSONObject(i).getString("username");
+                        int j = 0;
+                        while (j < dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, username)) {
+                            j++;
+                        }
+                        if (j<dataModel.users.size())
+                            group.members.add(dataModel.users.get(j));
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            TextView capacity = findViewById(R.id.capacity);
+            capacity.setText(group.members.size()+"/10");
+            adapter = new ViewGroupAdapter(ViewGroup.this, group.members);
+            listView = findViewById(R.id.members_list);
+            listView.setAdapter(adapter);
+        }
+    }
 }
 
 class ViewGroupAdapter extends ArrayAdapter<User> {
-    Button viewProfile;
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
+    ArrayList<User> members;
     public ViewGroupAdapter(Context context, ArrayList<User> members) {
         super(context, 0, members);
+        this.members = members;
     }
 
     @Override
@@ -122,9 +202,13 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
 
         TextView memberName = convertView.findViewById(R.id.name);
         ImageView memberPic = convertView.findViewById(R.id.profile_picture);
-        viewProfile = convertView.findViewById(R.id.view_profile);
+        Button viewProfile = convertView.findViewById(R.id.view_profile);
 
-        memberName.setText(member.name);
+
+        if (Objects.equals(member.username, dataModel.currentUser.username))
+            viewProfile.setVisibility(View.GONE);
+
+        memberName.setText(member.username.equals(dataModel.currentUser.username)?"You":member.name);
 //        memberPic.setImageResource(member.imageId);
 
         viewProfile.setOnClickListener(v -> {
@@ -136,3 +220,4 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
         return convertView;
     }
 }
+

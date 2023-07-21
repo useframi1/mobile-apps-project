@@ -1,6 +1,7 @@
 package edu.aucegypt.gymwya;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,7 +42,6 @@ import okhttp3.Response;
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    String email;
     private static final int REQUEST_PICK_IMAGE = 1;
     private StorageReference storageReference;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
@@ -55,6 +55,8 @@ public class CreateUser extends AppCompatActivity {
     Uri selectedImage;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
     private OkHttpClient client = new OkHttpClient();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,8 @@ public class CreateUser extends AppCompatActivity {
         setContentView(R.layout.create_user);
         FirebaseApp.initializeApp(this);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
 
         create = findViewById(R.id.createUserButton);
         back = findViewById(R.id.back);
@@ -94,11 +98,6 @@ public class CreateUser extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         create.setOnClickListener(v -> {
-            // Retrieve data from the previous activity
-            Intent intentt = getIntent();
-            email = intentt.getStringExtra("email");
-            String password = intentt.getStringExtra("password");
-
             // Retrieve the username from the username text field in the XML file
             userName = ((TextView) findViewById(R.id.username)).getText().toString();
             String Name = ((TextView) findViewById(R.id.name)).getText().toString();
@@ -129,7 +128,7 @@ public class CreateUser extends AppCompatActivity {
             }
 
             //call the async task
-            new CreateUserTask().execute(userName, Name, Bio, Age, email);
+            new CreateUserTask().execute(userName, Name, Bio, Age, dataModel.currentUser.email);
 
         });
 
@@ -143,7 +142,7 @@ public class CreateUser extends AppCompatActivity {
         });
 
     }
-    private class CreateUserTask extends AsyncTask<String, Void, String> {
+    private class CreateUserTask extends AsyncTask<String, Void, String> implements API.OnStart{
 
         @Override
         protected String doInBackground(String... params) {
@@ -168,7 +167,7 @@ public class CreateUser extends AppCompatActivity {
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.56.1:3000/createUser")
+                    .url("http://192.168.1.182:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -190,17 +189,28 @@ public class CreateUser extends AppCompatActivity {
             if (result != null && result.equals("1")) {
                 // User created successfully
                 Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+                SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+                SharedPreferences.Editor editor = credentials.edit();
+                editor.putString("username", userName);
+                editor.commit();
+                dataModel.currentUser.username = userName;
+                API api = new API((API.OnStart) CreateUser.this);
+                api.execute("http://192.168.1.182:3000/");
                 try {
                     uploadImage(selectedImage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Intent intent = new Intent(CreateUser.this, HomePage.class);
-                startActivity(intent);
             } else {
                 // Failed to create user
                 Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
             }
+        }
+
+        @Override
+        public void onTaskComplete() {
+            Intent intent = new Intent(CreateUser.this, HomePage.class);
+            startActivity(intent);
         }
     }
     @Override
@@ -239,7 +249,7 @@ public class CreateUser extends AppCompatActivity {
                             user.put("image", imageUrl);
 
                             db.collection("Images")
-                                    .document(email) // Use userName as the document ID
+                                    .document(dataModel.currentUser.email) // Use userName as the document ID
                                     .set(user)
                                     .addOnSuccessListener(documentReference -> {
                                         Toast.makeText(getApplicationContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();

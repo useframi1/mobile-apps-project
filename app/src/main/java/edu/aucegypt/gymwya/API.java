@@ -1,11 +1,14 @@
 package edu.aucegypt.gymwya;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -32,6 +35,20 @@ import io.grpc.internal.JsonParser;
 public class API extends AsyncTask<String, Void, String> {
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
+    SharedPreferences credentials;
+    boolean isSignIn;
+
+    OnStart onStart;
+
+    public API(OnStart onStart) {
+        this.isSignIn = false;
+        this.onStart = onStart;
+    }
+    public API(boolean isSignIn, SharedPreferences credentials, OnStart onStart) {
+        this.isSignIn = isSignIn;
+        this.credentials = credentials;
+        this.onStart = onStart;
+    }
     private String getResponse(HttpURLConnection connection) throws IOException {
         // Read the response from the input stream
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -58,63 +75,33 @@ public class API extends AsyncTask<String, Void, String> {
         return null;
     }
 
-    private void postHttpRequest(String url, String jsonString) throws IOException, JSONException {
-        URL requestUrl = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
-
-        // Set request method
-        connection.setRequestMethod("POST");
-
-        // Enable input and output streams
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-
-        // Set request headers
-        connection.setRequestProperty("Content-Type", "application/json");
-
-        // Create JSON data
-//        String jsonData = "{\"username\": \"joe\", \"email\":\"yousseframi@aucegypt.edu\", \"name\":\"youssef\", \"age\":20, \"bio\":\"hellooo\"}"; // Replace with your JSON data
-
-
-
-        // Write JSON data to the request body
-        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(jsonString);
-        outputStream.flush();
-        outputStream.close();
-
-        // Get response code
-        int responseCode = connection.getResponseCode();
-        System.out.println("Response Code: " + responseCode);
-    }
-
     @Override
     protected String doInBackground(String... strings) {
         String url = strings[0];
-//                    JSONObject jsonObject = new JSONObject();
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                try {
-//                    jsonObject.append("username", "ahhhhhhh");
-//                    jsonObject.append("email" ,"yousseframi@aucegypt.edu");
-//                    jsonObject.append("name", "youssef");
-//                    jsonObject.append("age", 20);
-//                    jsonObject.append("bio", "heloooo");
-//                    String jsonData = jsonObject.toString();
-//                    postHttpRequest(url+"createUser", jsonData);
-//                } catch (JSONException | IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
+        HttpURLConnection connection_getUsername;
         try {
-            HttpURLConnection connection_getAllUsers = getHttpRequest(url+"getAllUsers");
+            if (isSignIn) {
+                connection_getUsername = getHttpRequest(url+"getUsername/?email="+dataModel.currentUser.email);
+                if (connection_getUsername != null) {
+                    String response = getResponse(connection_getUsername);
+                    JSONArray json = new JSONArray(response);
+                    dataModel.currentUser.username = json.getJSONObject(0).getString("username");
+                    SharedPreferences.Editor editor = credentials.edit();
+                    editor.putString("username", dataModel.currentUser.username);
+                    editor.commit();
+                }
+            }
+
+            HttpURLConnection connection_getAllUsers = getHttpRequest(url+"getAllUsers/?username="+dataModel.currentUser.username);
             HttpURLConnection connection_getRequests = getHttpRequest(url+"getRequests/?creator="+dataModel.currentUser.username);
             HttpURLConnection connection_getUser = getHttpRequest(url+"getUser/?username="+dataModel.currentUser.username);
             HttpURLConnection connection_getMeetings = getHttpRequest(url+"getMeetings/?username="+dataModel.currentUser.username);
             HttpURLConnection connection_getGroups = getHttpRequest(url+"getGroups/?creator="+dataModel.currentUser.username);
-            HttpURLConnection connection_createdMeetings = getHttpRequest(url+"getCreatedMeetings/?user="+dataModel.currentUser.username);
-            HttpURLConnection connection_createdGroups = getHttpRequest(url+"getCreatedGroups/?user="+dataModel.currentUser.username);
-            HttpURLConnection connection_acceptedMeetings = getHttpRequest(url+"getAcceptedMeetings/?user="+dataModel.currentUser.username);
+            HttpURLConnection connection_createdMeetings = getHttpRequest(url+"getCreatedMeetings/?username="+dataModel.currentUser.username);
+            HttpURLConnection connection_createdGroups = getHttpRequest(url+"getCreatedGroups/?username="+dataModel.currentUser.username);
+            HttpURLConnection connection_acceptedMeetings = getHttpRequest(url+"getAcceptedMeetings/?username="+dataModel.currentUser.username);
+            HttpURLConnection connection_getPreferredSports = getHttpRequest(url+"getPreferredSports/?username="+dataModel.currentUser.username);
+            HttpURLConnection connection_getJoinedGroups = getHttpRequest(url+"getJoinedGroups/?username="+dataModel.currentUser.username);
 
 
             if(connection_getUser != null) {
@@ -134,13 +121,13 @@ public class API extends AsyncTask<String, Void, String> {
             } if(connection_getMeetings != null) {
                 String response = getResponse(connection_getMeetings);
                 JSONArray json = new JSONArray(response);
-                int j = 0, k = 0;
+                int j = 0;
                 for (int i = 0; i < json.length(); i++) {
-                    while (j < dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, json.getJSONObject(i).getString("creator"))) {
+                    while (j<dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, json.getJSONObject(i).getString("creator"))) {
                         j++;
                     }
-
-                    dataModel.currentUser.requests.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.currentUser, dataModel.users.get(j)));
+                    dataModel.individualMeetings.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.users.get(j),  null));
+                    j = 0;
                 }
             } if (connection_getRequests != null) {
                 String response = getResponse(connection_getRequests);
@@ -151,6 +138,10 @@ public class API extends AsyncTask<String, Void, String> {
                         j++;
                     }
                     dataModel.currentUser.requests.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.currentUser, dataModel.users.get(j)));
+                    if (json.getJSONObject(i).getInt("seen") == 0)
+                        dataModel.currentUser.unseenRequests++;
+                    System.out.println(dataModel.currentUser.unseenRequests);
+                    j = 0;
                 }
             } if(connection_getGroups != null) {
                 String response = getResponse(connection_getGroups);
@@ -160,30 +151,63 @@ public class API extends AsyncTask<String, Void, String> {
                     while(j<dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, json.getJSONObject(i).getString("creator"))) {
                         j++;
                     }
-//                    HttpURLConnection connection_getGroupMembers = getHttpRequest(url+"getGroupMembers/?ID="+json.getJSONObject(i).getInt("ID"));
-//                    if (connection_getGroupMembers!=null) {
-//                        String temp = getResponse(connection_getUser);
-//                        JSONArray tempJson = new JSONArray(response);
-//                        ArrayList<User> members = new ArrayList<>();
-//                        for (int k = 0; k < tempJson.length(); k++) {
-//                            members
-//                        }
-//                    }
+                    dataModel.groupMeetings.add(new GroupMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("gDate"), dataModel.users.get(j), new ArrayList<>(), json.getJSONObject(i).getString("name")));
+                    j = 0;
+                }
 
-//                    dataModel.groupMeetings.add(new GroupMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("gDate"), dataModel.users.get(j), dataModel))
+                for (int i = 0; i < dataModel.groupMeetings.size(); i++) {
+                    System.out.println(dataModel.groupMeetings.get(i).ID);
                 }
 
             } if(connection_createdMeetings != null) {
                 String response = getResponse(connection_createdMeetings);
                 JSONArray json = new JSONArray(response);
+                int j = 0;
                 for (int i = 0; i < json.length(); i++) {
-                    dataModel.currentUser.createdMeetings.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.currentUser, dataModel.users.get(i)));
+                    while(j<dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, json.getJSONObject(i).getString("partner"))) {
+                        j++;
+                    }
+                    dataModel.currentUser.createdMeetings.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.currentUser, j < dataModel.users.size() ? dataModel.users.get(j) : null));
+                    j = 0;
                 }
 
             } if(connection_createdGroups != null) {
                 String response = getResponse(connection_createdGroups);
+                JSONArray json = new JSONArray(response);
+                for (int i = 0; i < json.length(); i++) {
+                    dataModel.currentUser.createdGroups.add(new GroupMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("gDate"), dataModel.currentUser, new ArrayList<>(),json.getJSONObject(i).getString("name")));
+                }
+
             } if(connection_acceptedMeetings != null) {
                 String response = getResponse(connection_acceptedMeetings);
+                JSONArray json = new JSONArray(response);
+                int j = 0;
+                for (int i = 0; i < json.length(); i++) {
+                    while(j<dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, json.getJSONObject(i).getString("creator"))) {
+                        j++;
+                    }
+                    dataModel.currentUser.currentMatches.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"), json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"), json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"), dataModel.users.get(j), json.getJSONObject(i).isNull("partner")?null: dataModel.currentUser));
+                    j = 0;
+                }
+            } if (connection_getPreferredSports != null) {
+                String response = getResponse(connection_getPreferredSports);
+                JSONArray json = new JSONArray(response);
+                for (int i = 0; i < json.length(); i++) {
+                    dataModel.currentUser.preferredSports.add(json.getJSONObject(i).getString("sport"));
+                }
+            } if (connection_getJoinedGroups != null) {
+                String response = getResponse(connection_getJoinedGroups);
+                System.out.println(response);
+                JSONArray json = new JSONArray(response);
+                for (int i = 0; i < json.length(); i++) {
+                    int j = 0;
+                    while (j<dataModel.groupMeetings.size() && dataModel.groupMeetings.get(j).ID != json.getJSONObject(i).getInt("ID"))
+                        j++;
+                    if (j!=dataModel.groupMeetings.size()) {
+                        dataModel.currentUser.joinedGroups.add(dataModel.groupMeetings.get(j));
+                        dataModel.groupMeetings.get(j).currentUserJoined = true;
+                    }
+                }
             }
 
         } catch (IOException | JSONException e) {
@@ -196,5 +220,11 @@ public class API extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         System.out.println(result);
+
+        onStart.onTaskComplete();
+    }
+
+    public interface OnStart {
+        void onTaskComplete();
     }
 }
