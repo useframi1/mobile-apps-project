@@ -113,15 +113,19 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             public void onClick(View v) {
                 String groupNameString = groupName.getText().toString();
                 String sport = selectedSport;
+
+                String members = CreateGroup.groupMembersEditText.getText().toString();
+                String[] membersList = members.split(",");
+
                 try {
                     JSONObject postData = new JSONObject();
 
-                    postData.put("creator", "useframi");
+                    postData.put("creator","sawsan");
                     postData.put("name", groupNameString);
                     postData.put("sport", sport);
-                    postData.put("startTime", fromTime);
-                    postData.put("endTime", toTime);
-                    postData.put("gDate", date);
+                    postData.put("startTime", btnTimePickerFrom.getText().toString());
+                    postData.put("endTime", btnTimePickerTo.getText().toString());
+                    postData.put("gDate", btnDatePicker.getText().toString());
 
                     String jsonString = postData.toString();
 
@@ -134,6 +138,9 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                Intent i = new Intent(CreateGroup.this, ViewCreatedMeetings.class);
+               startActivity(i);
             }
 
 
@@ -312,7 +319,8 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
             throw new RuntimeException(e);
         }
         String jsonString2 = members.toString();
-        myCallback.onTaskComplete(jsonString2);
+        if (groupMembersJSON.length() > 0)
+             myCallback.onTaskComplete(jsonString2);
     }
 
     public interface MyCallback {
