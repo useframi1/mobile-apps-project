@@ -413,6 +413,20 @@ srv.post("/deleteRequest", function (req, res) {
     });
 });
 
+srv.post("/requestStatus", function (req, res) {
+
+    var sql = "UPDATE Requests SET seen = 1";
+    // execute sql command
+    connection.query(sql, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+        console.log("Request status updated");
+        res.send(result);
+    });
+});
+
 // API: delete Meeting
 // Method: GET
 // srv.get("/deleteMeeting", function (req, res) {
