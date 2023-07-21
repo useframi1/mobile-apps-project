@@ -139,7 +139,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             }
             String jsonString = members.toString();
 
-            String url = "http://192.168.1.182:3000/addGroupMembers";
+            String url = "http://192.168.56.1:3000/addGroupMembers";
 
             PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
             postAddMembers.execute();

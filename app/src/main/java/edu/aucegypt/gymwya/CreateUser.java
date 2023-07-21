@@ -226,7 +226,7 @@ public class CreateUser extends AppCompatActivity  implements API.OnStart{
                 preferredSportsData.put("preferredSports", sportsArrayJSON);
 
                 String jsonString = preferredSportsData.toString();
-                String url = "http://192.168.1.182:3000/addPreferredSports";
+                String url = "http://192.168.56.1:3000/addPreferredSports";
 
                 PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
                 asyncTask.execute();
@@ -247,7 +247,7 @@ public class CreateUser extends AppCompatActivity  implements API.OnStart{
                 editor.commit();
                 dataModel.currentUser.username = userName;
                 API api = new API(CreateUser.this);
-                api.execute("http://192.168.1.182:3000/");
+                api.execute("http://192.168.56.1:3000/");
                 try {
                     uploadImage(selectedImage);
                 } catch (IOException e) {

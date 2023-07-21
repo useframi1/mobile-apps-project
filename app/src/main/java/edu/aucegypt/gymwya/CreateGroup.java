@@ -3,9 +3,11 @@ package edu.aucegypt.gymwya;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,7 +23,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,15 +55,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class CreateGroup extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, PostCreateGroup.MyCallback {
     DataManager dataManager = DataManager.getInstance();
     String apiResponse;
     Data dataModel = dataManager.getDataModel();
+    Uri selectedImage;
     private String selectedSport;
-    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, btnCreateGroup;
+    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, btnCreateGroup, uploadImage;
     ImageView back;
     EditText groupName;
     static EditText groupMembersEditText;
@@ -67,17 +77,21 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     RecyclerView recyclerView;
     SpinnerAdapter adapter;
     Spinner spinner;
-    String creator;
-    String name;
+    String groupNameString = "";
     String date = "";
     String fromTime = "";
     String toTime = "";
     String sportName = "";
     String gDate;
+
     TextView errorMessage;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     ArrayList<String> sports = new ArrayList<>();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private static final int REQUEST_PICK_IMAGE = 1;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +135,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnDatePicker = (Button) findViewById(R.id.date);
         btnTimePickerFrom = (Button) findViewById(R.id.from);
         btnTimePickerTo = (Button) findViewById(R.id.to);
+        uploadImage = (Button) findViewById(R.id.choose_icon);
         btnCreateGroup = findViewById(R.id.add_group);
         groupName = findViewById(R.id.group_name);
         groupMembersEditText = findViewById(R.id.num_of_players);
@@ -131,7 +146,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnTimePickerFrom.setOnClickListener(this);
         btnTimePickerTo.setOnClickListener(this);
         btnCreateGroup.setOnClickListener(v -> {
-            String groupNameString = groupName.getText().toString();
+            groupNameString = groupName.getText().toString();
             String sport = selectedSport;
 
             try {
@@ -147,6 +162,18 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                         errorMessage.setVisibility(View.INVISIBLE);
                         JSONObject postData = new JSONObject();
 
+                        //check if image was uploaded
+                        if (selectedImage != null) {
+                            try {
+                                uploadImage(selectedImage);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        //check if group icon was chosen
+
+
+
                         postData.put("creator", dataModel.currentUser.username);
                         postData.put("name", groupNameString);
                         postData.put("sport", sport);
@@ -156,7 +183,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.1.182:3000/createGroup";
+                        String url = "http://192.168.56.1:3000/createGroup";
                         System.out.println("create group");
                         PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
                         asyncTask.execute();
@@ -168,6 +195,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             }
         });
         back.setOnClickListener(this);
+        uploadImage.setOnClickListener(this);
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -219,8 +247,21 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                 i = new Intent(this, GroupMatching.class);
             startActivity(i);
         }
+        if (v == uploadImage) {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, 1);
+        }
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            selectedImage = data.getData();
+            // testing toast
+            Toast.makeText(getApplicationContext(), "group Picture Set ", Toast.LENGTH_SHORT).show();
+        }
+    }
     public boolean hasCollidingMeeting() {
         final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
         try {
@@ -339,7 +380,49 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         postAddMembers.execute();
     }
 
+    private void uploadImage(Uri imageUri) throws IOException {
+        if (imageUri != null) {
+            // Create a unique filename for the image
 
+            String filename = UUID.randomUUID().toString();
+            storageReference = FirebaseStorage.getInstance().getReference();
+            StorageReference imageRef = storageReference.child(filename);
+
+            // Upload the image to Firebase Storage
+            imageRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image upload successful
+                        Task<Uri> downloadUrlTask = imageRef.getDownloadUrl();
+                        downloadUrlTask.addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            // Do something with the image URL, e.g., save it to a user profile
+                            // Add your desired code here to handle the image URL
+
+                            // Example: Add the image URL to Firestore
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("image", imageUrl);
+
+                            db.collection("Images")
+                                    .document(groupNameString) // Use userName as the document ID
+                                    .set(user)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully",
+                                                Toast.LENGTH_SHORT).show();
+
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getApplicationContext(), "Failed to upload image",
+                                                Toast.LENGTH_SHORT).show();
+                                        // Handle failure, if needed
+                                    });
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle any errors
+                        Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
 }
 
 class PostCreateGroup extends AsyncTask<String, Void, String> {

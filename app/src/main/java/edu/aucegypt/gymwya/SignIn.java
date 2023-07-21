@@ -65,11 +65,12 @@ public class SignIn extends AppCompatActivity implements API.OnStart{
                                     dataModel.currentUser.email = userEmail;
                                     dataModel.currentUser.password = userPassword;
                                     API api = new API(true, credentials, SignIn.this);
-                                    api.execute("http://192.168.1.182:3000/");
+                                    api.execute("http://192.168.56.1:3000/");
                                     //toast
                                     Toast.makeText(getApplicationContext(), "Signed in successfully", Toast.LENGTH_SHORT).show();
                                     // Sign-in successful, proceed to the HomePage activity
-//
+                                    Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                                    startActivity(intent);
 
                                 } else {
                                     // Sign-in failed, display an error message
@@ -87,7 +88,6 @@ public class SignIn extends AppCompatActivity implements API.OnStart{
 
     @Override
     public void onTaskComplete() {
-        Intent intent = new Intent(SignIn.this, HomePage.class);
-        startActivity(intent);
+
     }
 }

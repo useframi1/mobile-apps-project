@@ -9,6 +9,8 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -20,6 +22,13 @@ protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DataManager dataManager = DataManager.getInstance();
         Data dataModel = dataManager.getDataModel();
+//        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+//        //check if user is already logged in
+//        if (firebaseAuth.getCurrentUser() != null) {
+//            dataModel.currentUser.email = firebaseAuth.getCurrentUser().getEmail();
+//            Intent i = new Intent(this, HomePage.class);
+//            startActivity(i);
+//        }
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
 //        SharedPreferences.Editor editor = credentials.edit();
@@ -33,7 +42,7 @@ protected void onCreate(Bundle savedInstanceState) {
             dataModel.currentUser.username = credentials.getString("username", "");
             dataModel.currentUser.email = credentials.getString("email", "");
             API api = new API(Start.this);
-            api.execute("http://192.168.1.182:3000/");
+            api.execute("http://192.168.56.1:3000/");
         } else {
             setContentView(R.layout.start);
             signUp = (Button) findViewById(R.id.signUp);
