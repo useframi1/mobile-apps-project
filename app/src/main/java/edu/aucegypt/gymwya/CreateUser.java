@@ -21,10 +21,23 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +64,7 @@ public class CreateUser extends AppCompatActivity {
     ImageView back, profilePicture;
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
+    IconsAdapter iconAdapter;
 
     Uri selectedImage;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
@@ -85,12 +99,18 @@ public class CreateUser extends AppCompatActivity {
         iconsList.add(new Sport.SportIcon(R.drawable.pingpong_icon));
         iconsList.add(new Sport.SportIcon(R.drawable.gym_icon));
 
+
         mAdapter = new IconsAdapter(iconsList, false, true);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+
+        iconAdapter = new IconsAdapter(iconsList, false, true);
+        recyclerView.setAdapter(iconAdapter);
+
 
         create.setOnClickListener(v -> {
             // Retrieve data from the previous activity
@@ -103,6 +123,7 @@ public class CreateUser extends AppCompatActivity {
             String Name = ((TextView) findViewById(R.id.name)).getText().toString();
             String Age = ((TextView) findViewById(R.id.age)).getText().toString();
             String Bio = ((TextView) findViewById(R.id.bio)).getText().toString();
+
 
             // Check if the name text field is empty
             if (Name.isEmpty()) {
@@ -128,7 +149,34 @@ public class CreateUser extends AppCompatActivity {
             }
 
             //call the async task
-            new CreateUserTask().execute(userName, Name, Bio, Age, email);
+            new CreateUserTask().execute(userName, Name, Bio, Age, "whatevers");
+
+//            try {
+//
+//                ArrayList<Integer> sportsIconsSelected = (ArrayList<Integer>) iconAdapter.getPressedIconIds();
+//
+//                ArrayList<String> sportsSelectedNames = (ArrayList<String>) iconAdapter.getSelectedSportNames(sportsIconsSelected);
+//
+//                JSONArray sportsArrayJSON = new JSONArray(sportsSelectedNames);
+//
+//                JSONObject preferredSportsData = new JSONObject();
+//
+//                preferredSportsData.put("username", userName);
+//                preferredSportsData.put("sports", sportsArrayJSON);
+//
+//                String jsonString = preferredSportsData.toString();
+//                String url = "http://192.168.56.1:3000/addPreferredSports";
+//
+//                PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
+//                asyncTask.execute();
+//
+//            }catch (JSONException e) {
+//
+//                throw new RuntimeException(e);
+//            }
+
+
+
 
         });
 
@@ -186,6 +234,33 @@ public class CreateUser extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+
+            try {
+
+                ArrayList<Integer> sportsIconsSelected = (ArrayList<Integer>) iconAdapter.getPressedIconIds();
+
+                ArrayList<String> sportsSelectedNames = (ArrayList<String>) iconAdapter.getSelectedSportNames(sportsIconsSelected);
+
+                JSONArray sportsArrayJSON = new JSONArray(sportsSelectedNames);
+
+                JSONObject preferredSportsData = new JSONObject();
+
+                preferredSportsData.put("username", userName);
+                preferredSportsData.put("preferredSports", sportsArrayJSON);
+
+                String jsonString = preferredSportsData.toString();
+                String url = "http://192.168.56.1:3000/addPreferredSports";
+
+                PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
+                asyncTask.execute();
+
+            }catch (JSONException e) {
+
+                throw new RuntimeException(e);
+            }
+
+
+
             Toast.makeText(getApplicationContext(), "you are in post excute", Toast.LENGTH_SHORT).show();
 
             if (result != null && result.equals("1")) {
@@ -256,6 +331,66 @@ public class CreateUser extends AppCompatActivity {
                         // Handle any errors
                         Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
                     });
+        }
+    }
+
+    private class PostPreferredSport extends AsyncTask<String, Void, Void> {
+
+        private String jsonData;
+        private String url;
+
+        public PostPreferredSport(String url, String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            // String urlString = params[0];
+            String result = "";
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                    result = response.toString();
+                } else {
+                    result = "Error: " + responseCode;
+                }
+                connection.disconnect();
+                return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
