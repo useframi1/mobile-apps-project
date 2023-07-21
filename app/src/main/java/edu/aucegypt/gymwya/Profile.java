@@ -7,25 +7,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
-
 public class Profile extends AppCompatActivity {
     Button editProfile;
     RecyclerView recyclerView;
-    ArrayList<Sport.SportIcon> iconsList = new ArrayList<>();
     IconsAdapter mAdapter;
-    TextView currentMatches, createdMeetings;
+    LinearLayout currentMatches, createdMeetings, createdGroups;
+    TextView username, fullName, bio;
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,16 +41,7 @@ public class Profile extends AppCompatActivity {
         });
 
         recyclerView = findViewById(R.id.recyclerView);
-        iconsList.add(new Sport.SportIcon(R.drawable.football_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.volleyball_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.tennis_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.squash_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.basketball_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.swimming_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.pingpong_icon));
-        iconsList.add(new Sport.SportIcon(R.drawable.gym_icon));
-
-        mAdapter = new IconsAdapter(iconsList, true, false);
+        mAdapter = new IconsAdapter(dataModel.currentUser.getPreferredSportsIcons(), true, false);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -63,21 +49,28 @@ public class Profile extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         editProfile = findViewById(R.id.edit_profile);
-        currentMatches = findViewById(R.id.view_current_matches);
-        createdMeetings = findViewById(R.id.view_created_matches);
+        createdMeetings = findViewById(R.id.view_created_meetings);
+        createdGroups = findViewById(R.id.view_created_groups);
+        username = findViewById(R.id.username);
+        fullName = findViewById(R.id.full_name);
+        bio = findViewById(R.id.bio);
+
+        username.setText(dataModel.currentUser.username);
+        fullName.setText(dataModel.currentUser.name);
+        bio.setText(dataModel.currentUser.bio);
 
         editProfile.setOnClickListener(view -> {
             Intent intent= new Intent(Profile.this, EditProfile.class);
             startActivity(intent);
         });
 
-        currentMatches.setOnClickListener(view -> {
-            Intent intent= new Intent(Profile.this, PeopleMatched.class);
+        createdMeetings.setOnClickListener(view-> {
+            Intent intent = new Intent (Profile.this, ViewCreatedMeetings.class);
             startActivity(intent);
         });
 
-        createdMeetings.setOnClickListener(view-> {
-            Intent intent = new Intent (Profile.this, ViewCreatedMeetings.class);
+        createdGroups.setOnClickListener(view -> {
+            Intent intent = new Intent (Profile.this, ViewCreatedGroups.class);
             startActivity(intent);
         });
     }

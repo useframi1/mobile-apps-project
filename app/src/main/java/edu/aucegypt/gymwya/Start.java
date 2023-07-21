@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class Start extends AppCompatActivity {
+public class Start extends AppCompatActivity implements API.OnStart{
     Button signUp, signIn;
 
     @Override
@@ -23,36 +23,42 @@ protected void onCreate(Bundle savedInstanceState) {
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
 //        SharedPreferences.Editor editor = credentials.edit();
-//        editor.putString("username","youffy");
+//        editor.remove("username");
+//        editor.remove("email");
+//        editor.remove("password");
 //        editor.commit();
 
-        if (credentials.contains("username")) {
+        if (credentials.contains("email") && credentials.contains("password") && credentials.contains("username")) {
             dataModel.currentUser.username = credentials.getString("username", "");
-            API api = new API();
+            dataModel.currentUser.email = credentials.getString("email", "");
+            API api = new API(Start.this);
             api.execute("http://192.168.1.182:3000/");
-            Intent i = new Intent(this, HomePage.class);
-            startActivity(i);
+        } else {
+            setContentView(R.layout.start);
+            signUp = (Button) findViewById(R.id.signUp);
+            signIn = (Button) findViewById(R.id.signIn);
+
+            signIn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(Start.this, SignIn.class);
+                    startActivity(intent);
+                }
+            });
+
+            signUp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(Start.this, SignUp.class);
+                    startActivity(intent);
+                }
+            });
         }
+    }
 
-        setContentView(R.layout.start);
-        signUp = (Button) findViewById(R.id.signUp);
-        signIn = (Button) findViewById(R.id.signIn);
-
-        signIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Start.this, SignIn.class);
-                startActivity(intent);
-            }
-        });
-
-        signUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Start.this, SignUp.class);
-                startActivity(intent);
-            }
-        });
-
+    @Override
+    public void onTaskComplete() {
+        Intent i = new Intent(this, HomePage.class);
+        startActivity(i);
     }
 }

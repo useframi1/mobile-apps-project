@@ -1,6 +1,7 @@
 package edu.aucegypt.gymwya;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,19 +14,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class VisitProfile extends AppCompatActivity {
     Button message;
     ImageView back, pic;
     TextView name,username,age,bio;
-
-    static ArrayList<Sport.SportIcon> sport_icons = new ArrayList<>();
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.visit_profile);
+
+        Bundle bundle = getIntent().getExtras();
+        user = (User) bundle.getSerializable("User");
+
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -42,33 +54,20 @@ public class VisitProfile extends AppCompatActivity {
         });
 
         back = findViewById(R.id.back);
-        pic = findViewById(R.id.profile_picture);
+        pic = findViewById(R.id.profile_pic);
         message = findViewById(R.id.message);
         name = findViewById(R.id.name);
         username = findViewById(R.id.username);
         age = findViewById(R.id.age);
         bio = findViewById(R.id.bio);
 
-        sport_icons.add(new Sport.SportIcon(R.drawable.football_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.volleyball_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.tennis_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.squash_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.basketball_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.swimming_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.pingpong_icon));
-        sport_icons.add(new Sport.SportIcon(R.drawable.gym_icon));
+        name.setText(user.name);
+        username.setText(user.username);
+        age.setText(String.valueOf(user.age));
+        bio.setText(user.bio);
 
-
-        // Set up RecyclerView
-        RecyclerView iconRecyclerView = findViewById(R.id.recyclerView);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        iconRecyclerView.setLayoutManager(layoutManager);
-
-// Create and set the adapter
-        IconsAdapter iconAdapter = new IconsAdapter(sport_icons, false, false);
-        iconRecyclerView.setAdapter(iconAdapter);
-
-
+        VisitProfileTask visitProfileTask = new VisitProfileTask();
+        visitProfileTask.execute("http://192.168.1.182:3000/");
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,5 +84,64 @@ public class VisitProfile extends AppCompatActivity {
 //                startActivity(i);
 //            }
 //        });
+    }
+
+    public class VisitProfileTask extends AsyncTask<String, Void, String> {
+
+        private String getResponse(HttpURLConnection connection) throws IOException {
+            // Read the response from the input stream
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            StringBuilder response = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            // Return the response as a string
+            return response.toString();
+        }
+
+        private HttpURLConnection getHttpRequest(String url) throws IOException {
+            URL requestUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                return connection;
+
+            return null;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String url = strings[0];
+
+            try {
+                HttpURLConnection connection = getHttpRequest(url+"getPreferredSports/?username="+user.username);
+                if (connection != null) {
+                    String response = getResponse(connection);
+                    JSONArray json = new JSONArray(response);
+                    for (int i = 0; i < json.length(); i++) {
+                        user.preferredSports.add(json.getJSONObject(i).getString("sport"));
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            RecyclerView iconRecyclerView = findViewById(R.id.recyclerView);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(VisitProfile.this, LinearLayoutManager.HORIZONTAL, false);
+            iconRecyclerView.setLayoutManager(layoutManager);
+
+            // Create and set the adapter
+            IconsAdapter iconAdapter = new IconsAdapter(user.getPreferredSportsIcons(), false, false);
+            iconRecyclerView.setAdapter(iconAdapter);
+        }
     }
 }

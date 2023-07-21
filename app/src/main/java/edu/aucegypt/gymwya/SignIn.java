@@ -2,6 +2,8 @@ package edu.aucegypt.gymwya;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,11 +18,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SignIn extends AppCompatActivity {
+public class SignIn extends AppCompatActivity implements API.OnStart{
     Button signIn;
     EditText email, password;
     ImageView back;
     FirebaseAuth firebaseAuth;
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -53,13 +57,19 @@ public class SignIn extends AppCompatActivity {
                             @Override
                             public void onComplete(Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-
+                                    SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+                                    SharedPreferences.Editor editor = credentials.edit();
+                                    editor.putString("email",userEmail);
+                                    editor.putString("password", userPassword);
+                                    editor.commit();
+                                    dataModel.currentUser.email = userEmail;
+                                    dataModel.currentUser.password = userPassword;
+                                    API api = new API(true, credentials, SignIn.this);
+                                    api.execute("http://192.168.1.182:3000/");
                                     //toast
                                     Toast.makeText(getApplicationContext(), "Signed in successfully", Toast.LENGTH_SHORT).show();
                                     // Sign-in successful, proceed to the HomePage activity
-                                    Intent intent = new Intent(SignIn.this, HomePage.class);
-                                    intent.putExtra("email", userEmail);
-                                    startActivity(intent);
+//
 
                                 } else {
                                     // Sign-in failed, display an error message
@@ -73,5 +83,11 @@ public class SignIn extends AppCompatActivity {
         back.setOnClickListener(v -> {
             finish();
         });
+    }
+
+    @Override
+    public void onTaskComplete() {
+        Intent intent = new Intent(SignIn.this, HomePage.class);
+        startActivity(intent);
     }
 }

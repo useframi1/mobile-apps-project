@@ -1,21 +1,25 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:padding="8dp"
     android:background="@drawable/edit_text_border"
-    android:layout_gravity="center">
+    android:layout_marginBottom="30dp"
+    android:layout_gravity="center"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="70dp"
         android:layout_height="70dp"
         app:cardCornerRadius="50dp"
         app:cardBackgroundColor="@android:color/white"
-        android:layout_gravity="center_vertical">
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp">
 
         <ImageView
-            android:id="@+id/team_image"
+            android:id="@+id/group_picture"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -23,62 +27,125 @@
     </androidx.cardview.widget.CardView>
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="8dp">
-
-        <TextView
-            android:id="@+id/team_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="Team Name"
-            android:textColor="#323131"
-            android:textSize="20dp"
-            android:textStyle="bold" />
-
-
-        <TextView
-            android:id="@+id/team_members"
-            android:layout_width="200dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="4dp"
-            android:fontFamily="sans-serif-medium"
-            android:text="name1,name2..."
-            android:textColor="#555454"
-            android:textColorHint="#595858"
-            android:textSize="14sp" />
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/group_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Group name"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/sport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Football"
+                android:textColor="@color/dark_grey"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center_vertical"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp" >
 
             <TextView
-                android:id="@+id/team_size"
-                android:text="sth/sth"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
+                android:text="From: "
+                android:textColor="@color/blue"
                 android:textSize="14sp"
-                android:textColor="#555454"
-                />
-            <Space
-                android:layout_width="120dp"
-                android:layout_height="0dp" />
+                android:layout_gravity="center_vertical" />
 
             <TextView
-                android:id="@+id/playing_time"
+                android:id="@+id/from"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:text="7:30pm"
-                android:textColor="#555454"
+                android:text="02:30 PM"
+                android:textColor="#323131"
+                android:textSize="14sp"
+                android:layout_gravity="center_vertical" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="To: "
+                android:textColor="@color/blue"
+                android:textSize="14sp"
+                android:layout_gravity="center_vertical" />
+
+            <TextView
+                android:id="@+id/to"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="03:30 PM"
+                android:textColor="#323131"
+                android:textSize="14sp"
+                android:layout_gravity="center_vertical" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="On: "
+                android:textColor="@color/blue"
+                android:textSize="14sp"
+                />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="07-16-2023"
+                android:textColor="#323131"
                 android:textSize="14sp" />
         </LinearLayout>
+
 
     </LinearLayout>
 
@@ -86,7 +153,9 @@
         android:id="@+id/arrow_button"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_gravity="center_vertical"
         android:src="@drawable/arrow_button"
-        />
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="10dp"/>
+
+
 </LinearLayout>

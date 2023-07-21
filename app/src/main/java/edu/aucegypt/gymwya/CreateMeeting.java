@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +24,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Objects;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -34,19 +43,19 @@ import okhttp3.Response;
 public class CreateMeeting extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, addMeeting;
     ImageView back;
+    TextView errorMessage;
     private int mYear, mMonth, mDay, mHour, mMinute;
-    Sport sport;
-    ArrayAdapter<CharSequence> adapter;
+    SpinnerAdapter adapter;
     Spinner spinner;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     private DataManager dataManager;
     private Data dataModel;
-    String date ;
-    String fromTime;
-    String toTime;
-    String sportName;
-
+    String date = "";
+    String fromTime = "";
+    String toTime = "";
+    String sportName = "";
+    ArrayList<String> sports = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +63,6 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
 
         dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
-
-
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -75,6 +82,7 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         btnTimePickerFrom= findViewById(R.id.from);
         btnTimePickerTo= findViewById(R.id.to);
         addMeeting = findViewById(R.id.add_meeting);
+        errorMessage = findViewById(R.id.error_message);
 
         btnDatePicker.setOnClickListener(this);
         btnTimePickerFrom.setOnClickListener(this);
@@ -88,24 +96,26 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         mHour = c.get(Calendar.HOUR_OF_DAY);
         mMinute = c.get(Calendar.MINUTE);
 
-        adapter = ArrayAdapter.createFromResource(this, R.array.sports, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sports.add("Sports:");
+        sports.add("Tennis");
+        sports.add("Ping pong");
+        sports.add("Gym");
+        sports.add("Squash");
+
         spinner = findViewById(R.id.sport);
-        //sportName = spinner.getSelectedItem().toString();
-        spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-
+        adapter = new SpinnerAdapter(this, sports);
+        spinner.setAdapter(adapter);
+        int offsetInPixels = getResources().getDimensionPixelSize(R.dimen.dropdown_offset_sports);
+        spinner.setDropDownVerticalOffset(offsetInPixels);
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
-
-
-
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+        sportName = sports.get(position);
     }
 
     @Override
@@ -129,12 +139,89 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             else {i = new Intent(this, IndividualMatching.class);}
             startActivity(i);
         } if (v == addMeeting) {
-            CreateUserTask createUserTask = new CreateUserTask();
-            String sportName = spinner.getSelectedItem().toString();
-            createUserTask.execute("barbary", sportName, fromTime, toTime, date);
-
+            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "") && !Objects.equals(sportName, "")) {
+                if (isInvalidMeeting()) {
+                    errorMessage.setText("Please choose valid time");
+                    errorMessage.setVisibility(View.VISIBLE);
+                } else if (hasCollidingMeeting()) {
+                    errorMessage.setText("There is another meeting at that time");
+                    errorMessage.setVisibility(View.VISIBLE);
+                } else {
+                    errorMessage.setVisibility(View.INVISIBLE);
+                    CreateUserTask createUserTask = new CreateUserTask();
+                    createUserTask.execute(dataModel.currentUser.username, sportName, fromTime, toTime, date);
+                }
+            }
         }
     }
+
+    public boolean hasCollidingMeeting() {
+        final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+        try {
+            Date startTime = TIME_FORMAT.parse(fromTime);
+            Date endTime = TIME_FORMAT.parse(toTime);
+
+            for (int i = 0; i < dataModel.individualMeetings.size(); i++) {
+                if (dataModel.individualMeetings.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.individualMeetings.get(i).date, date)) {
+                    Date existingStartTime = TIME_FORMAT.parse(dataModel.individualMeetings.get(i).start);
+                    Date existingEndTime = TIME_FORMAT.parse(dataModel.individualMeetings.get(i).end);
+
+                    if ((startTime.equals(existingStartTime) && endTime.equals(existingEndTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingStartTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingEndTime)) ||
+                            (startTime.after(existingStartTime) && endTime.before(existingEndTime))) {
+                        return true;
+                    }
+                }
+            }
+
+            for (int i = 0; i < dataModel.currentUser.createdMeetings.size(); i++) {
+                if (dataModel.currentUser.createdMeetings.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.currentUser.createdMeetings.get(i).date, date)) {
+                    Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdMeetings.get(i).start);
+                    Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdMeetings.get(i).end);
+
+                    if ((startTime.equals(existingStartTime) && endTime.equals(existingEndTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingStartTime) && endTime.after(existingStartTime)) ||
+                            (startTime.before(existingEndTime) && endTime.after(existingEndTime)) ||
+                            (startTime.after(existingStartTime) && endTime.before(existingEndTime))) {
+                        return true;
+                    }
+                }
+            }
+
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
+    }
+
+    public boolean isInvalidMeeting() {
+        final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String dateTimeStr = date + " " + fromTime;
+            LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, DATE_TIME_FORMATTER);
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            if (dateTime.isBefore(currentDateTime)) return true;
+        }
+
+        try {
+            Date startTime = TIME_FORMAT.parse(fromTime);
+            Date endTime = TIME_FORMAT.parse(toTime);
+
+            if (startTime.after(endTime)) {
+                return true;
+            } else return false;
+
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public void setDate() {
         datePickerDialog = new DatePickerDialog(this,
@@ -191,7 +278,7 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
 
                 // Create an HTTP request
                 okhttp3.Request request = new Request.Builder()
-                        .url("http://192.168.56.1:3000/createMeeting")
+                        .url("http://192.168.1.182:3000/createMeeting")
                         .post(RequestBody.create(JSON, jsonBody.toString()))
                         .build();
 

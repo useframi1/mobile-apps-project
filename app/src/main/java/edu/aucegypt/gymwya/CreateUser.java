@@ -1,6 +1,7 @@
 package edu.aucegypt.gymwya;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,7 +42,6 @@ import okhttp3.Response;
 public class CreateUser extends AppCompatActivity {
     private GridViewAdapter gridAdapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    String email;
     private static final int REQUEST_PICK_IMAGE = 1;
     private StorageReference storageReference;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
@@ -55,7 +55,10 @@ public class CreateUser extends AppCompatActivity {
     Uri selectedImage;
     AtomicReference<Boolean> Error = new AtomicReference<>(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
     private OkHttpClient client = new OkHttpClient();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +72,6 @@ public class CreateUser extends AppCompatActivity {
         profilePicture = findViewById(R.id.profile_picture);
 
         storageReference = FirebaseStorage.getInstance().getReference();
-
 
         uploadProfilePictureButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -94,11 +96,6 @@ public class CreateUser extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         create.setOnClickListener(v -> {
-            // Retrieve data from the previous activity
-            Intent intentt = getIntent();
-            email = intentt.getStringExtra("email");
-            String password = intentt.getStringExtra("password");
-
             // Retrieve the username from the username text field in the XML file
             userName = ((TextView) findViewById(R.id.username)).getText().toString();
             String Name = ((TextView) findViewById(R.id.name)).getText().toString();
@@ -112,14 +109,16 @@ public class CreateUser extends AppCompatActivity {
             }
             // Check if the username length is less than 6 characters
             if (userName.length() < 6) {
-                Toast.makeText(getApplicationContext(), "Username must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Username must be at least 6 characters", Toast.LENGTH_SHORT)
+                        .show();
                 return;
             }
             // Check if the age text field is a valid number between 10 and 100
             int ageValue;
             ageValue = Integer.parseInt(Age);
             if (ageValue < 10 || ageValue > 100) {
-                Toast.makeText(getApplicationContext(), "Please enter a valid age between 10 and 100", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Please enter a valid age between 10 and 100",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
             // Check if the bio text field is empty
@@ -128,22 +127,22 @@ public class CreateUser extends AppCompatActivity {
                 return;
             }
 
-            //call the async task
-            new CreateUserTask().execute(userName, Name, Bio, Age, email);
+            // call the async task
+            new CreateUserTask().execute(userName, Name, Bio, Age, dataModel.currentUser.email);
 
         });
 
         // Perform the document retrieval and user creation logic
 
-        //put the data in the database
-
+        // put the data in the database
 
         back.setOnClickListener(vv -> {
             finish();
         });
 
     }
-    private class CreateUserTask extends AsyncTask<String, Void, String> {
+
+    private class CreateUserTask extends AsyncTask<String, Void, String> implements API.OnStart {
 
         @Override
         protected String doInBackground(String... params) {
@@ -168,7 +167,7 @@ public class CreateUser extends AppCompatActivity {
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.56.1:3000/createUser")
+                    .url("http://192.168.1.182:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -192,34 +191,44 @@ public class CreateUser extends AppCompatActivity {
             if (result != null && result.equals("1")) {
                 // User created successfully
                 Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+                SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+                SharedPreferences.Editor editor = credentials.edit();
+                editor.putString("username", userName);
+                editor.commit();
+                dataModel.currentUser.username = userName;
+                API api = new API((API.OnStart) CreateUser.this);
+                api.execute("http://192.168.1.182:3000/");
                 try {
                     uploadImage(selectedImage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //pass the email to the home page
-
-                Intent intent = new Intent(CreateUser.this, HomePage.class);
-                intent.putExtra("email", email);
-                startActivity(intent);
             } else {
                 // Failed to create user
                 Toast.makeText(getApplicationContext(), "Failed to create user", Toast.LENGTH_SHORT).show();
             }
         }
+
+        @Override
+        public void onTaskComplete() {
+            Intent intent = new Intent(CreateUser.this, HomePage.class);
+            startActivity(intent);
+        }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
             selectedImage = data.getData();
-            //set image in imageview pfp
+            // set image in imageview pfp
             profilePicture.setImageURI(selectedImage);
-            //testing toast
+            // testing toast
             Toast.makeText(getApplicationContext(), "Profile Picture Set ", Toast.LENGTH_SHORT).show();
         }
     }
+
     private void uploadImage(Uri imageUri) throws IOException {
         if (imageUri != null) {
             // Create a unique filename for the image
@@ -241,14 +250,16 @@ public class CreateUser extends AppCompatActivity {
                             user.put("image", imageUrl);
 
                             db.collection("Images")
-                                    .document(email) // Use userName as the document ID
+                                    .document(dataModel.currentUser.email) // Use userName as the document ID
                                     .set(user)
                                     .addOnSuccessListener(documentReference -> {
-                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully",
+                                                Toast.LENGTH_SHORT).show();
 
                                     })
                                     .addOnFailureListener(e -> {
-                                        Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), "Failed to upload image",
+                                                Toast.LENGTH_SHORT).show();
                                         // Handle failure, if needed
                                     });
                         });

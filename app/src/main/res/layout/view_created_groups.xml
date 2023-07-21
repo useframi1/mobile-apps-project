@@ -20,14 +20,14 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-medium"
-        android:text="YOUR MEETINGS"
+        android:text="YOUR GROUPS"
         android:textColor="@color/blue"
         android:textSize="30sp"
         android:textStyle="bold" />
 
 
     <ListView
-        android:id="@+id/view_created_meetings_list"
+        android:id="@+id/view_created_groups_list"
         android:layout_width="350dp"
         android:layout_height="400dp"
         android:layout_gravity="center"
