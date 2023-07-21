@@ -40,7 +40,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class CreateMeeting extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+public class CreateMeeting extends AppCompatActivity
+        implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, addMeeting;
     ImageView back;
     TextView errorMessage;
@@ -56,6 +57,7 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
     String toTime = "";
     String sportName = "";
     ArrayList<String> sports = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,9 +80,9 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             return true;
         });
 
-        btnDatePicker= findViewById(R.id.date);
-        btnTimePickerFrom= findViewById(R.id.from);
-        btnTimePickerTo= findViewById(R.id.to);
+        btnDatePicker = findViewById(R.id.date);
+        btnTimePickerFrom = findViewById(R.id.from);
+        btnTimePickerTo = findViewById(R.id.to);
         addMeeting = findViewById(R.id.add_meeting);
         errorMessage = findViewById(R.id.error_message);
 
@@ -127,19 +129,25 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         if (v == btnDatePicker) {
             setDate();
-        } if (v == btnTimePickerFrom) {
+        }
+        if (v == btnTimePickerFrom) {
             setTime(btnTimePickerFrom);
-        } if (v == btnTimePickerTo) {
+        }
+        if (v == btnTimePickerTo) {
             setTime(btnTimePickerTo);
-        } if (v == back) {
+        }
+        if (v == back) {
             Intent i;
             if (dataModel.previousIsHome) {
                 i = new Intent(this, HomePage.class);
+            } else {
+                i = new Intent(this, IndividualMatching.class);
             }
-            else {i = new Intent(this, IndividualMatching.class);}
-            startActivity(i);
-        } if (v == addMeeting) {
-            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "") && !Objects.equals(sportName, "")) {
+            // startActivity(i);
+        }
+        if (v == addMeeting) {
+            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
+                    && !Objects.equals(sportName, "")) {
                 if (isInvalidMeeting()) {
                     errorMessage.setText("Please choose valid time");
                     errorMessage.setVisibility(View.VISIBLE);
@@ -162,7 +170,8 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             Date endTime = TIME_FORMAT.parse(toTime);
 
             for (int i = 0; i < dataModel.individualMeetings.size(); i++) {
-                if (dataModel.individualMeetings.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.individualMeetings.get(i).date, date)) {
+                if (dataModel.individualMeetings.get(i).sport.equalsIgnoreCase(sportName)
+                        && Objects.equals(dataModel.individualMeetings.get(i).date, date)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.individualMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.individualMeetings.get(i).end);
 
@@ -177,7 +186,8 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             }
 
             for (int i = 0; i < dataModel.currentUser.createdMeetings.size(); i++) {
-                if (dataModel.currentUser.createdMeetings.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.currentUser.createdMeetings.get(i).date, date)) {
+                if (dataModel.currentUser.createdMeetings.get(i).sport.equalsIgnoreCase(sportName)
+                        && Objects.equals(dataModel.currentUser.createdMeetings.get(i).date, date)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdMeetings.get(i).end);
 
@@ -206,7 +216,8 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, DATE_TIME_FORMATTER);
             LocalDateTime currentDateTime = LocalDateTime.now();
 
-            if (dateTime.isBefore(currentDateTime)) return true;
+            if (dateTime.isBefore(currentDateTime))
+                return true;
         }
 
         try {
@@ -215,22 +226,24 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
 
             if (startTime.after(endTime)) {
                 return true;
-            } else return false;
+            } else
+                return false;
 
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     public void setDate() {
         datePickerDialog = new DatePickerDialog(this,
                 (view, year, monthOfYear, dayOfMonth) -> {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        btnDatePicker.setText(dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
-                        //format the date to be in the format YYYY-MM-DD
-                        date = year + "-" + ((monthOfYear<10)? "0" : "") + (monthOfYear+1) + "-" + ((dayOfMonth<10)? "0" : "") + dayOfMonth;
+                        btnDatePicker.setText(
+                                dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
+                        // format the date to be in the format YYYY-MM-DD
+                        date = year + "-" + ((monthOfYear < 10) ? "0" : "") + (monthOfYear + 1) + "-"
+                                + ((dayOfMonth < 10) ? "0" : "") + dayOfMonth;
                     }
 
                 }, mYear, mMonth, mDay);
@@ -242,32 +255,29 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
                 (view, hourOfDay, minute) -> {
                     int tempHour = hourOfDay;
                     if (hourOfDay == 0)
-                        tempHour+=12;
-                    else if (hourOfDay>12)
-                        tempHour-=12;
-                    button.setText(tempHour + ":" + ((minute<10)? "0" : "") + minute  + " " + ((hourOfDay < 12) ? "AM" : "PM"));
+                        tempHour += 12;
+                    else if (hourOfDay > 12)
+                        tempHour -= 12;
+                    button.setText(tempHour + ":" + ((minute < 10) ? "0" : "") + minute + " "
+                            + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
-                        //add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        fromTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
+                        // add the time to from fromTime in the format HH:MM:SS 24 hour format
+                        fromTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     } else {
-                        toTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
+                        toTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     }
-                }, mHour, mMinute,false);
+                }, mHour, mMinute, false);
         timePickerDialog.show();
     }
-    //create an async task to add the meeting we will pass creator, sport, startTime, endTime, mDate to the database
-    //then we will add the meeting to the user's meetings list
+
     private class CreateUserTask extends AsyncTask<String, Void, String> {
 
         private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         private OkHttpClient client = new OkHttpClient();
 
-
-
         @Override
         protected String doInBackground(String... params) {
             try {
-                // Prepare the JSON request body
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("creator", params[0]);
                 jsonBody.put("sport", params[1]);
@@ -275,14 +285,11 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
                 jsonBody.put("endTime", params[3]);
                 jsonBody.put("mDate", params[4]);
 
-
-                // Create an HTTP request
                 okhttp3.Request request = new Request.Builder()
                         .url("http://192.168.1.182:3000/createMeeting")
                         .post(RequestBody.create(JSON, jsonBody.toString()))
                         .build();
 
-                // Send the request and get the response
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     return response.body().string();
@@ -298,17 +305,14 @@ public class CreateMeeting extends AppCompatActivity implements View.OnClickList
         @Override
         protected void onPostExecute(String result) {
             if (result != null && result.equals("1")) {
-                // User created successfully
                 Toast.makeText(getApplicationContext(), "meeting created successfully", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(CreateMeeting.this, HomePage.class);
                 startActivity(intent);
             } else {
-                // Failed to create user
                 Toast.makeText(getApplicationContext(), "Failed to create meeting", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
 
 }

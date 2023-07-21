@@ -18,8 +18,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -29,7 +27,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +63,6 @@ public class HomePage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_home_page);
 
         // retrieve email from prev screen
@@ -169,6 +178,14 @@ public class HomePage extends AppCompatActivity {
 
         viewRequests.setOnClickListener(v -> {
             viewRequestsCount.setVisibility(View.GONE);
+
+            JSONObject jsonData = new JSONObject();
+            String jsonString = jsonData.toString();
+
+            PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.56.1:3000/requestStatus",
+                    jsonString);
+            postRequestsStatus.execute();
+
             Intent i = new Intent(this, ViewRequests.class);
             startActivity(i);
             dataModel.currentUser.unseenRequests = 0;
@@ -201,5 +218,123 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon)));
         sportList.add(new Sport("Squash", true, new Sport.SportIcon(R.drawable.squash_icon)));
         return sportList;
+    }
+
+    private class GetUserTask extends AsyncTask<String, Void, String> {
+
+        private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        private OkHttpClient client = new OkHttpClient();
+
+        @Override
+        protected String doInBackground(String... params) {
+            String email = params[0];
+            OkHttpClient client = new OkHttpClient(); // Initialize the OkHttpClient
+
+            try {
+                // Create an HTTP request
+                Request request = new Request.Builder()
+                        .url("http://192.168.56.1:3000/getUsername?email=" + email) // Replace with your actual URL
+                        .get()
+                        .build();
+
+                // Send the request and get the response
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    return response.body().string();
+                } else {
+                    return null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                try {
+                    JSONArray jsonArray = new JSONArray(result);
+
+                    // Iterate through the JSON array
+                    StringBuilder usernameBuilder = new StringBuilder();
+                    JSONObject jsonObject = jsonArray.getJSONObject(1);
+                    String username = jsonObject.getString("username");
+
+                    // Display the usernames in a Toast message
+                    Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
+
+                    // Set the usernames to the TextView
+                    String finalUsernames = username;
+                    name.post(() -> name.setText(finalUsernames));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    // Failed to parse JSON response
+                    Toast.makeText(getApplicationContext(), "Failed to parse JSON response", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // Failed to retrieve username
+                Toast.makeText(getApplicationContext(), "Failed to retrieve username", Toast.LENGTH_SHORT).show();
+            }
+            // return result;
+        }
+
+    }
+
+    private class PostRequestsStatus extends AsyncTask<String, Void, Void> {
+
+        private String jsonData;
+        private String url;
+
+        public PostRequestsStatus(String url, String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                }
+
+                connection.disconnect();
+                return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
     }
 }

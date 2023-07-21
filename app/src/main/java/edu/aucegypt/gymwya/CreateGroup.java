@@ -23,38 +23,51 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-public class CreateGroup extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+public class CreateGroup extends AppCompatActivity
+        implements View.OnClickListener, AdapterView.OnItemSelectedListener, PostCreateGroup.MyCallback {
+    DataManager dataManager = DataManager.getInstance();
+    String apiResponse;
+    Data dataModel = dataManager.getDataModel();
+    private String selectedSport;
     Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, btnCreateGroup;
     ImageView back;
+    EditText groupName;
+    static EditText groupMembersEditText;
     private int mYear, mMonth, mDay, mHour, mMinute;
     private List<Sport.SportIcon> iconsList = new ArrayList<>();
     private IconsAdapter mAdapter;
     RecyclerView recyclerView;
     SpinnerAdapter adapter;
     Spinner spinner;
-    private DataManager dataManager;
-    private Data dataModel;
     String creator;
     String name;
     String date = "";
@@ -66,7 +79,6 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     ArrayList<String> sports = new ArrayList<>();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,17 +119,53 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        btnDatePicker=(Button)findViewById(R.id.date);
-        btnTimePickerFrom=(Button)findViewById(R.id.from);
-        btnTimePickerTo=(Button)findViewById(R.id.to);
+        btnDatePicker = (Button) findViewById(R.id.date);
+        btnTimePickerFrom = (Button) findViewById(R.id.from);
+        btnTimePickerTo = (Button) findViewById(R.id.to);
         btnCreateGroup = findViewById(R.id.add_group);
+        groupName = findViewById(R.id.group_name);
+        groupMembersEditText = findViewById(R.id.num_of_players);
         back = findViewById(R.id.back);
         errorMessage = findViewById(R.id.error_message);
 
         btnDatePicker.setOnClickListener(this);
         btnTimePickerFrom.setOnClickListener(this);
         btnTimePickerTo.setOnClickListener(this);
-        btnCreateGroup.setOnClickListener(this);
+        btnCreateGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String groupNameString = groupName.getText().toString();
+                String sport = selectedSport;
+
+                String members = CreateGroup.groupMembersEditText.getText().toString();
+                String[] membersList = members.split(",");
+
+                try {
+                    JSONObject postData = new JSONObject();
+
+                    postData.put("creator", "sawsan");
+                    postData.put("name", groupNameString);
+                    postData.put("sport", sport);
+                    postData.put("startTime", btnTimePickerFrom.getText().toString());
+                    postData.put("endTime", btnTimePickerTo.getText().toString());
+                    postData.put("gDate", btnDatePicker.getText().toString());
+
+                    String jsonString = postData.toString();
+
+                    String url = "http://192.168.56.1:3000/createGroup";
+                    System.out.println("create group");
+                    PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
+                    asyncTask.execute();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Intent i = new Intent(CreateGroup.this, ViewCreatedMeetings.class);
+                startActivity(i);
+            }
+
+        });
         back.setOnClickListener(this);
 
         final Calendar c = Calendar.getInstance();
@@ -149,26 +197,30 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-
     }
-
 
     @Override
     public void onClick(View v) {
         if (v == btnDatePicker) {
             setDate();
-        } if (v == btnTimePickerFrom) {
-            setTime(btnTimePickerFrom);
-        } if (v == btnTimePickerTo) {
-            setTime(btnTimePickerTo);
-        } if (v == back) {
+        }
+        if (v == btnTimePickerFrom) {
+            setTime(btnTimePickerFrom, true);
+        }
+        if (v == btnTimePickerTo) {
+            setTime(btnTimePickerTo, false);
+        }
+        if (v == back) {
             Intent i;
             if (dataModel.previousIsHome)
                 i = new Intent(this, HomePage.class);
-            else i = new Intent(this, GroupMatching.class);
+            else
+                i = new Intent(this, GroupMatching.class);
             startActivity(i);
-        } if (v == btnCreateGroup) {
-            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "") && !Objects.equals(sportName, "")) {
+        }
+        if (v == btnCreateGroup) {
+            if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
+                    && !Objects.equals(sportName, "")) {
                 if (isInvalidMeeting()) {
                     errorMessage.setText("Please choose valid time");
                     errorMessage.setVisibility(View.VISIBLE);
@@ -192,7 +244,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             Date endTime = TIME_FORMAT.parse(toTime);
 
             for (int i = 0; i < dataModel.groupMeetings.size(); i++) {
-                if (dataModel.groupMeetings.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.groupMeetings.get(i).date, date)) {
+                if (dataModel.groupMeetings.get(i).sport.equalsIgnoreCase(sportName)
+                        && Objects.equals(dataModel.groupMeetings.get(i).date, date)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).end);
 
@@ -207,7 +260,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             }
 
             for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
-                if (dataModel.currentUser.createdGroups.get(i).sport.equalsIgnoreCase(sportName) && Objects.equals(dataModel.currentUser.createdGroups.get(i).date, date)) {
+                if (dataModel.currentUser.createdGroups.get(i).sport.equalsIgnoreCase(sportName)
+                        && Objects.equals(dataModel.currentUser.createdGroups.get(i).date, date)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).end);
 
@@ -236,7 +290,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, DATE_TIME_FORMATTER);
             LocalDateTime currentDateTime = LocalDateTime.now();
 
-            if (dateTime.isBefore(currentDateTime)) return true;
+            if (dateTime.isBefore(currentDateTime))
+                return true;
         }
 
         try {
@@ -245,20 +300,29 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
             if (startTime.after(endTime)) {
                 return true;
-            } else return false;
+            } else
+                return false;
 
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
+
     public void setDate() {
         datePickerDialog = new DatePickerDialog(this,
                 (view, year, monthOfYear, dayOfMonth) -> {
+                    String monthStr = (monthOfYear + 1 < 10) ? "0" + (monthOfYear + 1)
+                            : String.valueOf(monthOfYear + 1);
+                    String dayStr = (dayOfMonth < 10) ? "0" + dayOfMonth : String.valueOf(dayOfMonth);
+
+                    date = year + "-" + monthStr + "-" + dayStr;
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        btnDatePicker.setText(dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
-                        //format the date to be in the format YYYY-MM-DD
-                        date = year + "-" + ((monthOfYear<10)? "0" : "") + (monthOfYear+1) + "-" + ((dayOfMonth<10)? "0" : "") + dayOfMonth;
+                        btnDatePicker.setText(
+                                dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
+                        // format the date to be in the format YYYY-MM-DD
+                        date = year + "-" + ((monthOfYear < 10) ? "0" : "") + (monthOfYear + 1) + "-"
+                                + ((dayOfMonth < 10) ? "0" : "") + dayOfMonth;
                     }
 
                 }, mYear, mMonth, mDay);
@@ -270,73 +334,166 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                 (view, hourOfDay, minute) -> {
                     int tempHour = hourOfDay;
                     if (hourOfDay == 0)
-                        tempHour+=12;
-                    else if (hourOfDay>12)
-                        tempHour-=12;
-                    button.setText(tempHour + ":" + ((minute<10)? "0" : "") + minute  + " " + ((hourOfDay < 12) ? "AM" : "PM"));
+                        tempHour += 12;
+                    else if (hourOfDay > 12)
+                        tempHour -= 12;
+                    button.setText(tempHour + ":" + ((minute < 10) ? "0" : "") + minute + " "
+                            + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
-                        //add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        fromTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
+                        // add the time to from fromTime in the format HH:MM:SS 24 hour format
+                        fromTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     } else {
-                        toTime = hourOfDay + ":" + ((minute<10)? "0" : "") + minute  + ":00";
+                        toTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     }
-                }, mHour, mMinute,false);
+                }, mHour, mMinute, false);
         timePickerDialog.show();
     }
 
-    private class CreateUserTask extends AsyncTask<String, Void, String> {
+    class PostCreateGroup extends AsyncTask<String, Void, String> {
 
-        private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        private OkHttpClient client = new OkHttpClient();
+        private String jsonData;
+        private String url;
+        MyCallback myCallback;
 
-
+        public PostCreateGroup(String url, String jsonData, MyCallback myCallback) {
+            System.out.println("here");
+            this.jsonData = jsonData;
+            this.url = url;
+            this.myCallback = myCallback;
+        }
 
         @Override
         protected String doInBackground(String... params) {
+            // String urlString = params[0];
+            String result = "";
+            HttpURLConnection connection;
             try {
-                // add the following to the jsonBody (creator, name, sport, startTime, endTime, gDate)
-                JSONObject jsonBody = new JSONObject();
-                jsonBody.put("creator", params[0]);
-                jsonBody.put("name", params[1]);
-                jsonBody.put("sport", params[2]);
-                jsonBody.put("startTime", params[3]);
-                jsonBody.put("endTime", params[4]);
-                jsonBody.put("gDate", params[5]);
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
 
-                // Create an HTTP request
-                okhttp3.Request request = new Request.Builder()
-                        .url("http://192.168.56.1:3000/createGroup")
-                        .post(RequestBody.create(JSON, jsonBody.toString()))
-                        .build();
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
 
-                // Send the request and get the response
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    return response.body().string();
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("heere");
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                    System.out.println(response);
+                    result = response.toString();
+                    System.out.println("result:");
+                    System.out.println(result);
+                    return result;
                 } else {
-                    return null;
+                    result = "Error: " + responseCode;
                 }
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
+                connection.disconnect();
                 return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
 
         @Override
         protected void onPostExecute(String result) {
-            if (result != null && result.equals("1")) {
-                // User created successfully
-                Toast.makeText(getApplicationContext(), "meeting created successfully", Toast.LENGTH_SHORT).show();
 
-                Intent intent = new Intent(CreateGroup.this, HomePage.class);
-                startActivity(intent);
-            } else {
-                // Failed to create user
-                Toast.makeText(getApplicationContext(), "Failed to create meeting", Toast.LENGTH_SHORT).show();
+            JSONObject members = new JSONObject();
+
+            String groupMembersString = CreateGroup.groupMembersEditText.getText().toString();
+            String[] membersArray = groupMembersString.split(",");
+
+            ArrayList<String> groupMembersArray = new ArrayList<>(Arrays.asList(membersArray));
+            JSONArray groupMembersJSON = new JSONArray(groupMembersArray);
+
+            try {
+                members.put("ID", result);
+                members.put("groupMembers", groupMembersJSON);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
+            String jsonString2 = members.toString();
+            if (groupMembersJSON.length() > 0)
+                myCallback.onTaskComplete(jsonString2);
+        }
+
+        public interface MyCallback {
+            void onTaskComplete(String jsonData);
         }
     }
 
+    class PostAddMembers extends AsyncTask<String, Void, String> {
 
+        private String jsonData;
+        private String url;
+
+        public PostAddMembers(String url, String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String result = "";
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("heere");
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+
+                } else {
+                    result = "Error: " + responseCode;
+                }
+                connection.disconnect();
+                return null;
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
-

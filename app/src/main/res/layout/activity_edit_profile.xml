@@ -140,7 +140,7 @@
         android:layout_gravity="center">
 
         <Button
-            android:id="@+id/cancel"
+            android:id="@+id/cancelButton"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="Cancel"
@@ -152,7 +152,7 @@
             android:layout_marginRight="50dp"/>
 
         <Button
-            android:id="@+id/done"
+            android:id="@+id/saveButton"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="Save"
@@ -171,7 +171,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/blue"
-        android:layout_marginTop="50dp"/>
+        android:layout_marginTop="20dp"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"

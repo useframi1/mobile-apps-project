@@ -2,7 +2,7 @@ package edu.aucegypt.gymwya;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -18,6 +17,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class ViewRequests extends AppCompatActivity {
@@ -62,8 +77,6 @@ public class ViewRequests extends AppCompatActivity {
             }
         });
 
-        // listView.setAdapter(adapter);
-
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -72,6 +85,7 @@ public class ViewRequests extends AppCompatActivity {
             startActivity(intent);
         });
     }
+
     class ViewRequestAdapter extends ArrayAdapter<IndividualMeeting> {
         Button decline, confirm;
 
@@ -95,13 +109,30 @@ public class ViewRequests extends AppCompatActivity {
             confirm = convertView.findViewById(R.id.confirm);
 
             requestPerson.setText(person.name);
-            matchInfo.setText(getItem(position).sport + " from " + getItem(position).start + " to " + getItem(position).end);
-//            personPic.setImageResource(person.imageId);
+            matchInfo.setText(
+                    getItem(position).sport + " from " + getItem(position).start + " to " + getItem(position).end);
+            // personPic.setImageResource(person.imageId);
 
             decline.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     dataModel.currentUser.requests.remove(position);
+
+                    try {
+                        JSONObject postData = new JSONObject();
+                        postData.put("ID", 21);
+                        // postData.put("partner", "feweeee");
+
+                        String jsonString = postData.toString();
+
+                        String url = "http://192.168.56.1:3000/deleteRequest";
+
+                        PostRequests asyncTask = new PostRequests(url, jsonString);
+                        asyncTask.execute();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    match_list.remove(position);
                     adapter.notifyDataSetChanged();
                 }
             });
@@ -109,7 +140,22 @@ public class ViewRequests extends AppCompatActivity {
             confirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    finish();
+
+                    try {
+                        JSONObject postData = new JSONObject();
+                        postData.put("ID", 15);
+                        postData.put("partner", "MGhobary256");
+
+                        String jsonString = postData.toString();
+
+                        String url = "http://192.168.56.1:3000/updatePartner";
+
+                        PostRequests asyncTask = new PostRequests(url, jsonString);
+                        asyncTask.execute();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             });
 
@@ -117,5 +163,60 @@ public class ViewRequests extends AppCompatActivity {
         }
     }
 
+    private class PostRequests extends AsyncTask<String, Void, Void> {
 
+        private String jsonData;
+        private String url;
+
+        public PostRequests(String url, String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                }
+
+                connection.disconnect();
+                return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
 }

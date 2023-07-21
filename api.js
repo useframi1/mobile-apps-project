@@ -170,13 +170,17 @@ srv.post("/createGroup", function (req, res) {
     var sql =
         "INSERT INTO GroupMeetings (creator, name, sport, startTime, endTime, gDate) VALUES (?, ?, ?, ?, ?, ?)"; // sql command to insert a record in the database
 
-    // execute the sql command
+    console.log(creator);
+    console.log(
+        "====================================================================="
+    );
+
     connection.query(
         sql,
         [creator, name, sport, startTime, endTime, gDate],
         function (err, result) {
             if (err) {
-                res.send("0");
+                // res.send("0");
                 throw err;
             }
             id = result.insertId;
@@ -188,8 +192,8 @@ srv.post("/createGroup", function (req, res) {
                 }
 
                 console.log("Group meeting record inserted");
-                res.send(result.insertId.toString());
             });
+            res.send(result.insertId.toString());
         }
     );
 });
@@ -292,6 +296,29 @@ srv.get("/getAcceptedMeetings", function (req, res) {
 
     // execute sql command
     connection.query(sql, username, function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        console.log(result);
+        res.send(result);
+    });
+});
+
+// API: get joined groups
+// Method: GET
+srv.get("/getJoinedGroups", function (req, res) {
+    var q = url.parse(req.url, true).query; // parse the url to get the query
+
+    const username = q.username;
+
+    var sql =
+        "SELECT g.ID FROM GroupMeetings g INNER JOIN GroupMembers m ON g.ID = m.ID WHERE m.username = ? AND g.creator != ?";
+
+    // execute sql command
+    connection.query(sql, [username, username], function (err, result) {
         if (err) {
             res.send("0");
             throw err;

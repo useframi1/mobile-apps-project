@@ -31,7 +31,7 @@
             android:screenOrientation="portrait"
         />
         <activity
-            android:name=".EditProfile"
+            android:name=".ViewRequests"
             android:exported="false"
             android:screenOrientation="portrait"
         />
@@ -47,7 +47,7 @@
         />
         <activity
             android:screenOrientation="portrait"
-            android:name=".Start"
+            android:name=".ViewGroup"
             android:exported="true"
             tools:ignore="ExtraText">
 
@@ -58,7 +58,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ViewGroup"
+            android:name=".CreateUser"
             android:exported="true"
             android:screenOrientation="portrait"
             />
@@ -74,7 +74,7 @@
             />
 
         <activity
-            android:name=".CreateUser"
+            android:name=".Start"
             android:exported="true"
             android:screenOrientation="portrait"
             >

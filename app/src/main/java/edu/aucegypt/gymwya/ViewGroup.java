@@ -24,6 +24,16 @@ import org.json.JSONException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -65,7 +75,6 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
         getGroupMembersTask.execute("http://192.168.1.182:3000/");
-
 
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
@@ -111,8 +120,31 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         cancelButton.setOnClickListener(view -> dialog.dismiss());
 
         confirmButton.setOnClickListener(view -> {
-            Intent intent = new Intent(this, HomePage.class);
+
+            JSONObject members = new JSONObject();
+
+            ArrayList<String> groupMembers = new ArrayList<>();
+            groupMembers.add("feweeee");
+            JSONArray groupMembersJSON = new JSONArray(groupMembers);
+
+            try {
+
+                members.put("ID", 38);
+                members.put("groupMembers", groupMembersJSON);
+
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            String jsonString = members.toString();
+
+            String url = "http://192.168.56.1:3000/addGroupMembers";
+
+            PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
+            postAddMembers.execute();
+
+            Intent intent = new Intent(ViewGroup.this, HomePage.class);
             startActivity(intent);
+
         });
         dialog.setCancelable(false);
         dialog.show();
@@ -151,22 +183,23 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             String url = strings[0];
 
             try {
-                HttpURLConnection connection = getHttpRequest(url+"getGroupMembers/?ID=" + group.ID);
+                HttpURLConnection connection = getHttpRequest(url + "getGroupMembers/?ID=" + group.ID);
                 if (connection != null) {
                     String response = getResponse(connection);
                     JSONArray json = new JSONArray(response);
-//                    if (Objects.equals(group.creator.username, dataModel.currentUser.username))
-//                        group.members.add(dataModel.currentUser);
+                    // if (Objects.equals(group.creator.username, dataModel.currentUser.username))
+                    // group.members.add(dataModel.currentUser);
                     for (int i = 0; i < json.length(); i++) {
                         String username = json.getJSONObject(i).getString("username");
                         int j = 0;
-                        while (j < dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username, username)) {
+                        while (j < dataModel.users.size()
+                                && !Objects.equals(dataModel.users.get(j).username, username)) {
                             j++;
                         }
-                        if (j<dataModel.users.size())
+                        if (j < dataModel.users.size())
                             group.members.add(dataModel.users.get(j));
                         if (username.equals(dataModel.currentUser.username)) {
-                            group.members.add(0,dataModel.currentUser);
+                            group.members.add(0, dataModel.currentUser);
                             group.currentUserJoined = true;
                         }
                     }
@@ -183,13 +216,13 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
                 joinGroup.setVisibility(View.GONE);
             }
             TextView capacity = findViewById(R.id.capacity);
-            capacity.setText(group.members.size()+"/10");
+            capacity.setText(group.members.size() + "/10");
             adapter = new ViewGroupAdapter(ViewGroup.this, group.members, group);
             listView = findViewById(R.id.members_list);
             listView.setAdapter(adapter);
 
             listView.setOnItemClickListener((parent, view, position, id) -> {
-                if (!dataModel.currentUser.username.equals(group.members.get(position).username)){
+                if (!dataModel.currentUser.username.equals(group.members.get(position).username)) {
                     Intent intent = new Intent(ViewGroup.this, VisitProfile.class);
                     intent.putExtra("User", group.members.get(position));
                     startActivity(intent);
@@ -197,6 +230,67 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             });
         }
     }
+
+    class PostAddMembers extends AsyncTask<String, Void, String> {
+
+        private String jsonData;
+        private String url;
+
+        public PostAddMembers(String url, String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String result = "";
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("heere");
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+
+                } else {
+                    result = "Error: " + responseCode;
+                }
+                connection.disconnect();
+                return null;
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // Intent intent = new Intent(ViewGroup.this, HomePage.class);
+            // startActivity(intent);
+        }
+    }
+
 }
 
 class ViewGroupAdapter extends ArrayAdapter<User> {
@@ -204,6 +298,7 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
     Data dataModel = dataManager.getDataModel();
     ArrayList<User> members;
     GroupMeeting group;
+
     public ViewGroupAdapter(Context context, ArrayList<User> members, GroupMeeting group) {
         super(context, 0, members);
         this.members = members;
@@ -232,12 +327,9 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
         if (!group.creator.username.equals(dataModel.currentUser.username))
             kick.setVisibility(View.GONE);
 
-
-        memberName.setText(member.username.equals(dataModel.currentUser.username)?"You":member.name);
-//        memberPic.setImageResource(member.imageId);
-
+        memberName.setText(member.username.equals(dataModel.currentUser.username) ? "You" : member.name);
+        // memberPic.setImageResource(member.imageId);
 
         return convertView;
     }
 }
-
