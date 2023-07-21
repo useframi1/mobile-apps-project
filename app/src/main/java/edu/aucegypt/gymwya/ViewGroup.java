@@ -2,6 +2,7 @@ package edu.aucegypt.gymwya;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class ViewGroup extends AppCompatActivity implements View.OnClickListener {
@@ -45,12 +60,13 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             return true;
         });
 
-        Bundle bundle = getIntent().getExtras();
-        String name = "Group Name";
-        if (bundle != null) {
-            name = bundle.getString("Team");
-            members = (ArrayList<User>) bundle.getSerializable("Members");
-        }
+//        Bundle bundle = getIntent().getExtras();
+//        String name = "Group Name";
+//        if (bundle != null) {
+//            name = bundle.getString("Team");
+//            members = (ArrayList<User>) bundle.getSerializable("Members");
+//        }
+        members.add(new User("Nour", "email", "bio", 19, "password"));
 
         adapter = new ViewGroupAdapter(this, members);
 
@@ -59,7 +75,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         back = findViewById(R.id.back);
         joinGroup = findViewById(R.id.join_group);
 
-        groupName.setText(name);
+        groupName.setText("barbie");
 
         back.setOnClickListener(this);
         joinGroup.setOnClickListener(this);
@@ -97,12 +113,97 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         cancelButton.setOnClickListener(view -> dialog.dismiss());
 
         confirmButton.setOnClickListener(view -> {
-            Intent intent = new Intent(this, HomePage.class);
+
+            JSONObject members = new JSONObject();
+
+            ArrayList<String> groupMembers = new ArrayList<>();
+            groupMembers.add("feweeee");
+            JSONArray groupMembersJSON = new JSONArray(groupMembers);
+
+            try {
+
+                members.put("ID", 38);
+                members.put("groupMembers", groupMembersJSON);
+
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            String jsonString = members.toString();
+
+            String url = "http://192.168.56.1:3000/addGroupMembers";
+
+
+            PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
+            postAddMembers.execute();
+
+            Intent intent = new Intent(ViewGroup.this, HomePage.class);
             startActivity(intent);
+
         });
         dialog.setCancelable(false);
         dialog.show();
     }
+
+    class PostAddMembers extends AsyncTask<String, Void, String> {
+
+        private String jsonData;
+        private String url;
+
+        public PostAddMembers(String url, String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String result = "";
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("heere");
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+
+                } else {
+                    result = "Error: " + responseCode;
+                }
+                connection.disconnect();
+                return null;
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+//            Intent intent = new Intent(ViewGroup.this, HomePage.class);
+//            startActivity(intent);
+        }
+    }
+
 }
 
 class ViewGroupAdapter extends ArrayAdapter<User> {
