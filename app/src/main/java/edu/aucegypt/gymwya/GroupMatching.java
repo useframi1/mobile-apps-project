@@ -26,7 +26,7 @@ public class GroupMatching extends AppCompatActivity{
     ImageView backArrow;
     Button addGroup;
     SearchView searchView;
-    TextView noResults;
+    TextView noResults, sport;
     private DataManager dataManager;
     private Data dataModel;
     String selectedSport = "";
@@ -42,7 +42,8 @@ public class GroupMatching extends AppCompatActivity{
         dataModel.previousIsHome = false;
 
         Bundle bundle = getIntent().getExtras();
-        selectedSport = bundle.getString("selectedSport");
+        if (bundle!=null)
+            selectedSport = bundle.getString("selectedSport");
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -71,10 +72,13 @@ public class GroupMatching extends AppCompatActivity{
         listView.setOnItemClickListener((adapterView, view, position, l) -> {
             Intent intent = new Intent(GroupMatching.this, edu.aucegypt.gymwya.ViewGroup.class);
             intent.putExtra("Group", groups.get(position));
+            intent.putExtra("isInProfile", false);
             startActivity(intent);
         });
 
         backArrow = (ImageView) findViewById(R.id.back_arrow2);
+        sport = findViewById(R.id.sport);
+        sport.setText("Join a " + selectedSport + " Group");
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,6 +90,7 @@ public class GroupMatching extends AppCompatActivity{
         addGroup = findViewById(R.id.plus_button);
         addGroup.setOnClickListener(view -> {
             Intent intent = new Intent(GroupMatching.this, CreateGroup.class);
+            intent.putExtra("selectedSport", selectedSport);
             startActivity(intent);
         });
 

@@ -1,6 +1,7 @@
 package edu.aucegypt.gymwya;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -36,14 +37,16 @@ import java.util.ArrayList;
 public class EditProfile extends AppCompatActivity {
     String urlSport;
     String jsonString2;
-
     ArrayList<Sport.SportIcon> sport_icons = new ArrayList<>();
     Button cancel,save;
     EditText name,username,bio;
-
     ImageView back;
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
+    String editUserName;
+    ArrayList<String> sportsSelectedNames;
+    String editBio;
+    String editName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,10 @@ public class EditProfile extends AppCompatActivity {
         username = findViewById(R.id.edit_username);
         bio = findViewById(R.id.edit_bio);
 
+        name.setText(dataModel.currentUser.name);
+        username.setText(dataModel.currentUser.username);
+        bio.setText(dataModel.currentUser.bio);
+
         sport_icons.add(new Sport.SportIcon(R.drawable.football_icon));
         sport_icons.add(new Sport.SportIcon(R.drawable.volleyball_icon));
         sport_icons.add(new Sport.SportIcon(R.drawable.tennis_icon));
@@ -92,9 +99,9 @@ public class EditProfile extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String editName = name.getText().toString();
-                String editUserName = username.getText().toString();;
-                String editBio = bio.getText().toString();
+                editName = name.getText().toString();
+                editUserName = username.getText().toString();;
+                editBio = bio.getText().toString();
 
                 try {
                     // Create a JSON object with the user-entered data
@@ -111,7 +118,7 @@ public class EditProfile extends AppCompatActivity {
 
                     ArrayList<Integer> sportsIconsSelected = (ArrayList<Integer>) iconAdapter.getPressedIconIds();
 
-                    ArrayList<String> sportsSelectedNames = (ArrayList<String>) iconAdapter.getSelectedSportNames(sportsIconsSelected);
+                    sportsSelectedNames = (ArrayList<String>) iconAdapter.getSelectedSportNames(sportsIconsSelected);
 
                     JSONArray sportsArrayJSON = new JSONArray(sportsSelectedNames);
 
@@ -126,14 +133,11 @@ public class EditProfile extends AppCompatActivity {
 
 
                     PostEditUser asyncTask = new PostEditUser(url, jsonString);
-                    asyncTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                    asyncTask.execute();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                Intent intent = new Intent(EditProfile.this, Profile.class);
-                startActivity(intent);
             }
         });
         back.setOnClickListener(v -> {
@@ -146,6 +150,76 @@ public class EditProfile extends AppCompatActivity {
         private String jsonData;
         private String url;
         public PostEditUser(String url,String jsonData) {
+            this.jsonData = jsonData;
+            this.url = url;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            // String urlString = params[0];
+            String result = "";
+            HttpURLConnection connection;
+            try {
+                URL url = new URL(this.url);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(jsonData);
+                writer.flush();
+                writer.close();
+                out.close();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                    result = response.toString();
+                } else {
+                    result = "Error: " + responseCode;
+                }
+                return null;
+            } catch (ProtocolException e) {
+                throw new RuntimeException(e);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override
+        protected void onPostExecute(Void result) {
+            SharedPreferences credentials = getSharedPreferences("Credentials", 0);
+            SharedPreferences.Editor editor = credentials.edit();
+            editor.putString("username", editUserName);
+            editor.commit();
+            dataModel.currentUser.username = editUserName;
+            dataModel.currentUser.bio = editBio;
+            dataModel.currentUser.name = editName;
+            PostPreferredSports asyncTask2 = new PostPreferredSports(urlSport, jsonString2);
+            asyncTask2.execute();
+        }
+    }
+
+    private class PostPreferredSports extends AsyncTask<String, Void, Void> {
+
+        private String jsonData;
+        private String url;
+        public PostPreferredSports(String url,String jsonData) {
             this.jsonData = jsonData;
             this.url = url;
         }
@@ -200,8 +274,9 @@ public class EditProfile extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(Void result) {
-            PostEditUser asyncTask2 = new PostEditUser(urlSport, jsonString2);
-            asyncTask2.execute();
+            dataModel.currentUser.preferredSports = sportsSelectedNames;
+            Intent intent = new Intent(EditProfile.this, Profile.class);
+            startActivity(intent);
         }
     }
 }

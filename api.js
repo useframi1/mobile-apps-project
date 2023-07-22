@@ -104,6 +104,19 @@ srv.get("/getRequests", function (req, res) {
     });
 });
 
+srv.post("/addRequest", function (req, res) {
+    const { ID, username } = req.body;
+
+    var sql = "INSERT INTO Requests (ID, username) VALUES (?,?)";
+    connection.query(sql, [ID, username], function (err) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+        console.log("Meeting request inserted");
+    });
+    res.send("1");
+});
 // API: get individual meetings
 // Method: GET
 srv.get("/getMeetings", function (req, res) {
@@ -111,9 +124,10 @@ srv.get("/getMeetings", function (req, res) {
 
     const username = q.username;
 
-    var sql = "SELECT * FROM Meetings WHERE creator != ? AND partner IS NULL";
+    var sql =
+        "SELECT m.* FROM Meetings m INNER JOIN Requests r ON m.ID = r.ID WHERE m.creator <> ? AND m.partner IS NULL AND NOT EXISTS (SELECT 1 FROM Requests r2 WHERE r2.ID = m.ID AND r2.username = ?);";
     // execute sql command
-    connection.query(sql, username, function (err, result) {
+    connection.query(sql, [username, username], function (err, result) {
         if (err) {
             res.send("0");
             throw err;
@@ -184,14 +198,13 @@ srv.post("/createGroup", function (req, res) {
                 throw err;
             }
             id = result.insertId;
+
             var sql = "INSERT INTO GroupMembers (ID, username) VALUES (?,?)";
-            connection.query(sql, [id, creator], function (err) {
+            connection.query(sql, [id, creator], function (err, result) {
                 if (err) {
-                    res.send("0");
+                    // res.send("0");
                     throw err;
                 }
-
-                console.log("Group meeting record inserted");
             });
             res.send(result.insertId.toString());
         }
@@ -230,14 +243,14 @@ srv.post("/createMeeting", function (req, res) {
     connection.query(
         sql,
         [creator, sport, startTime, endTime, mDate],
-        function (err) {
+        function (err, result) {
             if (err) {
                 res.send("0");
                 throw err;
             }
 
             console.log("Group meeting record inserted");
-            res.send("1");
+            res.send(result.insertId.toString());
         }
     );
 });
@@ -370,7 +383,6 @@ srv.post("/updateUser", function (req, res) {
             }
 
             console.log("Request recieved");
-            res.send(result);
         }
     );
 
@@ -383,6 +395,8 @@ srv.post("/updateUser", function (req, res) {
 
         console.log("Preferred sports deleted");
     });
+
+    res.send("1");
 });
 
 // API: add preferred sports
@@ -546,6 +560,21 @@ srv.post("/leaveGroup", function (req, res) {
         console.log("Request recieved");
         res.send(result);
     });
+});
+
+srv.post("/requestStatus", function (req, res) {
+    const { IDs } = req.body;
+
+    var sql = "UPDATE Requests SET seen = 1 WHERE ID = ?";
+    for (let i = 0; i < IDs.length; i++) {
+        connection.query(sql, IDs[i], function (err) {
+            if (err) {
+                res.send("0");
+                throw err;
+            }
+            console.log("Request recieved");
+        });
+    }
 });
 
 // make server listen for connections at port 3000

@@ -52,8 +52,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class CreateUser extends AppCompatActivity  implements API.OnStart{
-    private GridViewAdapter gridAdapter;
+public class CreateUser extends AppCompatActivity  implements PeriodicAsyncTask.API.OnStart{
+    PeriodicAsyncTask api;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final int REQUEST_PICK_IMAGE = 1;
     private StorageReference storageReference;
@@ -166,6 +166,14 @@ public class CreateUser extends AppCompatActivity  implements API.OnStart{
         startActivity(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Stop the PeriodicService when the activity is destroyed
+        stopService(new Intent(this, PeriodicAsyncTask.class));
+    }
+
     private class CreateUserTask extends AsyncTask<String, Void, String> {
 
         @Override
@@ -246,8 +254,7 @@ public class CreateUser extends AppCompatActivity  implements API.OnStart{
                 editor.putString("username", userName);
                 editor.commit();
                 dataModel.currentUser.username = userName;
-                API api = new API(CreateUser.this);
-                api.execute("http://192.168.1.182:3000/");
+                startService(new Intent(CreateUser.this, PeriodicAsyncTask.class));
                 try {
                     uploadImage(selectedImage);
                 } catch (IOException e) {

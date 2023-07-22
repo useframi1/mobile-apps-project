@@ -18,7 +18,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SignIn extends AppCompatActivity implements API.OnStart{
+public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart{
+    PeriodicAsyncTask api;
     Button signIn;
     EditText email, password;
     ImageView back;
@@ -64,8 +65,7 @@ public class SignIn extends AppCompatActivity implements API.OnStart{
                                     editor.commit();
                                     dataModel.currentUser.email = userEmail;
                                     dataModel.currentUser.password = userPassword;
-                                    API api = new API(true, credentials, SignIn.this);
-                                    api.execute("http://192.168.1.182:3000/");
+                                    startService(new Intent(SignIn.this, PeriodicAsyncTask.class));
                                     //toast
                                     Toast.makeText(getApplicationContext(), "Signed in successfully", Toast.LENGTH_SHORT).show();
                                     // Sign-in successful, proceed to the HomePage activity
@@ -89,5 +89,13 @@ public class SignIn extends AppCompatActivity implements API.OnStart{
     public void onTaskComplete() {
         Intent intent = new Intent(SignIn.this, HomePage.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Stop the PeriodicService when the activity is destroyed
+        stopService(new Intent(this, PeriodicAsyncTask.class));
     }
 }

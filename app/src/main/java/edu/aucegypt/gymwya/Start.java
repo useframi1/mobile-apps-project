@@ -1,25 +1,42 @@
 package edu.aucegypt.gymwya;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.ResultReceiver;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class Start extends AppCompatActivity implements API.OnStart{
+public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart{
     Button signUp, signIn;
 
+    private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Handle the broadcast when the task is complete
+            onTaskComplete();
+        }
+    };
+
     @Override
-protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DataManager dataManager = DataManager.getInstance();
         Data dataModel = dataManager.getDataModel();
+
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
 //        SharedPreferences.Editor editor = credentials.edit();
@@ -32,8 +49,12 @@ protected void onCreate(Bundle savedInstanceState) {
         if (credentials.contains("email") && credentials.contains("password") && credentials.contains("username")) {
             dataModel.currentUser.username = credentials.getString("username", "");
             dataModel.currentUser.email = credentials.getString("email", "");
-            API api = new API(Start.this);
-            api.execute("http://192.168.1.182:3000/");
+            IntentFilter filter = new IntentFilter("PERIODIC_TASK_COMPLETE");
+            registerReceiver(taskCompleteReceiver, filter);
+            Intent serviceIntent = new Intent(this, PeriodicAsyncTask.class);
+            serviceIntent.putExtra("isSignIn", false);
+            startService(serviceIntent);
+
         } else {
             setContentView(R.layout.start);
             signUp = (Button) findViewById(R.id.signUp);
@@ -55,6 +76,12 @@ protected void onCreate(Bundle savedInstanceState) {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(taskCompleteReceiver);
     }
 
     @Override

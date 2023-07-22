@@ -68,8 +68,8 @@ public class ViewCreatedGroups extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                finish();
+                Intent i = new Intent(ViewCreatedGroups.this, Profile.class);
+                startActivity(i);
             }
         });
 
@@ -77,6 +77,7 @@ public class ViewCreatedGroups extends AppCompatActivity {
         listView.setOnItemClickListener((adapterView, view, position, l) -> {
             Intent intent = new Intent(this, edu.aucegypt.gymwya.ViewGroup.class);
             intent.putExtra("Group", allGroups.get(position));
+            intent.putExtra("isInProfile", true);
             startActivity(intent);
         });
     }
@@ -195,13 +196,15 @@ public class ViewCreatedGroups extends AppCompatActivity {
                 while (i < dataModel.currentUser.createdGroups.size() && group.ID != dataModel.currentUser.createdGroups.get(i).ID){
                     i++;
                 }
-                dataModel.currentUser.createdGroups.remove(i);
+                if (i<dataModel.currentUser.createdGroups.size())
+                    dataModel.currentUser.createdGroups.remove(i);
             }
             else if (Objects.equals(api, "leaveGroup")) {
                 while (i < dataModel.currentUser.joinedGroups.size() && group.ID != dataModel.currentUser.joinedGroups.get(i).ID){
                     i++;
                 }
-                dataModel.currentUser.joinedGroups.remove(i);
+                if (i<dataModel.currentUser.joinedGroups.size())
+                    dataModel.currentUser.joinedGroups.remove(i);
             }
             allGroups.remove(group);
             adapter = new ViewGroupsCreatedAdapter(ViewCreatedGroups.this, allGroups);

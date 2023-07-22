@@ -143,7 +143,7 @@ public class CreateMeeting extends AppCompatActivity
             } else {
                 i = new Intent(this, IndividualMatching.class);
             }
-            // startActivity(i);
+            startActivity(i);
         }
         if (v == addMeeting) {
             if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
@@ -166,12 +166,15 @@ public class CreateMeeting extends AppCompatActivity
     public boolean hasCollidingMeeting() {
         final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
         try {
+            String temp = date.substring(0,date.length()-1) + (date.charAt(date.length()-1)-49);
             Date startTime = TIME_FORMAT.parse(fromTime);
             Date endTime = TIME_FORMAT.parse(toTime);
 
             for (int i = 0; i < dataModel.individualMeetings.size(); i++) {
+                System.out.println(dataModel.individualMeetings.get(i).sport.toLowerCase() + " " + sportName.toLowerCase());
+                System.out.println(dataModel.individualMeetings.get(i).date + " " + date);
                 if (dataModel.individualMeetings.get(i).sport.equalsIgnoreCase(sportName)
-                        && Objects.equals(dataModel.individualMeetings.get(i).date, date)) {
+                        && Objects.equals(dataModel.individualMeetings.get(i).date.substring(0,10), temp)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.individualMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.individualMeetings.get(i).end);
 
@@ -187,7 +190,7 @@ public class CreateMeeting extends AppCompatActivity
 
             for (int i = 0; i < dataModel.currentUser.createdMeetings.size(); i++) {
                 if (dataModel.currentUser.createdMeetings.get(i).sport.equalsIgnoreCase(sportName)
-                        && Objects.equals(dataModel.currentUser.createdMeetings.get(i).date, date)) {
+                        && Objects.equals(dataModel.currentUser.createdMeetings.get(i).date.substring(0,10), temp)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdMeetings.get(i).end);
 
@@ -243,7 +246,7 @@ public class CreateMeeting extends AppCompatActivity
                                 dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
                         // format the date to be in the format YYYY-MM-DD
                         date = year + "-" + ((monthOfYear < 10) ? "0" : "") + (monthOfYear + 1) + "-"
-                                + ((dayOfMonth < 10) ? "0" : "") + dayOfMonth;
+                                + ((dayOfMonth < 10) ? "0" : "") + (dayOfMonth);
                     }
 
                 }, mYear, mMonth, mDay);
@@ -262,9 +265,9 @@ public class CreateMeeting extends AppCompatActivity
                             + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
                         // add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        fromTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        fromTime = (hourOfDay<10? "0":"") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     } else {
-                        toTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        toTime = (hourOfDay<10? "0":"") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     }
                 }, mHour, mMinute, false);
         timePickerDialog.show();
@@ -304,9 +307,9 @@ public class CreateMeeting extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String result) {
-            if (result != null && result.equals("1")) {
+            if (result != null) {
                 Toast.makeText(getApplicationContext(), "meeting created successfully", Toast.LENGTH_SHORT).show();
-
+                dataModel.currentUser.createdMeetings.add(new IndividualMeeting(Integer.parseInt(result), sportName, fromTime, toTime, date,dataModel.currentUser, null));
                 Intent intent = new Intent(CreateMeeting.this, HomePage.class);
                 startActivity(intent);
             } else {

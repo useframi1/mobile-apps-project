@@ -85,26 +85,16 @@ public class API extends AsyncTask<String, Void, String> {
                 }
             }
 
-            HttpURLConnection connection_getAllUsers = getHttpRequest(
-                    url + "getAllUsers/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_getRequests = getHttpRequest(
-                    url + "getRequests/?creator=" + dataModel.currentUser.username);
-            HttpURLConnection connection_getUser = getHttpRequest(
-                    url + "getUser/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_getMeetings = getHttpRequest(
-                    url + "getMeetings/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_getGroups = getHttpRequest(
-                    url + "getGroups/?creator=" + dataModel.currentUser.username);
-            HttpURLConnection connection_createdMeetings = getHttpRequest(
-                    url + "getCreatedMeetings/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_createdGroups = getHttpRequest(
-                    url + "getCreatedGroups/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_acceptedMeetings = getHttpRequest(
-                    url + "getAcceptedMeetings/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_getPreferredSports = getHttpRequest(
-                    url + "getPreferredSports/?username=" + dataModel.currentUser.username);
-            HttpURLConnection connection_getJoinedGroups = getHttpRequest(
-                    url + "getJoinedGroups/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getAllUsers = getHttpRequest(url + "getAllUsers/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getRequests = getHttpRequest(url + "getRequests/?creator=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getUser = getHttpRequest(url + "getUser/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getMeetings = getHttpRequest(url + "getMeetings/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getGroups = getHttpRequest(url + "getGroups/?creator=" + dataModel.currentUser.username);
+            HttpURLConnection connection_createdMeetings = getHttpRequest(url + "getCreatedMeetings/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_createdGroups = getHttpRequest(url + "getCreatedGroups/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_acceptedMeetings = getHttpRequest(url + "getAcceptedMeetings/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getPreferredSports = getHttpRequest(url + "getPreferredSports/?username=" + dataModel.currentUser.username);
+            HttpURLConnection connection_getJoinedGroups = getHttpRequest(url + "getJoinedGroups/?username=" + dataModel.currentUser.username);
 
             if (connection_getUser != null) {
                 String response = getResponse(connection_getUser);

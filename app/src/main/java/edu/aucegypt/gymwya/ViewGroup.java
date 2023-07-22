@@ -48,6 +48,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     GroupMeeting group = new GroupMeeting();
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
+    boolean isInProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +72,10 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             group = (GroupMeeting) bundle.getSerializable("Group");
+            isInProfile = bundle.getBoolean("isInProfile");
         }
 
+        System.out.println(group.sport);
         GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
         getGroupMembersTask.execute("http://192.168.1.182:3000/");
 
@@ -93,7 +96,10 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == back) {
-            Intent i = new Intent(this, GroupMatching.class);
+            Intent i;
+            if (!isInProfile)
+                i = new Intent(this, GroupMatching.class);
+            else i = new Intent(this, ViewCreatedGroups.class);
             i.putExtra("selectedSport", group.sport);
             startActivity(i);
         } else if (v == joinGroup) {

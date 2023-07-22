@@ -180,8 +180,17 @@ public class HomePage extends AppCompatActivity {
             viewRequestsCount.setVisibility(View.GONE);
 
             JSONObject jsonData = new JSONObject();
+            ArrayList<Integer> IDs = new ArrayList<>();
+            for (int i = 0; i < dataModel.currentUser.requests.size(); i++) {
+                IDs.add(dataModel.currentUser.requests.get(i).ID);
+            }
+            JSONArray jsonArray = new JSONArray(IDs);
+            try {
+                jsonData.put("IDs", jsonArray);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
             String jsonString = jsonData.toString();
-
             PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.1.182:3000/requestStatus",
                     jsonString);
             postRequestsStatus.execute();
@@ -218,67 +227,6 @@ public class HomePage extends AppCompatActivity {
         sportList.add(new Sport("Tennis", true, new Sport.SportIcon(R.drawable.tennis_icon)));
         sportList.add(new Sport("Squash", true, new Sport.SportIcon(R.drawable.squash_icon)));
         return sportList;
-    }
-
-    private class GetUserTask extends AsyncTask<String, Void, String> {
-
-        private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        private OkHttpClient client = new OkHttpClient();
-
-        @Override
-        protected String doInBackground(String... params) {
-            String email = params[0];
-            OkHttpClient client = new OkHttpClient(); // Initialize the OkHttpClient
-
-            try {
-                // Create an HTTP request
-                Request request = new Request.Builder()
-                        .url("http://192.168.1.182:3000/getUsername?email=" + email) // Replace with your actual URL
-                        .get()
-                        .build();
-
-                // Send the request and get the response
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    return response.body().string();
-                } else {
-                    return null;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                try {
-                    JSONArray jsonArray = new JSONArray(result);
-
-                    // Iterate through the JSON array
-                    StringBuilder usernameBuilder = new StringBuilder();
-                    JSONObject jsonObject = jsonArray.getJSONObject(1);
-                    String username = jsonObject.getString("username");
-
-                    // Display the usernames in a Toast message
-                    Toast.makeText(getApplicationContext(), "Usernames: " + username, Toast.LENGTH_SHORT).show();
-
-                    // Set the usernames to the TextView
-                    String finalUsernames = username;
-                    name.post(() -> name.setText(finalUsernames));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    // Failed to parse JSON response
-                    Toast.makeText(getApplicationContext(), "Failed to parse JSON response", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                // Failed to retrieve username
-                Toast.makeText(getApplicationContext(), "Failed to retrieve username", Toast.LENGTH_SHORT).show();
-            }
-            // return result;
-        }
-
     }
 
     private class PostRequestsStatus extends AsyncTask<String, Void, Void> {

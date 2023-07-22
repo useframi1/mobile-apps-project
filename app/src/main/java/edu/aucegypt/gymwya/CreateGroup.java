@@ -56,7 +56,6 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     DataManager dataManager = DataManager.getInstance();
     String apiResponse;
     Data dataModel = dataManager.getDataModel();
-    private String selectedSport;
     Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, btnCreateGroup;
     ImageView back;
     EditText groupName;
@@ -68,7 +67,6 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     SpinnerAdapter adapter;
     Spinner spinner;
     String creator;
-    String name;
     String date = "";
     String fromTime = "";
     String toTime = "";
@@ -78,6 +76,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     ArrayList<String> sports = new ArrayList<>();
+    String selectedSport = "";
+    String groupNameString = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +86,10 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
         dataManager = DataManager.getInstance();
         dataModel = dataManager.getDataModel();
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null)
+            selectedSport = bundle.getString("selectedSport");
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -131,8 +135,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnTimePickerFrom.setOnClickListener(this);
         btnTimePickerTo.setOnClickListener(this);
         btnCreateGroup.setOnClickListener(v -> {
-            String groupNameString = groupName.getText().toString();
-            String sport = selectedSport;
+        groupNameString = groupName.getText().toString();
+        String sport = selectedSport;
 
             try {
                 if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
@@ -149,10 +153,10 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
                         postData.put("creator", dataModel.currentUser.username);
                         postData.put("name", groupNameString);
-                        postData.put("sport", sport);
-                        postData.put("startTime", btnTimePickerFrom.getText().toString());
-                        postData.put("endTime", btnTimePickerTo.getText().toString());
-                        postData.put("gDate", btnDatePicker.getText().toString());
+                        postData.put("sport", sportName);
+                        postData.put("startTime",fromTime);
+                        postData.put("endTime", toTime);
+                        postData.put("gDate", date);
 
                         String jsonString = postData.toString();
 
@@ -215,8 +219,10 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             Intent i;
             if (dataModel.previousIsHome)
                 i = new Intent(this, HomePage.class);
-            else
+            else {
                 i = new Intent(this, GroupMatching.class);
+                i.putExtra("selectedSport", selectedSport);
+            }
             startActivity(i);
         }
     }
@@ -224,12 +230,13 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     public boolean hasCollidingMeeting() {
         final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
         try {
+            String temp = date.substring(0,date.length()-1) + (date.charAt(date.length()-1)-49);
             Date startTime = TIME_FORMAT.parse(fromTime);
             Date endTime = TIME_FORMAT.parse(toTime);
 
             for (int i = 0; i < dataModel.groupMeetings.size(); i++) {
                 if (dataModel.groupMeetings.get(i).sport.equalsIgnoreCase(sportName)
-                        && Objects.equals(dataModel.groupMeetings.get(i).date, date)) {
+                        && Objects.equals(dataModel.groupMeetings.get(i).date.substring(0,10), temp)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).end);
 
@@ -244,8 +251,9 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             }
 
             for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
+                    System.out.println("yes");
                 if (dataModel.currentUser.createdGroups.get(i).sport.equalsIgnoreCase(sportName)
-                        && Objects.equals(dataModel.currentUser.createdGroups.get(i).date, date)) {
+                        && Objects.equals(dataModel.currentUser.createdGroups.get(i).date.substring(0,10), temp)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).end);
 
@@ -270,10 +278,13 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
             String dateTimeStr = date + " " + fromTime;
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, DATE_TIME_FORMATTER);
             LocalDateTime currentDateTime = LocalDateTime.now();
-
+            System.out.println(dateTime);
+            System.out.println(currentDateTime);
+            System.out.println(dateTime.isBefore(currentDateTime));
             if (dateTime.isBefore(currentDateTime))
                 return true;
         }
@@ -306,7 +317,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                                 dayOfMonth + "-" + new DateFormatSymbols().getMonths()[monthOfYear].toString());
                         // format the date to be in the format YYYY-MM-DD
                         date = year + "-" + ((monthOfYear < 10) ? "0" : "") + (monthOfYear + 1) + "-"
-                                + ((dayOfMonth < 10) ? "0" : "") + dayOfMonth;
+                                + ((dayOfMonth < 10) ? "0" : "") + (dayOfMonth);
                     }
 
                 }, mYear, mMonth, mDay);
@@ -325,9 +336,9 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                             + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
                         // add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        fromTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        fromTime = (hourOfDay<10? "0":"") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     } else {
-                        toTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        toTime = (hourOfDay<10? "0":"") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     }
                 }, mHour, mMinute, false);
         timePickerDialog.show();
@@ -338,18 +349,16 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         PostAddMembers postAddMembers = new PostAddMembers("http://192.168.1.182:3000/addGroupMembers", jsonData);
         postAddMembers.execute();
     }
-
-
 }
 
 class PostCreateGroup extends AsyncTask<String, Void, String> {
-
     private String jsonData;
     private String url;
     MyCallback myCallback;
+    DataManager dataManager = DataManager.getInstance();
+    Data dataModel = dataManager.getDataModel();
 
     public PostCreateGroup(String url, String jsonData, MyCallback myCallback) {
-        System.out.println("here");
         this.jsonData = jsonData;
         this.url = url;
         this.myCallback = myCallback;
@@ -411,24 +420,33 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData);
+            dataModel.currentUser.createdGroups.add(new GroupMeeting(Integer.parseInt(result), jsonObject.getString("sport"), jsonObject.getString("startTime"),jsonObject.getString("endTime"), jsonObject.getString("gDate"),dataModel.currentUser, new ArrayList<>(), jsonObject.getString("name")));
+            for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
+                System.out.println(dataModel.currentUser.createdGroups.get(i).ID);
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 
         JSONObject members = new JSONObject();
 
         String groupMembersString = CreateGroup.groupMembersEditText.getText().toString();
         String[] membersArray = groupMembersString.split(",");
+        if (groupMembersString.length() > 0) {
+            ArrayList<String> groupMembersArray = new ArrayList<>(Arrays.asList(membersArray));
+            JSONArray groupMembersJSON = new JSONArray(groupMembersArray);
 
-        ArrayList<String> groupMembersArray = new ArrayList<>(Arrays.asList(membersArray));
-        JSONArray groupMembersJSON = new JSONArray(groupMembersArray);
-
-        try {
-            members.put("ID", result);
-            members.put("groupMembers", groupMembersJSON);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        String jsonString2 = members.toString();
-        if (groupMembersJSON.length() > 0)
+            try {
+                members.put("ID", result);
+                members.put("groupMembers", groupMembersJSON);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            String jsonString2 = members.toString();
             myCallback.onTaskComplete(jsonString2);
+        }
     }
 
     public interface MyCallback {

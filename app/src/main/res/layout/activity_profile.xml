@@ -96,11 +96,20 @@
         android:layout_marginTop="50dp"
         android:layout_gravity="center"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <LinearLayout
         android:layout_width="300dp"
-        android:layout_height="70dp"
-        android:layout_gravity="center" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/view_created_meetings"
