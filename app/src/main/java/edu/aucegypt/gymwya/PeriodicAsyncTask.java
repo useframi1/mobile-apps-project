@@ -280,11 +280,11 @@ public class PeriodicAsyncTask extends Service {
 
         @Override
         protected void onPostExecute(String result) {
-            if (isStarting) {
+
                 isStarting = false;
                 Intent broadcastIntent = new Intent("PERIODIC_TASK_COMPLETE");
                 sendBroadcast(broadcastIntent);
-            }
+
         }
 
         public interface OnStart extends Serializable {
