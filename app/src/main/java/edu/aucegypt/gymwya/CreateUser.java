@@ -253,8 +253,6 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
                 throw new RuntimeException(e);
             }
 
-            Toast.makeText(getApplicationContext(), "you are in post excute", Toast.LENGTH_SHORT).show();
-
             if (result != null && result.equals("1")) {
                 // User created successfully
                 Toast.makeText(getApplicationContext(), "User created successfully", Toast.LENGTH_SHORT).show();
@@ -289,7 +287,6 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
             // set image in imageview pfp
             profilePicture.setImageURI(selectedImage);
             // testing toast
-            Toast.makeText(getApplicationContext(), "Profile Picture Set ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -317,9 +314,6 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
                                     .document(dataModel.currentUser.email) // Use userName as the document ID
                                     .set(user)
                                     .addOnSuccessListener(documentReference -> {
-                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully",
-                                                Toast.LENGTH_SHORT).show();
-
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(getApplicationContext(), "Failed to upload image",

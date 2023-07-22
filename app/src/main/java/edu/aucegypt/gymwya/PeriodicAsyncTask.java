@@ -29,7 +29,7 @@ public class PeriodicAsyncTask extends Service {
     private Handler handler;
     private Runnable periodicTask;
     boolean isStarting = true;
-    private static final long INTERVAL_MILLIS = 5000; // 5 minutes interval
+    private static final long INTERVAL_MILLIS = 60000; // 5 minutes interval
 
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();

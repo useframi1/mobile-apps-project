@@ -83,10 +83,6 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
                                     Intent serviceIntent = new Intent(SignIn.this, PeriodicAsyncTask.class);
                                     serviceIntent.putExtra("isSignIn", true);
                                     startService(serviceIntent);
-                                    // toast
-                                    Toast.makeText(getApplicationContext(), "Signed in successfully",
-                                            Toast.LENGTH_SHORT).show();
-
                                 } else {
                                     // Sign-in failed, display an error message
                                     Toast.makeText(getApplicationContext(),
