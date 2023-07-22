@@ -173,7 +173,7 @@ public class IndividualMatching extends AppCompatActivity {
 
                 String jsonString = postData.toString();
 
-                String url = "http://192.168.1.182:3000/addRequest";
+                String url = "http://192.168.56.1:3000/addRequest";
 
                 PostCreateRequest asyncTask = new PostCreateRequest(url, jsonString);
                 asyncTask.execute();

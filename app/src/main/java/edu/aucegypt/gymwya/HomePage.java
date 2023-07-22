@@ -184,7 +184,7 @@ public class HomePage extends AppCompatActivity {
             JSONObject jsonData = new JSONObject();
             String jsonString = jsonData.toString();
 
-            PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.1.182:3000/requestStatus",
+            PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.56.1:3000/requestStatus",
                     jsonString);
             postRequestsStatus.execute();
 

@@ -2,6 +2,8 @@ package edu.aucegypt.gymwya;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -148,7 +150,6 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnCreateGroup.setOnClickListener(v -> {
             groupNameString = groupName.getText().toString();
             String sport = selectedSport;
-
             try {
                 if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
                         && !Objects.equals(sportName, "")) {
@@ -158,7 +159,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                     } else if (hasCollidingMeeting()) {
                         errorMessage.setText("There is another meeting at that time");
                         errorMessage.setVisibility(View.VISIBLE);
-                    } else {
+                    } else if(mAdapter.getSelectedItem() != null || selectedImage != null){
                         errorMessage.setVisibility(View.INVISIBLE);
                         JSONObject postData = new JSONObject();
 
@@ -170,10 +171,23 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                                 e.printStackTrace();
                             }
                         }
-                        //check if group icon was chosen
 
+                        //retrieve the selected image from the recyclerview
+                        if(mAdapter.getSelectedItem() != null){
+                            Sport.SportIcon imageIcon = mAdapter.getSelectedItem();
+                            int image_id = imageIcon.id;
+                            Toast.makeText(this, "image id: " + image_id, Toast.LENGTH_SHORT).show();
+                            //use the image id to get the image from the drawable folder the id is saved like that R.drawable.football_icon
+                            Context context = this;
+                            // Get the resource ID of the drawable
+                            int resourceId = image_id;
+                            // Convert the resource ID to a Uri
+                            Uri imageUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + image_id);
+                            selectedImage = imageUri;
+                            uploadImage(selectedImage);
+                        }
 
-
+                        //check if group icon was chosen from the recycler view
                         postData.put("creator", dataModel.currentUser.username);
                         postData.put("name", groupNameString);
                         postData.put("sport", sport);
@@ -187,11 +201,17 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                         System.out.println("create group");
                         PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
                         asyncTask.execute();
+                    }else{
+                        //show toast error message
+                        Toast.makeText(this, "Please choose a sport icon", Toast.LENGTH_SHORT).show();
+
                     }
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
         back.setOnClickListener(this);
@@ -362,13 +382,13 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                         tempHour += 12;
                     else if (hourOfDay > 12)
                         tempHour -= 12;
-                    button.setText(tempHour + ":" + ((minute < 10) ? "0" : "") + minute + " "
+                    button.setText(((tempHour < 10) ? "0" : "") + tempHour + ":" + ((minute < 10) ? "0" : "") + minute + " "
                             + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
                         // add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        fromTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        fromTime = ((hourOfDay < 10) ? "0" : "") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     } else {
-                        toTime = hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        toTime = ((hourOfDay < 10) ? "0" : "") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
                     }
                 }, mHour, mMinute, false);
         timePickerDialog.show();
@@ -376,7 +396,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onTaskComplete(String jsonData) {
-        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.1.182:3000/addGroupMembers", jsonData);
+        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.56.1:3000/addGroupMembers", jsonData);
         postAddMembers.execute();
     }
 

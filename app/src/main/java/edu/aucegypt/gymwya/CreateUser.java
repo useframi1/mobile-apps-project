@@ -191,7 +191,7 @@ public class CreateUser extends AppCompatActivity  implements API.OnStart{
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.1.182:3000/createUser")
+                    .url("http://192.168.56.1:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 

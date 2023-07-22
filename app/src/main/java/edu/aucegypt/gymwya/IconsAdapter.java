@@ -25,6 +25,14 @@ class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder> {
         return selectedItems;
     }
 
+    public Sport.SportIcon getSelectedItem() {
+        for (int i = 0; i < iconsList.size(); i++) {
+            if (iconsList.get(i).isPressed)
+                return iconsList.get(i);
+        }
+        return null;
+    }
+
     class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView icon;
         boolean isPressed;
