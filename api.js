@@ -577,6 +577,22 @@ srv.post("/requestStatus", function (req, res) {
     }
 });
 
+srv.post("/kick", function (req, res) {
+    const { ID, username } = req.body;
+
+    var sql = "DELETE FROM GroupMembers WHERE ID = ? AND username = ?";
+
+    connection.query(sql, [ID, username], function (err, result) {
+        if (err) {
+            res.send("0");
+            throw err;
+        }
+
+        console.log("Request recieved");
+        res.send(result);
+    });
+});
+
 // make server listen for connections at port 3000
 srv.listen(3000, function () {
     console.log("Server is listening on port 3000.");

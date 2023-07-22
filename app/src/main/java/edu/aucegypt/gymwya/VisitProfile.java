@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class VisitProfile extends AppCompatActivity {
     Button message;
     ImageView back, pic;
-    TextView name,username,age,bio;
+    TextView name, username, age, bio;
     User user;
 
     @Override
@@ -37,7 +37,6 @@ public class VisitProfile extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         user = (User) bundle.getSerializable("User");
-
 
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
@@ -67,7 +66,7 @@ public class VisitProfile extends AppCompatActivity {
         bio.setText(user.bio);
 
         VisitProfileTask visitProfileTask = new VisitProfileTask();
-        visitProfileTask.execute("http://192.168.56.1:3000/");
+        visitProfileTask.execute("http://192.168.1.182:3000/");
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,13 +76,13 @@ public class VisitProfile extends AppCompatActivity {
             }
         });
 
-//        message.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent i = new Intent(VisitProfile.this, Chat.class);
-//                startActivity(i);
-//            }
-//        });
+        // message.setOnClickListener(new View.OnClickListener() {
+        // @Override
+        // public void onClick(View view) {
+        // Intent i = new Intent(VisitProfile.this, Chat.class);
+        // startActivity(i);
+        // }
+        // });
     }
 
     public class VisitProfileTask extends AsyncTask<String, Void, String> {
@@ -119,7 +118,7 @@ public class VisitProfile extends AppCompatActivity {
             String url = strings[0];
 
             try {
-                HttpURLConnection connection = getHttpRequest(url+"getPreferredSports/?username="+user.username);
+                HttpURLConnection connection = getHttpRequest(url + "getPreferredSports/?username=" + user.username);
                 if (connection != null) {
                     String response = getResponse(connection);
                     JSONArray json = new JSONArray(response);
@@ -136,7 +135,8 @@ public class VisitProfile extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             RecyclerView iconRecyclerView = findViewById(R.id.recyclerView);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(VisitProfile.this, LinearLayoutManager.HORIZONTAL, false);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(VisitProfile.this,
+                    LinearLayoutManager.HORIZONTAL, false);
             iconRecyclerView.setLayoutManager(layoutManager);
 
             // Create and set the adapter

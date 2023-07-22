@@ -121,7 +121,7 @@ public class ViewRequests extends AppCompatActivity {
                         postData.put("ID", dataModel.currentUser.requests.get(position).ID);
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/deleteRequest";
+                        String url = "http://192.168.1.182:3000/deleteRequest";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();
@@ -144,7 +144,7 @@ public class ViewRequests extends AppCompatActivity {
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/updatePartner";
+                        String url = "http://192.168.1.182:3000/updatePartner";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();

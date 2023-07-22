@@ -53,7 +53,6 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     Button joinGroup;
     GroupMeeting group = new GroupMeeting();
 
-
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
     boolean isInProfile;
@@ -85,7 +84,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         System.out.println(group.sport);
         GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
-        getGroupMembersTask.execute("http://192.168.56.1:3000/");
+        getGroupMembersTask.execute("http://192.168.1.182:3000/");
 
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
@@ -100,8 +99,6 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         back.setOnClickListener(this);
         joinGroup.setOnClickListener(this);
 
-
-
     }
 
     @Override
@@ -110,7 +107,8 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             Intent i;
             if (!isInProfile)
                 i = new Intent(this, GroupMatching.class);
-            else i = new Intent(this, ViewCreatedGroups.class);
+            else
+                i = new Intent(this, ViewCreatedGroups.class);
             i.putExtra("selectedSport", group.sport);
             startActivity(i);
         } else if (v == joinGroup) {
@@ -156,7 +154,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             }
             String jsonString = members.toString();
 
-            String url = "http://192.168.56.1:3000/addGroupMembers";
+            String url = "http://192.168.1.182:3000/addGroupMembers";
 
             PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
             postAddMembers.execute();
@@ -309,76 +307,146 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         }
     }
 
-}
+    class KickTask extends AsyncTask<String, Void, String> {
+        User member;
+        JSONObject jsonData;
+        String api;
 
-class ViewGroupAdapter extends ArrayAdapter<User> {
-    DataManager dataManager = DataManager.getInstance();
-    Data dataModel = dataManager.getDataModel();
-    ArrayList<User> members;
-    GroupMeeting group;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageReference = storage.getReference();
-    public ViewGroupAdapter(Context context, ArrayList<User> members, GroupMeeting group) {
-        super(context, 0, members);
-        this.members = members;
-        this.group = group;
+        public KickTask(User member, JSONObject jsonData, String api) {
+            this.member = member;
+            this.jsonData = jsonData;
+            this.api = api;
+        }
+
+        private HttpURLConnection postHttpRequest(String url) throws IOException, JSONException {
+            URL requestUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            OutputStream os = connection.getOutputStream();
+
+            String postData = jsonData.toString();
+
+            os.write(postData.getBytes());
+            os.flush();
+            os.close();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                return connection;
+
+            return null;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String url = strings[0];
+            try {
+                postHttpRequest(url + api);
+
+            } catch (IOException | JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            group.members.remove(member);
+            TextView capacity = findViewById(R.id.capacity);
+            capacity.setText(group.members.size() + "/10");
+            adapter = new ViewGroupAdapter(ViewGroup.this, group.members, group);
+            listView.setAdapter(adapter);
+        }
     }
 
-    @Override
-    public View getView(int position, View convertView, android.view.ViewGroup parent) {
-        User member = getItem(position);
+    class ViewGroupAdapter extends ArrayAdapter<User> {
+        DataManager dataManager = DataManager.getInstance();
+        Data dataModel = dataManager.getDataModel();
+        ArrayList<User> members;
+        GroupMeeting group;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference();
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(
-                    getContext()).inflate(R.layout.group_members_list, parent, false);
+        public ViewGroupAdapter(Context context, ArrayList<User> members, GroupMeeting group) {
+            super(context, 0, members);
+            this.members = members;
+            this.group = group;
         }
 
-        TextView memberName = convertView.findViewById(R.id.name);
-        ImageView memberPic = convertView.findViewById(R.id.profile_picture);
-        Button kick = convertView.findViewById(R.id.kick);
-        ImageView arrow_btn = convertView.findViewById(R.id.arrow_button);
+        @Override
+        public View getView(int position, View convertView, android.view.ViewGroup parent) {
+            User member = getItem(position);
 
-        db.collection("Images")
-                .document(member.username)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("image");
-                        if (imageUrl != null) {
-                            // Image URL retrieved successfully, load the image into ImageView
-                            // You can use any image loading library or method here, for example, Glide or Picasso
-                            // Here's an example using Glide:
-                            Glide.with(this.getContext())
-                                    .load(imageUrl)
-                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
-                                    .into(memberPic);
+            if (convertView == null) {
+                convertView = LayoutInflater.from(
+                        getContext()).inflate(R.layout.group_members_list, parent, false);
+            }
+
+            TextView memberName = convertView.findViewById(R.id.name);
+            ImageView memberPic = convertView.findViewById(R.id.profile_picture);
+            Button kick = convertView.findViewById(R.id.kick);
+            ImageView arrow_btn = convertView.findViewById(R.id.arrow_button);
+
+            db.collection("Images")
+                    .document(member.username)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String imageUrl = documentSnapshot.getString("image");
+                            if (imageUrl != null) {
+                                // Image URL retrieved successfully, load the image into ImageView
+                                // You can use any image loading library or method here, for example, Glide or
+                                // Picasso
+                                // Here's an example using Glide:
+                                Glide.with(this.getContext())
+                                        .load(imageUrl)
+                                        .apply(new RequestOptions()) // Optional: Add a placeholder image
+                                        .into(memberPic);
+                            } else {
+                                // Image URL not found in Firestore
+                                // Handle the case accordingly
+                            }
                         } else {
-                            // Image URL not found in Firestore
+                            // Document not found in Firestore
                             // Handle the case accordingly
                         }
-                    } else {
-                        // Document not found in Firestore
-                        // Handle the case accordingly
+                    })
+                    .addOnFailureListener(e -> {
+                        // Error occurred while retrieving the image URL from Firestore
+                        // Handle the error accordingly
+                    });
+
+            kick.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("ID", group.ID);
+                        jsonObject.put("username", member.username);
+                        ViewGroup.KickTask kickTask = new ViewGroup.KickTask(member, jsonObject, "kick");
+                        kickTask.execute("http://192.168.1.182:3000/");
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
-                })
-                .addOnFailureListener(e -> {
-                    // Error occurred while retrieving the image URL from Firestore
-                    // Handle the error accordingly
-                });
 
+                }
+            });
 
-        if (Objects.equals(member.username, dataModel.currentUser.username)) {
-            kick.setVisibility(View.GONE);
-            arrow_btn.setVisibility(View.INVISIBLE);
+            if (Objects.equals(member.username, dataModel.currentUser.username)) {
+                kick.setVisibility(View.GONE);
+                arrow_btn.setVisibility(View.INVISIBLE);
+            }
+
+            if (!group.creator.username.equals(dataModel.currentUser.username))
+                kick.setVisibility(View.GONE);
+
+            memberName.setText(member.username.equals(dataModel.currentUser.username) ? "You" : member.name);
+            // memberPic.setImageResource(member.imageId);
+
+            return convertView;
         }
-
-        if (!group.creator.username.equals(dataModel.currentUser.username))
-            kick.setVisibility(View.GONE);
-
-        memberName.setText(member.username.equals(dataModel.currentUser.username) ? "You" : member.name);
-        // memberPic.setImageResource(member.imageId);
-
-        return convertView;
     }
 }

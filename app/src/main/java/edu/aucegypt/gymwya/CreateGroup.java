@@ -182,7 +182,6 @@ public class CreateGroup extends AppCompatActivity
                         if (mAdapter.getSelectedItem() != null) {
                             Sport.SportIcon imageIcon = mAdapter.getSelectedItem();
                             int image_id = imageIcon.id;
-                            Toast.makeText(this, "image id: " + image_id, Toast.LENGTH_SHORT).show();
                             // use the image id to get the image from the drawable folder the id is saved
                             // like that R.drawable.football_icon
                             Context context = this;
@@ -204,9 +203,9 @@ public class CreateGroup extends AppCompatActivity
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/createGroup";
+                        String url = "http://192.168.1.182:3000/createGroup";
                         System.out.println("create group");
-                        PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
+                        PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this, getApplicationContext());
                         asyncTask.execute();
                     } else {
                         // show toast error message
@@ -288,8 +287,6 @@ public class CreateGroup extends AppCompatActivity
 
         if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
             selectedImage = data.getData();
-            // testing toast
-            Toast.makeText(getApplicationContext(), "group Picture Set ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -415,7 +412,7 @@ public class CreateGroup extends AppCompatActivity
 
     @Override
     public void onTaskComplete(String jsonData) {
-        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.56.1:3000/addGroupMembers", jsonData);
+        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.1.182:3000/addGroupMembers", jsonData);
         postAddMembers.execute();
     }
 
@@ -445,9 +442,6 @@ public class CreateGroup extends AppCompatActivity
                                     .document(groupNameString) // Use userName as the document ID
                                     .set(user)
                                     .addOnSuccessListener(documentReference -> {
-                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully",
-                                                Toast.LENGTH_SHORT).show();
-
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(getApplicationContext(), "Failed to upload image",
@@ -470,11 +464,13 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
     MyCallback myCallback;
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
+    Context context;
 
-    public PostCreateGroup(String url, String jsonData, MyCallback myCallback) {
+    public PostCreateGroup(String url, String jsonData, MyCallback myCallback, Context context) {
         this.jsonData = jsonData;
         this.url = url;
         this.myCallback = myCallback;
+        this.context = context;
     }
 
     @Override
@@ -542,6 +538,7 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
             for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
                 System.out.println(dataModel.currentUser.createdGroups.get(i).ID);
             }
+            Toast.makeText(context, "Successfully created group", Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -569,6 +566,7 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
         void onTaskComplete(String jsonData);
     }
 }
+
 
 class PostAddMembers extends AsyncTask<String, Void, String> {
 

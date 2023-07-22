@@ -41,7 +41,6 @@ public class ViewCreatedGroups extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_created_groups);
 
-
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
             Intent i;
@@ -81,7 +80,6 @@ public class ViewCreatedGroups extends AppCompatActivity {
             startActivity(intent);
         });
     }
-
 
     class ViewGroupsCreatedAdapter extends ArrayAdapter<GroupMeeting> {
 
@@ -130,17 +128,17 @@ public class ViewCreatedGroups extends AppCompatActivity {
                         }
                         leaveTask = new LeaveTask(group, jsonData, "leaveGroup");
                     }
-                    leaveTask.execute("http://192.168.56.1:3000/");
+                    leaveTask.execute("http://192.168.1.182:3000/");
                 }
             });
 
             groupName.setText(group.name);
             String firstChar = group.sport.substring(0, 1).toUpperCase();
             String restOfString = group.sport.substring(1).toLowerCase();
-            sport.setText(firstChar+restOfString);
+            sport.setText(firstChar + restOfString);
             from.setText(group.start);
             to.setText(group.end);
-            date.setText(group.date.substring(0,10));
+            date.setText(group.date.substring(0, 10));
 
             return convertView;
         }
@@ -156,6 +154,7 @@ public class ViewCreatedGroups extends AppCompatActivity {
             this.jsonData = jsonData;
             this.api = api;
         }
+
         private HttpURLConnection postHttpRequest(String url) throws IOException, JSONException {
             URL requestUrl = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
@@ -180,7 +179,7 @@ public class ViewCreatedGroups extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             String url = strings[0];
             try {
-                postHttpRequest(url+api);
+                postHttpRequest(url + api);
 
             } catch (IOException | JSONException e) {
                 throw new RuntimeException(e);
@@ -193,17 +192,18 @@ public class ViewCreatedGroups extends AppCompatActivity {
         protected void onPostExecute(String s) {
             int i = 0;
             if (Objects.equals(api, "deleteGroup")) {
-                while (i < dataModel.currentUser.createdGroups.size() && group.ID != dataModel.currentUser.createdGroups.get(i).ID){
+                while (i < dataModel.currentUser.createdGroups.size()
+                        && group.ID != dataModel.currentUser.createdGroups.get(i).ID) {
                     i++;
                 }
-                if (i<dataModel.currentUser.createdGroups.size())
+                if (i < dataModel.currentUser.createdGroups.size())
                     dataModel.currentUser.createdGroups.remove(i);
-            }
-            else if (Objects.equals(api, "leaveGroup")) {
-                while (i < dataModel.currentUser.joinedGroups.size() && group.ID != dataModel.currentUser.joinedGroups.get(i).ID){
+            } else if (Objects.equals(api, "leaveGroup")) {
+                while (i < dataModel.currentUser.joinedGroups.size()
+                        && group.ID != dataModel.currentUser.joinedGroups.get(i).ID) {
                     i++;
                 }
-                if (i<dataModel.currentUser.joinedGroups.size())
+                if (i < dataModel.currentUser.joinedGroups.size())
                     dataModel.currentUser.joinedGroups.remove(i);
             }
             allGroups.remove(group);

@@ -1,6 +1,9 @@
 package edu.aucegypt.gymwya;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -72,6 +75,14 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
     private OkHttpClient client = new OkHttpClient();
+
+    private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Handle the broadcast when the task is complete
+            onTaskComplete();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,16 +173,14 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
 
     @Override
     public void onTaskComplete() {
-        Intent intent = new Intent(CreateUser.this, HomePage.class);
-        startActivity(intent);
+        Intent i = new Intent(this, HomePage.class);
+        startActivity(i);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // Stop the PeriodicService when the activity is destroyed
-        stopService(new Intent(this, PeriodicAsyncTask.class));
+        unregisterReceiver(taskCompleteReceiver);
     }
 
     private class CreateUserTask extends AsyncTask<String, Void, String> {
@@ -199,7 +208,7 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.56.1:3000/createUser")
+                    .url("http://192.168.1.182:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -234,7 +243,7 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
                 preferredSportsData.put("preferredSports", sportsArrayJSON);
 
                 String jsonString = preferredSportsData.toString();
-                String url = "http://192.168.56.1:3000/addPreferredSports";
+                String url = "http://192.168.1.182:3000/addPreferredSports";
 
                 PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
                 asyncTask.execute();
@@ -254,7 +263,11 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
                 editor.putString("username", userName);
                 editor.commit();
                 dataModel.currentUser.username = userName;
-                startService(new Intent(CreateUser.this, PeriodicAsyncTask.class));
+                IntentFilter filter = new IntentFilter("PERIODIC_TASK_COMPLETE");
+                registerReceiver(taskCompleteReceiver, filter);
+                Intent serviceIntent = new Intent(CreateUser.this, PeriodicAsyncTask.class);
+                serviceIntent.putExtra("isSignIn", false);
+                startService(serviceIntent);
                 try {
                     uploadImage(selectedImage);
                 } catch (IOException e) {

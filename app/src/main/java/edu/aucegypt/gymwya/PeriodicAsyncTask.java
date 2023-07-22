@@ -29,7 +29,7 @@ public class PeriodicAsyncTask extends Service {
     private Handler handler;
     private Runnable periodicTask;
     boolean isStarting = true;
-    private static final long INTERVAL_MILLIS = 10000; // 5 seconds interval
+    private static final long INTERVAL_MILLIS = 180000; // 5 seconds interval
 
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
@@ -62,6 +62,7 @@ public class PeriodicAsyncTask extends Service {
             @Override
             public void run() {
                 System.out.println("here");
+//                initializeData();
                 new API().execute(); // Execute your AsyncTask here
                 handler.postDelayed(this, INTERVAL_MILLIS); // Schedule the task to run again after the interval
             }
@@ -82,7 +83,16 @@ public class PeriodicAsyncTask extends Service {
     }
 
     public class API extends AsyncTask<String, Void, String> {
-
+        public void initializeData() {
+            dataModel.users.clear();
+            dataModel.groupMeetings.clear();
+            dataModel.individualMeetings.clear();
+            dataModel.currentUser.preferredSports.clear();
+            dataModel.currentUser.joinedGroups.clear();
+            dataModel.currentUser.createdGroups.clear();
+            dataModel.currentUser.createdMeetings.clear();
+            dataModel.currentUser.requests.clear();
+        }
         private String getResponse(HttpURLConnection connection) throws IOException {
             // Read the response from the input stream
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -110,6 +120,7 @@ public class PeriodicAsyncTask extends Service {
 
         @Override
         protected String doInBackground(String... strings) {
+            initializeData();
             String url = "http://192.168.1.182:3000/";
             HttpURLConnection connection_getUsername;
             try {
@@ -257,7 +268,6 @@ public class PeriodicAsyncTask extends Service {
                 }
                 if (connection_getJoinedGroups != null) {
                     String response = getResponse(connection_getJoinedGroups);
-                    System.out.println(response);
                     JSONArray json = new JSONArray(response);
                     for (int i = 0; i < json.length(); i++) {
                         int j = 0;
@@ -280,11 +290,12 @@ public class PeriodicAsyncTask extends Service {
 
         @Override
         protected void onPostExecute(String result) {
-
+            System.out.println(result);
+            Intent broadcastIntent = new Intent("PERIODIC_TASK_COMPLETE");
+            broadcastIntent.putExtra("isStarting", isStarting);
+            sendBroadcast(broadcastIntent);
+            if (isStarting)
                 isStarting = false;
-                Intent broadcastIntent = new Intent("PERIODIC_TASK_COMPLETE");
-                sendBroadcast(broadcastIntent);
-
         }
 
         public interface OnStart extends Serializable {

@@ -24,12 +24,14 @@ import java.net.UnknownHostException;
 
 public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart {
     Button signUp, signIn;
+    static int count = 0;
 
     private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Handle the broadcast when the task is complete
-            onTaskComplete();
+            boolean isStarting = intent.getBooleanExtra("isStarting", true);
+            if (isStarting)
+                onTaskComplete();
         }
     };
 
@@ -38,13 +40,7 @@ public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.On
         super.onCreate(savedInstanceState);
         DataManager dataManager = DataManager.getInstance();
         Data dataModel = dataManager.getDataModel();
-        // FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        // //check if user is already logged in
-        // if (firebaseAuth.getCurrentUser() != null) {
-        // dataModel.currentUser.email = firebaseAuth.getCurrentUser().getEmail();
-        // Intent i = new Intent(this, HomePage.class);
-        // startActivity(i);
-        // }
+        count++;
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
         // SharedPreferences.Editor editor = credentials.edit();

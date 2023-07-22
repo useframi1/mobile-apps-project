@@ -1,7 +1,10 @@
 package edu.aucegypt.gymwya;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +29,14 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
     FirebaseAuth firebaseAuth;
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
+
+    private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Handle the broadcast when the task is complete
+            onTaskComplete();
+        }
+    };
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -66,13 +77,14 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
                                     editor.commit();
                                     dataModel.currentUser.email = userEmail;
                                     dataModel.currentUser.password = userPassword;
-                                    startService(new Intent(SignIn.this, PeriodicAsyncTask.class));
+                                    IntentFilter filter = new IntentFilter("PERIODIC_TASK_COMPLETE");
+                                    registerReceiver(taskCompleteReceiver, filter);
+                                    Intent serviceIntent = new Intent(SignIn.this, PeriodicAsyncTask.class);
+                                    serviceIntent.putExtra("isSignIn", true);
+                                    startService(serviceIntent);
                                     // toast
                                     Toast.makeText(getApplicationContext(), "Signed in successfully",
                                             Toast.LENGTH_SHORT).show();
-                                    // Sign-in successful, proceed to the HomePage activity
-                                    Intent intent = new Intent(getApplicationContext(), HomePage.class);
-                                    startActivity(intent);
 
                                 } else {
                                     // Sign-in failed, display an error message
@@ -92,14 +104,13 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
 
     @Override
     public void onTaskComplete() {
-
+        Intent i = new Intent(this, HomePage.class);
+        startActivity(i);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // Stop the PeriodicService when the activity is destroyed
-        stopService(new Intent(this, PeriodicAsyncTask.class));
+        unregisterReceiver(taskCompleteReceiver);
     }
 }
