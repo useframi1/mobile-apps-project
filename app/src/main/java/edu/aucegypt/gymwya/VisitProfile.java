@@ -73,7 +73,7 @@ public class VisitProfile extends AppCompatActivity {
         setImage();
 
         VisitProfileTask visitProfileTask = new VisitProfileTask();
-        visitProfileTask.execute("http://192.168.56.1:3000/");
+        visitProfileTask.execute("http://192.168.1.182:3000/");
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +91,8 @@ public class VisitProfile extends AppCompatActivity {
         // }
         // });
     }
-    public void setImage(){
+
+    public void setImage() {
         // Retrieve the image URL from Firestore based on the user's email
         db.collection("Images")
                 .document(user.email)
@@ -101,11 +102,12 @@ public class VisitProfile extends AppCompatActivity {
                         String imageUrl = documentSnapshot.getString("image");
                         if (imageUrl != null) {
                             // Image URL retrieved successfully, load the image into ImageView
-                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // You can use any image loading library or method here, for example, Glide or
+                            // Picasso
                             // Here's an example using Glide:
                             Glide.with(this)
                                     .load(imageUrl)
-                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .apply(new RequestOptions()) // Optional: Add a placeholder image
                                     .into(pic);
                         } else {
                             // Image URL not found in Firestore
@@ -121,6 +123,7 @@ public class VisitProfile extends AppCompatActivity {
                     // Handle the error accordingly
                 });
     }
+
     public class VisitProfileTask extends AsyncTask<String, Void, String> {
 
         private String getResponse(HttpURLConnection connection) throws IOException {

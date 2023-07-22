@@ -154,7 +154,8 @@ public class IndividualMatching extends AppCompatActivity {
             }
         });
     }
-    public void setImage(){
+
+    public void setImage() {
         // Retrieve the image URL from Firestore based on the user's email
         db.collection("Images")
                 .document(meetings.get(i).creator.getEmail())
@@ -164,11 +165,12 @@ public class IndividualMatching extends AppCompatActivity {
                         String imageUrl = documentSnapshot.getString("image");
                         if (imageUrl != null) {
                             // Image URL retrieved successfully, load the image into ImageView
-                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // You can use any image loading library or method here, for example, Glide or
+                            // Picasso
                             // Here's an example using Glide:
                             Glide.with(this)
                                     .load(imageUrl)
-                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .apply(new RequestOptions()) // Optional: Add a placeholder image
                                     .into(profilePic);
                         } else {
                             // Image URL not found in Firestore
@@ -184,6 +186,7 @@ public class IndividualMatching extends AppCompatActivity {
                     // Handle the error accordingly
                 });
     }
+
     private void match_dialog() {
         IndividualMeeting meeting = meetings.get(i);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -213,7 +216,7 @@ public class IndividualMatching extends AppCompatActivity {
 
                 String jsonString = postData.toString();
 
-                String url = "http://192.168.56.1:3000/addRequest";
+                String url = "http://192.168.1.182:3000/addRequest";
 
                 PostCreateRequest asyncTask = new PostCreateRequest(url, jsonString);
                 asyncTask.execute();

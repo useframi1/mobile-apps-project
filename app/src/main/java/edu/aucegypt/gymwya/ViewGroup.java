@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -82,9 +83,8 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             isInProfile = bundle.getBoolean("isInProfile");
         }
 
-        System.out.println(group.sport);
         GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
-        getGroupMembersTask.execute("http://192.168.56.1:3000/");
+        getGroupMembersTask.execute("http://192.168.1.182:3000/");
 
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
@@ -133,11 +133,13 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
         confirmButton.setText("Confirm");
 
         AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
 
         cancelButton.setOnClickListener(view -> dialog.dismiss());
 
         confirmButton.setOnClickListener(view -> {
-
+            dialog.dismiss();
             JSONObject members = new JSONObject();
 
             ArrayList<String> groupMembers = new ArrayList<>();
@@ -154,17 +156,11 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             }
             String jsonString = members.toString();
 
-            String url = "http://192.168.56.1:3000/addGroupMembers";
+            String url = "http://192.168.1.182:3000/addGroupMembers";
 
             PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
             postAddMembers.execute();
-
-            Intent intent = new Intent(ViewGroup.this, HomePage.class);
-            startActivity(intent);
-
         });
-        dialog.setCancelable(false);
-        dialog.show();
     }
 
     class GetGroupMembersTask extends AsyncTask<String, Void, String> {
@@ -302,8 +298,29 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         @Override
         protected void onPostExecute(String result) {
-            // Intent intent = new Intent(ViewGroup.this, HomePage.class);
-            // startActivity(intent);
+            int i = 0;
+            while (i < dataModel.groupMeetings.size() && dataModel.groupMeetings.get(i).ID != group.ID){
+                i++;
+            }
+            if (i < dataModel.groupMeetings.size())
+                dataModel.groupMeetings.remove(i);
+            dataModel.currentUser.joinedGroups.add(group);
+            group.members.add(0,dataModel.currentUser);
+            joinGroup.setVisibility(View.GONE);
+            TextView capacity = findViewById(R.id.capacity);
+            capacity.setText(group.members.size() + "/10");
+            adapter = new ViewGroupAdapter(ViewGroup.this, group.members, group);
+            listView = findViewById(R.id.members_list);
+            listView.setAdapter(adapter);
+
+            listView.setOnItemClickListener((parent, view, position, id) -> {
+                if (!dataModel.currentUser.username.equals(group.members.get(position).username)) {
+                    Intent intent = new Intent(ViewGroup.this, VisitProfile.class);
+                    intent.putExtra("User", group.members.get(position));
+                    startActivity(intent);
+                }
+            });
+            Toast.makeText(getApplicationContext(), "Joined Group successfully", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -427,7 +444,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
                         jsonObject.put("ID", group.ID);
                         jsonObject.put("username", member.username);
                         ViewGroup.KickTask kickTask = new ViewGroup.KickTask(member, jsonObject, "kick");
-                        kickTask.execute("http://192.168.56.1:3000/");
+                        kickTask.execute("http://192.168.1.182:3000/");
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }

@@ -29,7 +29,7 @@ public class PeriodicAsyncTask extends Service {
     private Handler handler;
     private Runnable periodicTask;
     boolean isStarting = true;
-    private static final long INTERVAL_MILLIS = 180000; // 5 seconds interval
+    private static final long INTERVAL_MILLIS = 180000; // 5 minutes interval
 
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
@@ -57,12 +57,12 @@ public class PeriodicAsyncTask extends Service {
         super.onDestroy();
         stopPeriodicTask();
     }
+
     private void startPeriodicTask() {
         periodicTask = new Runnable() {
             @Override
             public void run() {
-                System.out.println("here");
-//                initializeData();
+                System.out.println("run");
                 new API().execute(); // Execute your AsyncTask here
                 handler.postDelayed(this, INTERVAL_MILLIS); // Schedule the task to run again after the interval
             }
@@ -93,6 +93,7 @@ public class PeriodicAsyncTask extends Service {
             dataModel.currentUser.createdMeetings.clear();
             dataModel.currentUser.requests.clear();
         }
+
         private String getResponse(HttpURLConnection connection) throws IOException {
             // Read the response from the input stream
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -121,7 +122,7 @@ public class PeriodicAsyncTask extends Service {
         @Override
         protected String doInBackground(String... strings) {
             initializeData();
-            String url = "http://192.168.56.1:3000/";
+            String url = "http://192.168.1.182:3000/";
             HttpURLConnection connection_getUsername;
             try {
                 if (isSignIn) {
@@ -136,16 +137,26 @@ public class PeriodicAsyncTask extends Service {
                     }
                 }
 
-                HttpURLConnection connection_getAllUsers = getHttpRequest(url + "getAllUsers/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_getRequests = getHttpRequest(url + "getRequests/?creator=" + dataModel.currentUser.username);
-                HttpURLConnection connection_getUser = getHttpRequest(url + "getUser/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_getMeetings = getHttpRequest(url + "getMeetings/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_getGroups = getHttpRequest(url + "getGroups/?creator=" + dataModel.currentUser.username);
-                HttpURLConnection connection_createdMeetings = getHttpRequest(url + "getCreatedMeetings/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_createdGroups = getHttpRequest(url + "getCreatedGroups/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_acceptedMeetings = getHttpRequest(url + "getAcceptedMeetings/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_getPreferredSports = getHttpRequest(url + "getPreferredSports/?username=" + dataModel.currentUser.username);
-                HttpURLConnection connection_getJoinedGroups = getHttpRequest(url + "getJoinedGroups/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getAllUsers = getHttpRequest(
+                        url + "getAllUsers/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getRequests = getHttpRequest(
+                        url + "getRequests/?creator=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getUser = getHttpRequest(
+                        url + "getUser/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getMeetings = getHttpRequest(
+                        url + "getMeetings/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getGroups = getHttpRequest(
+                        url + "getGroups/?creator=" + dataModel.currentUser.username);
+                HttpURLConnection connection_createdMeetings = getHttpRequest(
+                        url + "getCreatedMeetings/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_createdGroups = getHttpRequest(
+                        url + "getCreatedGroups/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_acceptedMeetings = getHttpRequest(
+                        url + "getAcceptedMeetings/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getPreferredSports = getHttpRequest(
+                        url + "getPreferredSports/?username=" + dataModel.currentUser.username);
+                HttpURLConnection connection_getJoinedGroups = getHttpRequest(
+                        url + "getJoinedGroups/?username=" + dataModel.currentUser.username);
 
                 if (connection_getUser != null) {
                     String response = getResponse(connection_getUser);
@@ -223,7 +234,8 @@ public class PeriodicAsyncTask extends Service {
                                 json.getJSONObject(i).getString("partner"))) {
                             j++;
                         }
-                        dataModel.currentUser.createdMeetings.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"),
+                        dataModel.currentUser.createdMeetings.add(new IndividualMeeting(
+                                json.getJSONObject(i).getInt("ID"),
                                 json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"),
                                 json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"),
                                 dataModel.currentUser, j < dataModel.users.size() ? dataModel.users.get(j) : null));
@@ -251,7 +263,8 @@ public class PeriodicAsyncTask extends Service {
                                 json.getJSONObject(i).getString("creator"))) {
                             j++;
                         }
-                        dataModel.currentUser.currentMatches.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"),
+                        dataModel.currentUser.currentMatches.add(new IndividualMeeting(
+                                json.getJSONObject(i).getInt("ID"),
                                 json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"),
                                 json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"),
                                 dataModel.users.get(j),
@@ -303,4 +316,3 @@ public class PeriodicAsyncTask extends Service {
         }
     }
 }
-

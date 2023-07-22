@@ -203,9 +203,10 @@ public class CreateGroup extends AppCompatActivity
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.56.1:3000/createGroup";
+                        String url = "http://192.168.1.182:3000/createGroup";
                         System.out.println("create group");
-                        PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this, getApplicationContext());
+                        PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this,
+                                getApplicationContext());
                         asyncTask.execute();
                     } else {
                         // show toast error message
@@ -412,7 +413,7 @@ public class CreateGroup extends AppCompatActivity
 
     @Override
     public void onTaskComplete(String jsonData) {
-        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.56.1:3000/addGroupMembers", jsonData);
+        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.1.182:3000/addGroupMembers", jsonData);
         postAddMembers.execute();
     }
 
@@ -566,7 +567,6 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
         void onTaskComplete(String jsonData);
     }
 }
-
 
 class PostAddMembers extends AsyncTask<String, Void, String> {
 
