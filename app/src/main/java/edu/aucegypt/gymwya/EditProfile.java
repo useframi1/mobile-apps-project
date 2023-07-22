@@ -178,8 +178,8 @@ public class EditProfile extends AppCompatActivity {
 
                     jsonString2 = preferredSportsData.toString();
 
-                    String url = "http://192.168.1.182:3000/updateUser";
-                    urlSport = "http://192.168.1.182:3000/addPreferredSports";
+                    String url = "http://192.168.56.1:3000/updateUser";
+                    urlSport = "http://192.168.56.1:3000/addPreferredSports";
 
                     PostEditUser asyncTask = new PostEditUser(url, jsonString);
                     asyncTask.execute();

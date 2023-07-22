@@ -310,7 +310,7 @@ public class CreateMeeting extends AppCompatActivity
                 jsonBody.put("mDate", params[4]);
 
                 okhttp3.Request request = new Request.Builder()
-                        .url("http://192.168.1.182:3000/createMeeting")
+                        .url("http://192.168.56.1:3000/createMeeting")
                         .post(RequestBody.create(JSON, jsonBody.toString()))
                         .build();
 

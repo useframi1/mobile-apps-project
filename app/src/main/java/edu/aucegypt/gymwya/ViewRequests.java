@@ -15,7 +15,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,15 +40,12 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class ViewRequests extends AppCompatActivity {
-
     ViewRequestAdapter adapter;
-
     // TextView groupName;
     ImageView back;
     ListView listView;
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +89,8 @@ public class ViewRequests extends AppCompatActivity {
 
     class ViewRequestAdapter extends ArrayAdapter<IndividualMeeting> {
         Button decline, confirm;
-
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
         public ViewRequestAdapter(Context context, ArrayList<IndividualMeeting> members) {
             super(context, 0, members);
         }
@@ -121,7 +123,7 @@ public class ViewRequests extends AppCompatActivity {
                         postData.put("ID", dataModel.currentUser.requests.get(position).ID);
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.1.182:3000/deleteRequest";
+                        String url = "http://192.168.56.1:3000/deleteRequest";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();
@@ -132,7 +134,34 @@ public class ViewRequests extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 }
             });
-
+            // Retrieve the image URL from Firestore based on the user's email
+            db.collection("Images")
+                    .document(person.getEmail())
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    String imageUrl = documentSnapshot.getString("image");
+                                    if (imageUrl != null) {
+                                        // Image URL retrieved successfully, load the image into ImageView
+                                        // You can use any image loading library or method here, for example, Glide or Picasso
+                                        // Here's an example using Glide:
+                                        Glide.with(this.getContext())
+                                                .load(imageUrl)
+                                                .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                                .into(personPic);
+                                    } else {
+                                        // Image URL not found in Firestore
+                                        // Handle the case accordingly
+                                    }
+                                } else {
+                                    // Document not found in Firestore
+                                    // Handle the case accordingly
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                // Error occurred while retrieving the image URL from Firestore
+                                // Handle the error accordingly
+                            });
             confirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -144,7 +173,7 @@ public class ViewRequests extends AppCompatActivity {
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.1.182:3000/updatePartner";
+                        String url = "http://192.168.56.1:3000/updatePartner";
 
                         PostRequests asyncTask = new PostRequests(url, jsonString);
                         asyncTask.execute();
@@ -157,6 +186,7 @@ public class ViewRequests extends AppCompatActivity {
 
             return convertView;
         }
+
     }
 
     private class PostRequests extends AsyncTask<String, Void, Void> {

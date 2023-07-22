@@ -12,7 +12,12 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +47,9 @@ public class IndividualMatching extends AppCompatActivity {
     private Data dataModel;
     String selectedSport;
     ArrayList<IndividualMeeting> meetings = new ArrayList<>();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageReference = storage.getReference();
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -101,6 +109,8 @@ public class IndividualMatching extends AppCompatActivity {
             bio.setText("Wants a partner to join them at the " + meetings.get(i).sport + " from "
                     + meetings.get(i).start + " to " + meetings.get(i).end + " PM");
             // profilePic.setImageResource(users.get(i).imageId);
+            setImage();
+
             name.setText(meetings.get(i).creator.name);
 
             check.setOnClickListener(view -> match_dialog());
@@ -111,6 +121,7 @@ public class IndividualMatching extends AppCompatActivity {
                     if (i == meetings.size())
                         i = 0;
                     // profilePic.setImageResource(users.get(i).imageId);
+                    setImage();
                     IndividualMeeting nextMeeting = meetings.get(i);
                     name.setText(nextMeeting.creator.name);
                     bio.setText("Wants a partner to join them at the " + nextMeeting.sport + " from "
@@ -143,7 +154,36 @@ public class IndividualMatching extends AppCompatActivity {
             }
         });
     }
-
+    public void setImage(){
+        // Retrieve the image URL from Firestore based on the user's email
+        db.collection("Images")
+                .document(meetings.get(i).creator.getEmail())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("image");
+                        if (imageUrl != null) {
+                            // Image URL retrieved successfully, load the image into ImageView
+                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // Here's an example using Glide:
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .into(profilePic);
+                        } else {
+                            // Image URL not found in Firestore
+                            // Handle the case accordingly
+                        }
+                    } else {
+                        // Document not found in Firestore
+                        // Handle the case accordingly
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Error occurred while retrieving the image URL from Firestore
+                    // Handle the error accordingly
+                });
+    }
     private void match_dialog() {
         IndividualMeeting meeting = meetings.get(i);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -173,7 +213,7 @@ public class IndividualMatching extends AppCompatActivity {
 
                 String jsonString = postData.toString();
 
-                String url = "http://192.168.1.182:3000/addRequest";
+                String url = "http://192.168.56.1:3000/addRequest";
 
                 PostCreateRequest asyncTask = new PostCreateRequest(url, jsonString);
                 asyncTask.execute();

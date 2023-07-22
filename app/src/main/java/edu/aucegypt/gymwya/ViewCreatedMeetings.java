@@ -128,7 +128,7 @@ public class ViewCreatedMeetings extends AppCompatActivity {
                         }
                         cancelTask = new CancelTask(meeting, jsonData, "cancelRequest");
                     }
-                    cancelTask.execute("http://192.168.1.182:3000/");
+                    cancelTask.execute("http://192.168.56.1:3000/");
                 }
             });
 

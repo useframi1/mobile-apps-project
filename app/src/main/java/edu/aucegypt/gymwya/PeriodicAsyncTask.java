@@ -121,7 +121,7 @@ public class PeriodicAsyncTask extends Service {
         @Override
         protected String doInBackground(String... strings) {
             initializeData();
-            String url = "http://192.168.1.182:3000/";
+            String url = "http://192.168.56.1:3000/";
             HttpURLConnection connection_getUsername;
             try {
                 if (isSignIn) {

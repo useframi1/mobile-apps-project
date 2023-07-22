@@ -208,7 +208,7 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.1.182:3000/createUser")
+                    .url("http://192.168.56.1:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -243,7 +243,7 @@ public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.A
                 preferredSportsData.put("preferredSports", sportsArrayJSON);
 
                 String jsonString = preferredSportsData.toString();
-                String url = "http://192.168.1.182:3000/addPreferredSports";
+                String url = "http://192.168.56.1:3000/addPreferredSports";
 
                 PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
                 asyncTask.execute();

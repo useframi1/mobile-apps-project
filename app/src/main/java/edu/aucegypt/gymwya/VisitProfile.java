@@ -12,7 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +33,8 @@ public class VisitProfile extends AppCompatActivity {
     ImageView back, pic;
     TextView name, username, age, bio;
     User user;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +70,10 @@ public class VisitProfile extends AppCompatActivity {
         username.setText(user.username);
         age.setText(String.valueOf(user.age));
         bio.setText(user.bio);
+        setImage();
 
         VisitProfileTask visitProfileTask = new VisitProfileTask();
-        visitProfileTask.execute("http://192.168.1.182:3000/");
+        visitProfileTask.execute("http://192.168.56.1:3000/");
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +91,36 @@ public class VisitProfile extends AppCompatActivity {
         // }
         // });
     }
-
+    public void setImage(){
+        // Retrieve the image URL from Firestore based on the user's email
+        db.collection("Images")
+                .document(user.email)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("image");
+                        if (imageUrl != null) {
+                            // Image URL retrieved successfully, load the image into ImageView
+                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // Here's an example using Glide:
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .into(pic);
+                        } else {
+                            // Image URL not found in Firestore
+                            // Handle the case accordingly
+                        }
+                    } else {
+                        // Document not found in Firestore
+                        // Handle the case accordingly
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Error occurred while retrieving the image URL from Firestore
+                    // Handle the error accordingly
+                });
+    }
     public class VisitProfileTask extends AsyncTask<String, Void, String> {
 
         private String getResponse(HttpURLConnection connection) throws IOException {

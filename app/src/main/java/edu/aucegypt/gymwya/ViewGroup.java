@@ -84,7 +84,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         System.out.println(group.sport);
         GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
-        getGroupMembersTask.execute("http://192.168.1.182:3000/");
+        getGroupMembersTask.execute("http://192.168.56.1:3000/");
 
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
@@ -154,7 +154,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             }
             String jsonString = members.toString();
 
-            String url = "http://192.168.1.182:3000/addGroupMembers";
+            String url = "http://192.168.56.1:3000/addGroupMembers";
 
             PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
             postAddMembers.execute();
@@ -427,7 +427,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
                         jsonObject.put("ID", group.ID);
                         jsonObject.put("username", member.username);
                         ViewGroup.KickTask kickTask = new ViewGroup.KickTask(member, jsonObject, "kick");
-                        kickTask.execute("http://192.168.1.182:3000/");
+                        kickTask.execute("http://192.168.56.1:3000/");
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
