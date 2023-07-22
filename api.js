@@ -125,7 +125,7 @@ srv.get("/getMeetings", function (req, res) {
     const username = q.username;
 
     var sql =
-        "SELECT m.* FROM Meetings m INNER JOIN Requests r ON m.ID = r.ID WHERE m.creator <> ? AND m.partner IS NULL AND NOT EXISTS (SELECT 1 FROM Requests r2 WHERE r2.ID = m.ID AND r2.username = ?);";
+        "SELECT M.* FROM Meetings M LEFT JOIN Requests R ON M.ID = R.ID AND R.username = ? WHERE M.creator != ? AND M.partner IS NULL AND R.username IS NULL;";
     // execute sql command
     connection.query(sql, [username, username], function (err, result) {
         if (err) {
@@ -133,7 +133,7 @@ srv.get("/getMeetings", function (req, res) {
             throw err;
         }
 
-        console.log("Request recieved");
+        console.log("got meeting");
         res.send(result);
     });
 });
@@ -315,7 +315,6 @@ srv.get("/getAcceptedMeetings", function (req, res) {
         }
 
         console.log("Request recieved");
-        console.log(result);
         res.send(result);
     });
 });
@@ -452,7 +451,6 @@ srv.post("/updatePartner", function (req, res) {
         }
 
         console.log("Request recieved");
-        res.send(result);
     });
 
     sql = "DELETE FROM Requests WHERE ID = ?";
@@ -525,7 +523,7 @@ srv.post("/cancelRequest", function (req, res) {
             throw err;
         }
 
-        console.log("Request recieved");
+        console.log("cancel request received");
         res.send(result);
     });
 });
@@ -575,6 +573,8 @@ srv.post("/requestStatus", function (req, res) {
             console.log("Request recieved");
         });
     }
+
+    res.send("1");
 });
 
 srv.post("/kick", function (req, res) {

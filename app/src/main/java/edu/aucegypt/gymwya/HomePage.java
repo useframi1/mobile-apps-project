@@ -196,10 +196,6 @@ public class HomePage extends AppCompatActivity {
             PostRequestsStatus postRequestsStatus = new PostRequestsStatus("http://192.168.1.182:3000/requestStatus",
                     jsonString);
             postRequestsStatus.execute();
-
-            Intent i = new Intent(this, ViewRequests.class);
-            startActivity(i);
-            dataModel.currentUser.unseenRequests = 0;
         });
 
         // Set up the search functionality
@@ -285,6 +281,13 @@ public class HomePage extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
 
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            Intent i = new Intent(HomePage.this, ViewRequests.class);
+            startActivity(i);
+            dataModel.currentUser.unseenRequests = 0;
         }
     }
 }

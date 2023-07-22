@@ -24,7 +24,6 @@ import java.net.UnknownHostException;
 
 public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart {
     Button signUp, signIn;
-    static int count = 0;
 
     private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
         @Override
@@ -40,14 +39,13 @@ public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.On
         super.onCreate(savedInstanceState);
         DataManager dataManager = DataManager.getInstance();
         Data dataModel = dataManager.getDataModel();
-        count++;
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
-        // SharedPreferences.Editor editor = credentials.edit();
-        // editor.remove("username");
-        // editor.remove("email");
-        // editor.remove("password");
-        // editor.commit();
+//         SharedPreferences.Editor editor = credentials.edit();
+//         editor.remove("username");
+//         editor.remove("email");
+//         editor.remove("password");
+//         editor.commit();
 
         System.out.println(
                 credentials.contains("email") || credentials.contains("password") || credentials.contains("username"));

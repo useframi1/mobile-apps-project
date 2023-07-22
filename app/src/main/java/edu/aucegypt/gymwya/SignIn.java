@@ -33,8 +33,9 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
     private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Handle the broadcast when the task is complete
-            onTaskComplete();
+            boolean isStarting = intent.getBooleanExtra("isStarting", true);
+            if (isStarting)
+                onTaskComplete();
         }
     };
 
@@ -103,14 +104,16 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
     }
 
     @Override
-    public void onTaskComplete() {
-        Intent i = new Intent(this, HomePage.class);
-        startActivity(i);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(taskCompleteReceiver);
+    }
+
+    @Override
+    public void onTaskComplete() {
+        Toast.makeText(getApplicationContext(), "Signed in successfully",
+                Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(this, HomePage.class);
+        startActivity(i);
     }
 }

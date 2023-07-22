@@ -29,7 +29,7 @@ public class PeriodicAsyncTask extends Service {
     private Handler handler;
     private Runnable periodicTask;
     boolean isStarting = true;
-    private static final long INTERVAL_MILLIS = 180000; // 5 minutes interval
+    private static final long INTERVAL_MILLIS = 5000; // 5 minutes interval
 
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
@@ -40,6 +40,7 @@ public class PeriodicAsyncTask extends Service {
     public void onCreate() {
         super.onCreate();
         handler = new Handler(Looper.getMainLooper());
+        credentials = getSharedPreferences("Credentials", 0);
         startPeriodicTask();
     }
 
@@ -92,6 +93,8 @@ public class PeriodicAsyncTask extends Service {
             dataModel.currentUser.createdGroups.clear();
             dataModel.currentUser.createdMeetings.clear();
             dataModel.currentUser.requests.clear();
+            dataModel.currentUser.currentMatches.clear();
+            dataModel.currentUser.unseenRequests = 0;
         }
 
         private String getResponse(HttpURLConnection connection) throws IOException {
@@ -175,22 +178,6 @@ public class PeriodicAsyncTask extends Service {
                                 json.getJSONObject(i).getInt("age"), json.getJSONObject(i).getString("bio")));
                     }
                 }
-                if (connection_getMeetings != null) {
-                    String response = getResponse(connection_getMeetings);
-                    JSONArray json = new JSONArray(response);
-                    int j = 0;
-                    for (int i = 0; i < json.length(); i++) {
-                        while (j < dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username,
-                                json.getJSONObject(i).getString("creator"))) {
-                            j++;
-                        }
-                        dataModel.individualMeetings.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"),
-                                json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"),
-                                json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"),
-                                dataModel.users.get(j), null));
-                        j = 0;
-                    }
-                }
                 if (connection_getRequests != null) {
                     String response = getResponse(connection_getRequests);
                     JSONArray json = new JSONArray(response);
@@ -207,6 +194,26 @@ public class PeriodicAsyncTask extends Service {
                         if (json.getJSONObject(i).getInt("seen") == 0)
                             dataModel.currentUser.unseenRequests++;
                         j = 0;
+                    }
+                }
+                if (connection_getMeetings != null) {
+                    String response = getResponse(connection_getMeetings);
+                    JSONArray json = new JSONArray(response);
+                    int j = 0;
+                    for (int i = 0; i < json.length(); i++) {
+                        while (j < dataModel.users.size() && !Objects.equals(dataModel.users.get(j).username,
+                                json.getJSONObject(i).getString("creator"))) {
+                            j++;
+                        }
+                        dataModel.individualMeetings.add(new IndividualMeeting(json.getJSONObject(i).getInt("ID"),
+                                json.getJSONObject(i).getString("sport"), json.getJSONObject(i).getString("startTime"),
+                                json.getJSONObject(i).getString("endTime"), json.getJSONObject(i).getString("mDate"),
+                                dataModel.users.get(j), null));
+                        j = 0;
+                    }
+                    System.out.println(dataModel.individualMeetings.size());
+                    for (int i = 0; i < dataModel.individualMeetings.size(); i++) {
+                        System.out.println(dataModel.individualMeetings.get(i).ID);
                     }
                 }
                 if (connection_getGroups != null) {

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -210,80 +211,80 @@ public class IndividualMatching extends AppCompatActivity {
 
         confirmButton.setOnClickListener(view -> {
             try {
+                dialog.dismiss();
                 JSONObject postData = new JSONObject();
                 postData.put("ID", meeting.ID);
                 postData.put("username", dataModel.currentUser.username);
 
-                String jsonString = postData.toString();
+                String url = "http://192.168.1.182:3000/";
 
-                String url = "http://192.168.1.182:3000/addRequest";
-
-                PostCreateRequest asyncTask = new PostCreateRequest(url, jsonString);
-                asyncTask.execute();
+                PostCreateRequest asyncTask = new PostCreateRequest(meeting, postData, "addRequest");
+                asyncTask.execute(url);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            Intent intent = new Intent(this, HomePage.class);
-            startActivity(intent);
         });
         dialog.setCancelable(false);
         dialog.show();
     }
 
-    private class PostCreateRequest extends AsyncTask<String, Void, Void> {
+    private class PostCreateRequest extends AsyncTask<String, Void, String> {
 
-        private String jsonData;
-        private String url;
-
-        public PostCreateRequest(String url, String jsonData) {
+        IndividualMeeting meeting;
+        JSONObject jsonData;
+        String api;
+        public PostCreateRequest(IndividualMeeting meeting, JSONObject jsonData, String api) {
+            this.meeting = meeting;
             this.jsonData = jsonData;
-            this.url = url;
+            this.api = api;
+        }
+
+        private HttpURLConnection postHttpRequest(String url) throws IOException, JSONException {
+            URL requestUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            OutputStream os = connection.getOutputStream();
+
+            String postData = jsonData.toString();
+
+            os.write(postData.getBytes());
+            os.flush();
+            os.close();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                return connection;
+
+            return null;
         }
 
         @Override
-        protected Void doInBackground(String... params) {
-            HttpURLConnection connection;
+        protected String doInBackground(String... strings) {
+            String url = strings[0];
+            System.out.println(url);
             try {
-                URL url = new URL(this.url);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
+                postHttpRequest(url + api);
 
-                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                writer.write(jsonData);
-                writer.flush();
-                writer.close();
-                out.close();
-
-                int responseCode = connection.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-
-                    reader.close();
-                }
-                connection.disconnect();
-                return null;
-            } catch (ProtocolException e) {
-                throw new RuntimeException(e);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (IOException | JSONException e) {
                 throw new RuntimeException(e);
             }
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            Toast.makeText(IndividualMatching.this, "Added to " + meeting.creator.name + "'s requests", Toast.LENGTH_SHORT).show();
+            i++;
+            if (i == meetings.size())
+                i = 0;
+            // profilePic.setImageResource(users.get(i).imageId);
+            setImage();
+            IndividualMeeting nextMeeting = meetings.get(i);
+            name.setText(nextMeeting.creator.name);
+            bio.setText("Wants a partner to join them at the " + nextMeeting.sport + " from "
+                    + nextMeeting.start + " to " + nextMeeting.end + " PM");
         }
     }
 }

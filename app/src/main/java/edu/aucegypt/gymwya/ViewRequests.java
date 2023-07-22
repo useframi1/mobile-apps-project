@@ -38,6 +38,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ViewRequests extends AppCompatActivity {
     ViewRequestAdapter adapter;
@@ -123,17 +124,15 @@ public class ViewRequests extends AppCompatActivity {
                     try {
                         JSONObject postData = new JSONObject();
                         postData.put("ID", dataModel.currentUser.requests.get(position).ID);
-                        String jsonString = postData.toString();
+                        postData.put("username", person.username);
 
-                        String url = "http://192.168.1.182:3000/deleteRequest";
+                        String url = "http://192.168.1.182:3000/";
 
-                        PostRequests asyncTask = new PostRequests(url, jsonString);
-                        asyncTask.execute();
+                        PostRequests asyncTask = new PostRequests(getItem(position), postData, "cancelRequest");
+                        asyncTask.execute(url);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    dataModel.currentUser.requests.remove(position);
-                    adapter.notifyDataSetChanged();
                 }
             });
             // Retrieve the image URL from Firestore based on the user's email
@@ -172,14 +171,12 @@ public class ViewRequests extends AppCompatActivity {
                     try {
                         JSONObject postData = new JSONObject();
                         postData.put("ID", dataModel.currentUser.requests.get(position).ID);
-                        postData.put("partner", dataModel.currentUser.requests.get(position).partner);
+                        postData.put("username", person.username);
 
-                        String jsonString = postData.toString();
+                        String url = "http://192.168.1.182:3000/";
 
-                        String url = "http://192.168.1.182:3000/updatePartner";
-
-                        PostRequests asyncTask = new PostRequests(url, jsonString);
-                        asyncTask.execute();
+                        PostRequests asyncTask = new PostRequests(getItem(position), postData, "updatePartner");
+                        asyncTask.execute(url);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -192,60 +189,67 @@ public class ViewRequests extends AppCompatActivity {
 
     }
 
-    private class PostRequests extends AsyncTask<String, Void, Void> {
+    class PostRequests extends AsyncTask<String, Void, String> {
+        IndividualMeeting meeting;
+        JSONObject jsonData;
+        String api;
 
-        private String jsonData;
-        private String url;
-
-        public PostRequests(String url, String jsonData) {
+        public PostRequests(IndividualMeeting meeting, JSONObject jsonData, String api) {
+            this.meeting = meeting;
             this.jsonData = jsonData;
-            this.url = url;
+            this.api = api;
+        }
+
+        private HttpURLConnection postHttpRequest(String url) throws IOException, JSONException {
+            URL requestUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            OutputStream os = connection.getOutputStream();
+
+            String postData = jsonData.toString();
+
+            os.write(postData.getBytes());
+            os.flush();
+            os.close();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                return connection;
+
+            return null;
         }
 
         @Override
-        protected Void doInBackground(String... params) {
-            HttpURLConnection connection;
+        protected String doInBackground(String... strings) {
+            String url = strings[0];
+            System.out.println(url);
             try {
-                URL url = new URL(this.url);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
+                postHttpRequest(url + api);
 
-                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                writer.write(jsonData);
-                writer.flush();
-                writer.close();
-                out.close();
-
-                int responseCode = connection.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-
-                    reader.close();
-                }
-
-                connection.disconnect();
-                return null;
-            } catch (ProtocolException e) {
-                throw new RuntimeException(e);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (IOException | JSONException e) {
                 throw new RuntimeException(e);
             }
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            int i = 0;
+            if (Objects.equals(api, "updatePartner")){
+                while (i < dataModel.individualMeetings.size() && dataModel.individualMeetings.get(i).ID != meeting.ID)
+                    i++;
+                if (i < dataModel.individualMeetings.size())
+                    dataModel.individualMeetings.get(i).partner = meeting.partner;
+            }
+            i = 0;
+            while (i < dataModel.currentUser.requests.size() && dataModel.currentUser.requests.get(i).ID != meeting.ID)
+                i++;
+            if (i < dataModel.currentUser.requests.size())
+                dataModel.currentUser.requests.remove(i);
+            adapter = new ViewRequestAdapter(ViewRequests.this, dataModel.currentUser.requests);
+            listView.setAdapter(adapter);
         }
     }
 }
