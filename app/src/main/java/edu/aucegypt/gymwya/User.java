@@ -69,5 +69,8 @@ public class User implements Serializable {
         }
         return preferredSportsIcons;
     }
+    public String getEmail() {
+        return email;
+    }
 }
 

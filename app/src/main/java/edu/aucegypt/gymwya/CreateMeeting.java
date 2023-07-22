@@ -3,9 +3,11 @@ package edu.aucegypt.gymwya;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,7 +19,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +38,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -42,10 +51,15 @@ import okhttp3.Response;
 
 public class CreateMeeting extends AppCompatActivity
         implements View.OnClickListener, AdapterView.OnItemSelectedListener {
-    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, addMeeting;
+    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, addMeeting, uploadImage;
     ImageView back;
     TextView errorMessage;
+    private static final int REQUEST_PICK_IMAGE = 1;
+
     private int mYear, mMonth, mDay, mHour, mMinute;
+    private StorageReference storageReference;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     SpinnerAdapter adapter;
     Spinner spinner;
     DatePickerDialog datePickerDialog;
@@ -160,6 +174,10 @@ public class CreateMeeting extends AppCompatActivity
                     createUserTask.execute(dataModel.currentUser.username, sportName, fromTime, toTime, date);
                 }
             }
+        }
+        if (v == uploadImage){
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, 0);
         }
     }
 
@@ -288,8 +306,9 @@ public class CreateMeeting extends AppCompatActivity
                 jsonBody.put("endTime", params[3]);
                 jsonBody.put("mDate", params[4]);
 
+
                 okhttp3.Request request = new Request.Builder()
-                        .url("http://192.168.1.182:3000/createMeeting")
+                        .url("http://192.168.56.1:3000/createMeeting")
                         .post(RequestBody.create(JSON, jsonBody.toString()))
                         .build();
 

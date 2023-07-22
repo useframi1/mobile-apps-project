@@ -13,10 +13,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -31,6 +38,7 @@ public class GroupMatching extends AppCompatActivity{
     private Data dataModel;
     String selectedSport = "";
     ArrayList<GroupMeeting> groups = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +145,9 @@ public class GroupMatching extends AppCompatActivity{
 
 class GroupMatchingAdapter extends ArrayAdapter<GroupMeeting> {
     ArrayList<GroupMeeting> groups;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageReference = storage.getReference();
     public GroupMatchingAdapter(Context context, ArrayList<GroupMeeting> groups) {
         super(context, 0, groups);
         this.groups = groups;
@@ -155,8 +166,35 @@ class GroupMatchingAdapter extends ArrayAdapter<GroupMeeting> {
         TextView to = convertView.findViewById(R.id.to);
         TextView date = convertView.findViewById(R.id.date);
         TextView sport = convertView.findViewById(R.id.sport);
-
         GroupMeeting group = getItem(position);
+        db.collection("Images")
+                .document(group.name)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("image");
+                        if (imageUrl != null) {
+                            // Image URL retrieved successfully, load the image into ImageView
+                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // Here's an example using Glide:
+                            Glide.with(this.getContext())
+                                    .load(imageUrl)
+                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .into(teamImage);
+                        } else {
+                            // Image URL not found in Firestore
+                            // Handle the case accordingly
+                        }
+                    } else {
+                        // Document not found in Firestore
+                        // Handle the case accordingly
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // print the error if any in a toast message
+
+                    group.name = e.getMessage();
+                });
 
 //        teamImage.setImageResource(group.iconId);
         nameOfTeam.setText(group.name);

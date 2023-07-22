@@ -130,7 +130,7 @@ public class ViewCreatedGroups extends AppCompatActivity {
                         }
                         leaveTask = new LeaveTask(group, jsonData, "leaveGroup");
                     }
-                    leaveTask.execute("http://192.168.1.182:3000/");
+                    leaveTask.execute("http://192.168.56.1:3000/");
                 }
             });
 

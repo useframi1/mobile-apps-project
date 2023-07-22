@@ -18,7 +18,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart{
+public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart {
     PeriodicAsyncTask api;
     Button signIn;
     EditText email, password;
@@ -48,7 +48,8 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
 
                 // Validate user input
                 if (userEmail.isEmpty() || userPassword.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Please enter both email and password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please enter both email and password", Toast.LENGTH_SHORT)
+                            .show();
                     return;
                 }
 
@@ -60,20 +61,24 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
                                 if (task.isSuccessful()) {
                                     SharedPreferences credentials = getSharedPreferences("Credentials", 0);
                                     SharedPreferences.Editor editor = credentials.edit();
-                                    editor.putString("email",userEmail);
+                                    editor.putString("email", userEmail);
                                     editor.putString("password", userPassword);
                                     editor.commit();
                                     dataModel.currentUser.email = userEmail;
                                     dataModel.currentUser.password = userPassword;
                                     startService(new Intent(SignIn.this, PeriodicAsyncTask.class));
-                                    //toast
-                                    Toast.makeText(getApplicationContext(), "Signed in successfully", Toast.LENGTH_SHORT).show();
+                                    // toast
+                                    Toast.makeText(getApplicationContext(), "Signed in successfully",
+                                            Toast.LENGTH_SHORT).show();
                                     // Sign-in successful, proceed to the HomePage activity
-//
+                                    Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                                    startActivity(intent);
 
                                 } else {
                                     // Sign-in failed, display an error message
-                                    Toast.makeText(getApplicationContext(), "Failed to sign in. Please check your credentials.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(),
+                                            "Failed to sign in. Please check your credentials.", Toast.LENGTH_SHORT)
+                                            .show();
                                 }
                             }
                         });
@@ -87,8 +92,7 @@ public class SignIn extends AppCompatActivity implements PeriodicAsyncTask.API.O
 
     @Override
     public void onTaskComplete() {
-        Intent intent = new Intent(SignIn.this, HomePage.class);
-        startActivity(intent);
+
     }
 
     @Override

@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -75,34 +77,34 @@ public class HomePage extends AppCompatActivity {
 
         name.setText(dataModel.currentUser.username);
         // Retrieve the image URL from Firestore based on the user's email
-        // db.collection("Images")
-        // .document(dataModel.currentUser.email)
-        // .get()
-        // .addOnSuccessListener(documentSnapshot -> {
-        // if (documentSnapshot.exists()) {
-        // String imageUrl = documentSnapshot.getString("image");
-        // if (imageUrl != null) {
-        // // Image URL retrieved successfully, load the image into ImageView
-        // // You can use any image loading library or method here, for example, Glide
-        // or Picasso
-        // // Here's an example using Glide:
-        // Glide.with(this)
-        // .load(imageUrl)
-        // .apply(new RequestOptions()) // Optional: Add a placeholder image
-        // .into(profile_picture);
-        // } else {
-        // // Image URL not found in Firestore
-        // // Handle the case accordingly
-        // }
-        // } else {
-        // // Document not found in Firestore
-        // // Handle the case accordingly
-        // }
-        // })
-        // .addOnFailureListener(e -> {
-        // // Error occurred while retrieving the image URL from Firestore
-        // // Handle the error accordingly
-        // });
+        db.collection("Images")
+                .document(dataModel.currentUser.email)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("image");
+                        if (imageUrl != null) {
+                            // Image URL retrieved successfully, load the image into ImageView
+                            // You can use any image loading library or method here, for example, Glide
+                            // or Picasso
+                            // Here's an example using Glide:
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .apply(new RequestOptions()) // Optional: Add a placeholder image
+                                    .into(profile_picture);
+                        } else {
+                            // Image URL not found in Firestore
+                            // Handle the case accordingly
+                        }
+                    } else {
+                        // Document not found in Firestore
+                        // Handle the case accordingly
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Error occurred while retrieving the image URL from Firestore
+                    // Handle the error accordingly
+                });
 
         dataModel.previousIsHome = true;
 

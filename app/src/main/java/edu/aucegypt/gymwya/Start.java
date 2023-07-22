@@ -17,10 +17,12 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.ref.WeakReference;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart{
+public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart {
     Button signUp, signIn;
 
     private BroadcastReceiver taskCompleteReceiver = new BroadcastReceiver() {
@@ -36,16 +38,23 @@ public class Start extends AppCompatActivity implements PeriodicAsyncTask.API.On
         super.onCreate(savedInstanceState);
         DataManager dataManager = DataManager.getInstance();
         Data dataModel = dataManager.getDataModel();
-
+        // FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        // //check if user is already logged in
+        // if (firebaseAuth.getCurrentUser() != null) {
+        // dataModel.currentUser.email = firebaseAuth.getCurrentUser().getEmail();
+        // Intent i = new Intent(this, HomePage.class);
+        // startActivity(i);
+        // }
 
         SharedPreferences credentials = getSharedPreferences("Credentials", 0);
-//        SharedPreferences.Editor editor = credentials.edit();
-//        editor.remove("username");
-//        editor.remove("email");
-//        editor.remove("password");
-//        editor.commit();
+        // SharedPreferences.Editor editor = credentials.edit();
+        // editor.remove("username");
+        // editor.remove("email");
+        // editor.remove("password");
+        // editor.commit();
 
-        System.out.println(credentials.contains("email") || credentials.contains("password") || credentials.contains("username"));
+        System.out.println(
+                credentials.contains("email") || credentials.contains("password") || credentials.contains("username"));
         if (credentials.contains("email") && credentials.contains("password") && credentials.contains("username")) {
             dataModel.currentUser.username = credentials.getString("username", "");
             dataModel.currentUser.email = credentials.getString("email", "");

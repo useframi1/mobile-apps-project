@@ -52,7 +52,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class CreateUser extends AppCompatActivity  implements PeriodicAsyncTask.API.OnStart{
+public class CreateUser extends AppCompatActivity implements PeriodicAsyncTask.API.OnStart {
     PeriodicAsyncTask api;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final int REQUEST_PICK_IMAGE = 1;
@@ -199,7 +199,7 @@ public class CreateUser extends AppCompatActivity  implements PeriodicAsyncTask.
 
             // Create an HTTP request
             okhttp3.Request request = new Request.Builder()
-                    .url("http://192.168.1.182:3000/createUser")
+                    .url("http://192.168.56.1:3000/createUser")
                     .post(RequestBody.create(JSON, requestBody))
                     .build();
 
@@ -234,7 +234,7 @@ public class CreateUser extends AppCompatActivity  implements PeriodicAsyncTask.
                 preferredSportsData.put("preferredSports", sportsArrayJSON);
 
                 String jsonString = preferredSportsData.toString();
-                String url = "http://192.168.1.182:3000/addPreferredSports";
+                String url = "http://192.168.56.1:3000/addPreferredSports";
 
                 PostPreferredSport asyncTask = new PostPreferredSport(url, jsonString);
                 asyncTask.execute();

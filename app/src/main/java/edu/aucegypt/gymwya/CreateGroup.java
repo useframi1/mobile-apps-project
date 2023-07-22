@@ -2,10 +2,14 @@ package edu.aucegypt.gymwya;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,7 +25,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,14 +57,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
-public class CreateGroup extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, PostCreateGroup.MyCallback {
+public class CreateGroup extends AppCompatActivity
+        implements View.OnClickListener, AdapterView.OnItemSelectedListener, PostCreateGroup.MyCallback {
     DataManager dataManager = DataManager.getInstance();
     String apiResponse;
     Data dataModel = dataManager.getDataModel();
-    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, btnCreateGroup;
+    Uri selectedImage;
+    Button btnDatePicker, btnTimePickerFrom, btnTimePickerTo, btnCreateGroup, uploadImage;
     ImageView back;
     EditText groupName;
     static EditText groupMembersEditText;
@@ -72,12 +85,17 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     String toTime = "";
     String sportName = "";
     String gDate;
+
     TextView errorMessage;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     ArrayList<String> sports = new ArrayList<>();
     String selectedSport = "";
     String groupNameString = "";
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private static final int REQUEST_PICK_IMAGE = 1;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +143,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnDatePicker = (Button) findViewById(R.id.date);
         btnTimePickerFrom = (Button) findViewById(R.id.from);
         btnTimePickerTo = (Button) findViewById(R.id.to);
+        uploadImage = (Button) findViewById(R.id.choose_icon);
         btnCreateGroup = findViewById(R.id.add_group);
         groupName = findViewById(R.id.group_name);
         groupMembersEditText = findViewById(R.id.num_of_players);
@@ -135,9 +154,8 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         btnTimePickerFrom.setOnClickListener(this);
         btnTimePickerTo.setOnClickListener(this);
         btnCreateGroup.setOnClickListener(v -> {
-        groupNameString = groupName.getText().toString();
-        String sport = selectedSport;
-
+            groupNameString = groupName.getText().toString();
+            String sport = selectedSport;
             try {
                 if (!Objects.equals(fromTime, "") && !Objects.equals(toTime, "") && !Objects.equals(date, "")
                         && !Objects.equals(sportName, "")) {
@@ -147,31 +165,64 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                     } else if (hasCollidingMeeting()) {
                         errorMessage.setText("There is another meeting at that time");
                         errorMessage.setVisibility(View.VISIBLE);
-                    } else {
+                    } else if (mAdapter.getSelectedItem() != null || selectedImage != null) {
                         errorMessage.setVisibility(View.INVISIBLE);
                         JSONObject postData = new JSONObject();
 
+                        // check if image was uploaded
+                        if (selectedImage != null) {
+                            try {
+                                uploadImage(selectedImage);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // retrieve the selected image from the recyclerview
+                        if (mAdapter.getSelectedItem() != null) {
+                            Sport.SportIcon imageIcon = mAdapter.getSelectedItem();
+                            int image_id = imageIcon.id;
+                            Toast.makeText(this, "image id: " + image_id, Toast.LENGTH_SHORT).show();
+                            // use the image id to get the image from the drawable folder the id is saved
+                            // like that R.drawable.football_icon
+                            Context context = this;
+                            // Get the resource ID of the drawable
+                            int resourceId = image_id;
+                            // Convert the resource ID to a Uri
+                            Uri imageUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + image_id);
+                            selectedImage = imageUri;
+                            uploadImage(selectedImage);
+                        }
+
+                        // check if group icon was chosen from the recycler view
                         postData.put("creator", dataModel.currentUser.username);
                         postData.put("name", groupNameString);
                         postData.put("sport", sportName);
-                        postData.put("startTime",fromTime);
+                        postData.put("startTime", fromTime);
                         postData.put("endTime", toTime);
                         postData.put("gDate", date);
 
                         String jsonString = postData.toString();
 
-                        String url = "http://192.168.1.182:3000/createGroup";
+                        String url = "http://192.168.56.1:3000/createGroup";
                         System.out.println("create group");
                         PostCreateGroup asyncTask = new PostCreateGroup(url, jsonString, CreateGroup.this);
                         asyncTask.execute();
+                    } else {
+                        // show toast error message
+                        Toast.makeText(this, "Please choose a sport icon", Toast.LENGTH_SHORT).show();
+
                     }
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
         back.setOnClickListener(this);
+        uploadImage.setOnClickListener(this);
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -225,18 +276,33 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             }
             startActivity(i);
         }
+        if (v == uploadImage) {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, 1);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            selectedImage = data.getData();
+            // testing toast
+            Toast.makeText(getApplicationContext(), "group Picture Set ", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public boolean hasCollidingMeeting() {
         final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
         try {
-            String temp = date.substring(0,date.length()-1) + (date.charAt(date.length()-1)-49);
+            String temp = date.substring(0, date.length() - 1) + (date.charAt(date.length() - 1) - 49);
             Date startTime = TIME_FORMAT.parse(fromTime);
             Date endTime = TIME_FORMAT.parse(toTime);
 
             for (int i = 0; i < dataModel.groupMeetings.size(); i++) {
                 if (dataModel.groupMeetings.get(i).sport.equalsIgnoreCase(sportName)
-                        && Objects.equals(dataModel.groupMeetings.get(i).date.substring(0,10), temp)) {
+                        && Objects.equals(dataModel.groupMeetings.get(i).date.substring(0, 10), temp)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.groupMeetings.get(i).end);
 
@@ -251,9 +317,9 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
             }
 
             for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
-                    System.out.println("yes");
+                System.out.println("yes");
                 if (dataModel.currentUser.createdGroups.get(i).sport.equalsIgnoreCase(sportName)
-                        && Objects.equals(dataModel.currentUser.createdGroups.get(i).date.substring(0,10), temp)) {
+                        && Objects.equals(dataModel.currentUser.createdGroups.get(i).date.substring(0, 10), temp)) {
                     Date existingStartTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).start);
                     Date existingEndTime = TIME_FORMAT.parse(dataModel.currentUser.createdGroups.get(i).end);
 
@@ -332,13 +398,16 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                         tempHour += 12;
                     else if (hourOfDay > 12)
                         tempHour -= 12;
-                    button.setText(tempHour + ":" + ((minute < 10) ? "0" : "") + minute + " "
-                            + ((hourOfDay < 12) ? "AM" : "PM"));
+                    button.setText(
+                            ((tempHour < 10) ? "0" : "") + tempHour + ":" + ((minute < 10) ? "0" : "") + minute + " "
+                                    + ((hourOfDay < 12) ? "AM" : "PM"));
                     if (button == btnTimePickerFrom) {
                         // add the time to from fromTime in the format HH:MM:SS 24 hour format
-                        fromTime = (hourOfDay<10? "0":"") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        fromTime = (hourOfDay < 10 ? "0" : "") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute
+                                + ":00";
                     } else {
-                        toTime = (hourOfDay<10? "0":"") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute + ":00";
+                        toTime = (hourOfDay < 10 ? "0" : "") + hourOfDay + ":" + ((minute < 10) ? "0" : "") + minute
+                                + ":00";
                     }
                 }, mHour, mMinute, false);
         timePickerDialog.show();
@@ -346,8 +415,52 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onTaskComplete(String jsonData) {
-        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.1.182:3000/addGroupMembers", jsonData);
+        PostAddMembers postAddMembers = new PostAddMembers("http://192.168.56.1:3000/addGroupMembers", jsonData);
         postAddMembers.execute();
+    }
+
+    private void uploadImage(Uri imageUri) throws IOException {
+        if (imageUri != null) {
+            // Create a unique filename for the image
+
+            String filename = UUID.randomUUID().toString();
+            storageReference = FirebaseStorage.getInstance().getReference();
+            StorageReference imageRef = storageReference.child(filename);
+
+            // Upload the image to Firebase Storage
+            imageRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image upload successful
+                        Task<Uri> downloadUrlTask = imageRef.getDownloadUrl();
+                        downloadUrlTask.addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            // Do something with the image URL, e.g., save it to a user profile
+                            // Add your desired code here to handle the image URL
+
+                            // Example: Add the image URL to Firestore
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("image", imageUrl);
+
+                            db.collection("Images")
+                                    .document(groupNameString) // Use userName as the document ID
+                                    .set(user)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Toast.makeText(getApplicationContext(), "Image uploaded successfully",
+                                                Toast.LENGTH_SHORT).show();
+
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getApplicationContext(), "Failed to upload image",
+                                                Toast.LENGTH_SHORT).show();
+                                        // Handle failure, if needed
+                                    });
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle any errors
+                        Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 }
 
@@ -422,7 +535,10 @@ class PostCreateGroup extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String result) {
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
-            dataModel.currentUser.createdGroups.add(new GroupMeeting(Integer.parseInt(result), jsonObject.getString("sport"), jsonObject.getString("startTime"),jsonObject.getString("endTime"), jsonObject.getString("gDate"),dataModel.currentUser, new ArrayList<>(), jsonObject.getString("name")));
+            dataModel.currentUser.createdGroups.add(new GroupMeeting(Integer.parseInt(result),
+                    jsonObject.getString("sport"), jsonObject.getString("startTime"), jsonObject.getString("endTime"),
+                    jsonObject.getString("gDate"), dataModel.currentUser, new ArrayList<>(),
+                    jsonObject.getString("name")));
             for (int i = 0; i < dataModel.currentUser.createdGroups.size(); i++) {
                 System.out.println(dataModel.currentUser.createdGroups.get(i).ID);
             }

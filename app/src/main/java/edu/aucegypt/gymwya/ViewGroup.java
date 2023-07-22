@@ -16,7 +16,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +52,8 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     ListView listView;
     Button joinGroup;
     GroupMeeting group = new GroupMeeting();
+
+
     DataManager dataManager = DataManager.getInstance();
     Data dataModel = dataManager.getDataModel();
     boolean isInProfile;
@@ -54,7 +62,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_group);
-
+        FirebaseApp.initializeApp(this);
         BottomNavigationView menuView = findViewById(R.id.bottomNavigationView);
         menuView.setOnItemSelectedListener(item -> {
             Intent i;
@@ -77,7 +85,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         System.out.println(group.sport);
         GetGroupMembersTask getGroupMembersTask = new GetGroupMembersTask();
-        getGroupMembersTask.execute("http://192.168.1.182:3000/");
+        getGroupMembersTask.execute("http://192.168.56.1:3000/");
 
         groupName = findViewById(R.id.group_name);
         back = findViewById(R.id.back);
@@ -91,6 +99,9 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
 
         back.setOnClickListener(this);
         joinGroup.setOnClickListener(this);
+
+
+
     }
 
     @Override
@@ -145,7 +156,7 @@ public class ViewGroup extends AppCompatActivity implements View.OnClickListener
             }
             String jsonString = members.toString();
 
-            String url = "http://192.168.1.182:3000/addGroupMembers";
+            String url = "http://192.168.56.1:3000/addGroupMembers";
 
             PostAddMembers postAddMembers = new PostAddMembers(url, jsonString);
             postAddMembers.execute();
@@ -305,7 +316,9 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
     Data dataModel = dataManager.getDataModel();
     ArrayList<User> members;
     GroupMeeting group;
-
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageReference = storage.getReference();
     public ViewGroupAdapter(Context context, ArrayList<User> members, GroupMeeting group) {
         super(context, 0, members);
         this.members = members;
@@ -325,6 +338,35 @@ class ViewGroupAdapter extends ArrayAdapter<User> {
         ImageView memberPic = convertView.findViewById(R.id.profile_picture);
         Button kick = convertView.findViewById(R.id.kick);
         ImageView arrow_btn = convertView.findViewById(R.id.arrow_button);
+
+        db.collection("Images")
+                .document(member.username)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("image");
+                        if (imageUrl != null) {
+                            // Image URL retrieved successfully, load the image into ImageView
+                            // You can use any image loading library or method here, for example, Glide or Picasso
+                            // Here's an example using Glide:
+                            Glide.with(this.getContext())
+                                    .load(imageUrl)
+                                    .apply(new RequestOptions())  // Optional: Add a placeholder image
+                                    .into(memberPic);
+                        } else {
+                            // Image URL not found in Firestore
+                            // Handle the case accordingly
+                        }
+                    } else {
+                        // Document not found in Firestore
+                        // Handle the case accordingly
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Error occurred while retrieving the image URL from Firestore
+                    // Handle the error accordingly
+                });
+
 
         if (Objects.equals(member.username, dataModel.currentUser.username)) {
             kick.setVisibility(View.GONE);

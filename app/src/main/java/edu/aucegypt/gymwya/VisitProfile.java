@@ -67,7 +67,7 @@ public class VisitProfile extends AppCompatActivity {
         bio.setText(user.bio);
 
         VisitProfileTask visitProfileTask = new VisitProfileTask();
-        visitProfileTask.execute("http://192.168.1.182:3000/");
+        visitProfileTask.execute("http://192.168.56.1:3000/");
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
